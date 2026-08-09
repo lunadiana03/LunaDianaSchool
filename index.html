@@ -65,35 +65,6 @@
         .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
     </style>
 </head>
-<body>
-<div id="loading" class="loading-mask">📖 スプレッドシートと通信中...</div>
-<div class="box">
-    <header>
-        <button id="lock-btn" class="lock" onclick="goAdmin()">🔒 ひみつ</button>
-        <h1>🌸 レッスン手帳</h1>
-        <div id="badge" class="badge">✨ みんなの広場</div>
-    </header>
-    <div class="tabs">
-        <button id="tab-my" class="tab-btn active" onclick="switchView('my')">📋 マイページ</button>
-        <button id="tab-bbs" class="tab-btn" onclick="switchView('bbs')">📢 掲示板</button>
-        <button id="tab-all" class="tab-btn" onclick="switchView('all')">🏡 みんなの広場</button>
-    </div>
-    <div class="login" id="login-box-area">
-        <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
-        <div id="kumi-box-container" style="width:100%;">
-            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 所属する組を選んでね</div>
-            <div class="kumi-selector">
-                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana">花の歌組🌸</label>
-                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori">鳥の劇組🕊‎</label>
-                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze">風の舞組🍃</label>
-                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
-            </div>
-        </div>
-        <div style="display:flex; gap:5px; width:100%; margin-top:5px;">
-            <button onclick="login()" style="flex:1;">決定</button>
-            <button onclick="logout()" style="background:#baabb0; box-shadow:0 3px 0 #9e8e93;">解除</button>
-        </div>
-    </div>
     <div class="admin" style="text-align: right; margin-bottom: 10px;">
         <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;">⚙️ メニュー</button>
     </div>
@@ -117,7 +88,7 @@
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
         <div class="bbs-card">
-            <div class="bbs-title">🔮 いいこと占い</div>
+            <div class="bbs-title">🔮 今日のラッキー占い</div>
             <div id="fortune-body" class="bbs-body"></div>
         </div>
         <div class="bbs-card">
@@ -135,12 +106,16 @@
     </div>
 </div>
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbyKjpcwa17v3wVPq24WdVKijUa8jzcjCNo52VpNi_huwAZegqm7JdRa14bX0hhmk8CU/exec";
+    // 💡 138行目付近にピタッと重なる、最新の連携URLを埋め込み済みです！
+    const API_URL = "https://script.google.com/macros/s/AKfycbw17DnSqCv_j5Ueh4Sob0bBOLf8FTho48M1foYcElkEPmg9MqXeptazwlNtB8jr1oVG/exec";
+
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
+    
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
+    
     LESSONS.forEach(l => {
         state.probs[l] = [
             { name: "👑 大成功", prob: 20, pts: { vo: 3, pl: 3, da: 3, vi: 3 } },
@@ -148,6 +123,7 @@
             { name: "💦 失敗", prob: 20, pts: { vo: 0, pl: 0, da: 0, vi: 0 } }
         ];
     });
+
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
         if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
@@ -157,6 +133,7 @@
         initForm();
         fetchAllData();
     };
+
     function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
         const script = document.createElement('script');
@@ -178,6 +155,7 @@
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
     };
+
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
         let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
@@ -193,6 +171,7 @@
         script.src = `${API_URL}?${params.toString()}`;
         document.body.appendChild(script);
     }
+
     window.handleSyncResponse = function(response) {
         fetchAllData();
         const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
@@ -259,7 +238,7 @@
         if (state.isAdmin) { b.classList.add('is-admin'); badge.innerText = "⚙️ 管理者モード"; document.getElementById('lock-btn').innerText = "🔓 ロック"; } 
         else { b.classList.remove('is-admin'); document.getElementById('menu').style.display = 'none'; badge.innerText = "✨ みんなの広場"; document.getElementById('lock-btn').innerText = "🔒 ひみつ"; }
     }
-    function initForm() {
+     function initForm() {
         document.getElementById('pw').value = state.password; document.getElementById('limit-input').value = state.limit || 2;
         const con = document.getElementById('cfg-con'); con.innerHTML = '';
         LESSONS.forEach(l => {
@@ -303,7 +282,7 @@
     window.handleDeleteResponse = function(r) { fetchAllData(); alert("削除しました。"); const s = document.querySelectorAll('script[src*="action=deleteMember"]'); s.forEach(x => x.remove()); };
     function roll(id) {
         checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
-        const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
+        const l = document.getElementById(`sel-${id}`).value; if (!confirm(`Really take the lesson "${l}"?`)) return;
         const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
         for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
         m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
@@ -311,7 +290,7 @@
         ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } m.p[k] += addPt; });
         syncToSheet(m);
     }
-    function changePreview(id) {
+       function changePreview(id) {
         const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
         const outcomes = state.probs[l];
         let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
