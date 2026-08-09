@@ -173,16 +173,30 @@
         document.body.appendChild(script);
     }
     window.handleSpreadsheetData = function(data) {
-        if(data) {
-            state.bbsText = data.bbsText;
-            state.limit = data.limit;
-            state.members = data.members;
-        }
-        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); render();
-        document.getElementById('loading').style.display = 'none';
-        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
-        scripts.forEach(s => s.remove());
-    };
+    if(data) {
+        state.bbsText = data.bbsText;
+        state.limit = data.limit;
+        state.members = data.members.map(m => {
+            const h = {};
+            if (m.hStr) {
+                m.hStr.split(',').forEach(item => {
+                    if (!item) return;
+                    const i = item.indexOf(':');
+                    if (i === -1) return;
+                    const k = item.substring(0, i);
+                    const v = parseInt(item.substring(i + 1)) || 0;
+                    h[k] = v;
+                });
+            }
+            m.h = h;
+            return m;
+        });
+    }
+    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); render();
+    document.getElementById('loading').style.display = 'none';
+    const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
+    scripts.forEach(s => s.remove());
+};
 
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
