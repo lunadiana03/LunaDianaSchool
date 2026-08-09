@@ -31,7 +31,7 @@
         select, input, textarea { padding: 6px; border-radius: 10px; border: 1px solid #ffd3db; width: 100%; box-sizing: border-box; margin-bottom: 8px; color: #5a4b4e; font-size: 0.9em; }
         .res { margin: 6px 0; padding: 6px; border-radius: 10px; font-weight: bold; text-align: center; font-size: 0.9em; display: inline-block; width: 100%; box-sizing: border-box; }
         .lbl-daiseiko { background: #fff3bf; color: #f59f00; border: 1px solid #fab005; }
-        .lbl-seiko { background: #e8f5e9; color: #2b8a3e; border: 1px solid #4caf50; border: 1px solid #4caf50; }
+        .lbl-seiko { background: #e8f5e9; color: #2b8a3e; border: 1px solid #4caf50; }
         .lbl-shippai { background: #f1f3f5; color: #868e96; border: 1px solid #ced4da; }
         .lbl-none { background: #fff8f9; color: #ff758f; border: 1px solid #ffe3e7; }
         .pts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; margin-bottom: 6px; }
@@ -73,13 +73,11 @@
         <h1>🌸 レッスン手帳</h1>
         <div id="badge" class="badge">✨ みんなの広場</div>
     </header>
-
     <div class="tabs">
         <button id="tab-my" class="tab-btn active" onclick="switchView('my')">📋 マイページ</button>
         <button id="tab-bbs" class="tab-btn" onclick="switchView('bbs')">📢 掲示板</button>
         <button id="tab-all" class="tab-btn" onclick="switchView('all')">🏡 みんなの広場</button>
     </div>
-
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
         <div id="kumi-box-container" style="width:100%;">
@@ -96,7 +94,6 @@
             <button onclick="logout()" style="background:#baabb0; box-shadow:0 3px 0 #9e8e93;">解除</button>
         </div>
     </div>
-
     <div class="admin" style="text-align: right; margin-bottom: 10px;">
         <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;">⚙️ メニュー</button>
     </div>
@@ -107,27 +104,20 @@
             <option value="pink">🌸 ピンク</option><option value="blue">💎 ブルー</option><option value="teal">🌿 グリーン</option>
         </select>
         <label>🔑 暗証番号</label><input type="password" id="pw" onchange="upPw()">
-        
         <label>⏳ 1日のレッスン上限回数</label>
         <input type="number" id="limit-input" min="1" max="10" onchange="upLimit()" style="width:80px; text-align:center;"> 回
-        
         <h3>📢 掲示板のお知らせ編集</h3>
         <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
-
         <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
         <div id="cfg-con"></div>
         <h3>💾 バックアップ（手動）</h3>
         <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
     </div>
-
-    <div id="view-my" class="view-section active">
-        <div id="my-card-space"></div>
-    </div>
-
+    <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
         <div class="bbs-card">
-            <div class="bbs-title">🔮 今日のラッキー占い</div>
+            <div class="bbs-title">🔮 いいこと占い</div>
             <div id="fortune-body" class="bbs-body"></div>
         </div>
         <div class="bbs-card">
@@ -135,7 +125,6 @@
             <div id="bbs-body-text" class="bbs-body"></div>
         </div>
     </div>
-
     <div id="view-all" class="view-section">
         <div style="margin-bottom:8px;">
             <label style="font-size:0.85em; font-weight:bold;">🔍 組でしぼりこむ:</label>
@@ -146,16 +135,12 @@
     </div>
 </div>
 <script>
-    // 💡 正常稼働が確認できた最新のGoogle連携URLをあらかじめ埋め込みました！
-    const API_URL = "https://script.google.com/macros/s/AKfycbxVkTEsO8fn9xDx8SlVg4IEZK-KXm9JVCHbw7C4OFrLacHxXQGMooR7gLclQDhKj44xQA/exec";
-
+    const API_URL = "https://google.com";
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
-    
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
-    
     LESSONS.forEach(l => {
         state.probs[l] = [
             { name: "👑 大成功", prob: 20, pts: { vo: 3, pl: 3, da: 3, vi: 3 } },
@@ -163,7 +148,6 @@
             { name: "💦 失敗", prob: 20, pts: { vo: 0, pl: 0, da: 0, vi: 0 } }
         ];
     });
-
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
         if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
@@ -173,7 +157,6 @@
         initForm();
         fetchAllData();
     };
-
     function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
         const script = document.createElement('script');
@@ -184,7 +167,6 @@
         };
         document.body.appendChild(script);
     }
-
     window.handleSpreadsheetData = function(data) {
         if(data) {
             state.bbsText = data.bbsText;
@@ -196,7 +178,6 @@
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
     };
-
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
         let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
@@ -205,26 +186,18 @@
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
             callback: "handleSyncResponse"
         });
-        
         user = m.name;
         localStorage.setItem('lesson_user_v21', user);
         currentView = "my";
-
         const script = document.createElement('script');
         script.src = `${API_URL}?${params.toString()}`;
-        script.onerror = function() {
-            alert("送信に失敗しました。ネット環境か暗証番号メニューのURLを確認してね。");
-            document.getElementById('loading').style.display = 'none';
-        };
         document.body.appendChild(script);
     }
-
     window.handleSyncResponse = function(response) {
         fetchAllData();
         const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
         scripts.forEach(s => s.remove());
     };
-
     function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
     function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
     function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); if(view === 'bbs') updateBbsDisplay(); render(); }
