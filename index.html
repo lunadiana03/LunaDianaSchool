@@ -335,13 +335,13 @@
         ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } m.p[k] += addPt; });
         syncToSheet(m);
     }
-    function changePreview(id) {
-        const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
-        const outcomes = state.probs[l];
-        let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
-        outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
-        html += `</div>`; box.innerHTML = html;
-    }
+function changePreview(id) {
+    const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
+    const outcomes = state.probs[l];
+    let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>確率</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
+    outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
+    html += `</div>`; box.innerHTML = html;
+}
     function updatePreviewTableAll() { state.members.forEach(m => { if(document.getElementById(`sel-${m.id}`)) changePreview(m.id); }); }
     function buildCardHtml(m, isMe) {
         let opts = LESSONS.map(l => `<option value="${l}">${state.emojis[l]} ${l}</option>`).join('');
