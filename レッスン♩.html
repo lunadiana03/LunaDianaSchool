@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 レッスン手帳</title>
+    <style>
+        :root { --p: #ffb7c5; --bg: #fff2f4; --c: rgba(255, 255, 255, 0.96); }
+        body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg); color: #5a4b4e; font-size: 14px; }
+        .box { max-width: 500px; margin: 0 auto; }
+        header { text-align: center; padding: 10px; background: var(--c); border-radius: 15px; margin-bottom: 10px; border: 2px dashed #ffcbd5; position: relative; }
+        h1 { margin: 0 0 5px 0; color: #ff758f; font-size: 1.2em; }
+        button { background: var(--p); color: #fff; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9em; box-shadow: 0 3px 0 #ff9aa9; }
+        button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
+        button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
+        .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin-bottom: 10px; }
+        .tab-btn { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; border-radius: 10px; padding: 8px 4px; font-size: 0.85em; text-align: center; color: #5a4b4e; font-weight: bold; }
+        .tab-btn.active { background: #ff758f; box-shadow: 0 3px 0 #ff4b72; color: #fff; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .menu { background: var(--c); padding: 10px; border-radius: 15px; margin-bottom: 10px; display: none; border: 1px solid #ffcbd5; }
+        .grid { display: flex; flex-direction: column; gap: 10px; }
+        .card { background: var(--c); padding: 12px; border-radius: 15px; border: 1px solid #ffe3e7; box-sizing: border-box; }
+        .my-border { border: 2px solid #ff758f !important; background: #fffcfd !important; box-shadow: 0 4px 10px rgba(255,117,143,0.1); }
+        .head { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dotted #ffcbd5; padding-bottom: 4px; margin-bottom: 8px; }
+        .name { font-weight: bold; color: #6d585c; }
+        .kumi-tag { font-size: 0.8em; padding: 2px 6px; border-radius: 8px; font-weight: bold; margin-left: 5px; white-space: nowrap; }
+        .kumi-hana { background: #ffebeb; color: #ff5c5c; } .kumi-tori { background: #ebfbee; color: #2b8a3e; }
+        .kumi-kaze { background: #e7f5ff; color: #1c7ed6; } .kumi-tsuki { background: #f3f0ff; color: #845ef7; }
+        .ctrl { margin-top: 8px; background: #fffdfd; padding: 8px; border-radius: 10px; border: 1px dashed #ffcbd5; }
+        select, input, textarea { padding: 6px; border-radius: 10px; border: 1px solid #ffd3db; width: 100%; box-sizing: border-box; margin-bottom: 8px; color: #5a4b4e; font-size: 0.9em; }
+        .res { margin: 6px 0; padding: 6px; border-radius: 10px; font-weight: bold; text-align: center; font-size: 0.9em; display: inline-block; width: 100%; box-sizing: border-box; }
+        .lbl-daiseiko { background: #fff3bf; color: #f59f00; border: 1px solid #fab005; }
+        .lbl-seiko { background: #e8f5e9; color: #2b8a3e; border: 1px solid #4caf50; border: 1px solid #4caf50; }
+        .lbl-shippai { background: #f1f3f5; color: #868e96; border: 1px solid #ced4da; }
+        .lbl-none { background: #fff8f9; color: #ff758f; border: 1px solid #ffe3e7; }
+        .pts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; margin-bottom: 6px; }
+        .pt { font-size: 0.75em; padding: 3px 1px; border-radius: 6px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .vo { background: #ffebeb; color: #ff5c5c; } .pl { background: #fff6eb; color: #ff922b; } .da { background: #ebfbee; color: #2b8a3e; } .vi { background: #f3f0ff; color: #845ef7; }
+        .edit-btn { background: #fff; color: #baabb0; font-size: 0.8em; padding: 0 4px; border: 1px solid #ffd3db; border-radius: 4px; box-shadow: none; font-weight: normal; margin-top: 2px; }
+        .history { font-size: 0.75em; color: #8a787b; max-height: 60px; overflow-y: auto; background: rgba(255, 245, 246, 0.5); padding: 4px; border-radius: 8px; }
+        .admin { display: none !important; }
+        .is-admin .admin { display: block !important; }
+        .is-admin button.admin { display: inline-block !important; }
+        .lock { position: absolute; top: 8px; right: 8px; background: #8a787b; font-size: 0.75em; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 0 #6d585c; }
+        .badge { background: #fff0f2; padding: 4px 10px; border-radius: 15px; font-size: 0.75em; font-weight: bold; display: inline-block; margin-bottom: 5px; color: #ff758f; border: 1px solid #ffe3e7; }
+        .login { background: var(--c); border-radius: 15px; padding: 10px; border: 1px dashed #ff9aa9; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .my-tag { background: #ff758f; color: white; font-size: 0.7em; padding: 1px 4px; border-radius: 6px; font-weight: bold; }
+        .cfg-blk { background: #fff9fa; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px dashed #ffd3db; font-size: 0.8em; }
+        .p-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .p-row input { width: 45px; margin: 0; padding: 2px; text-align: center; border-radius: 5px; border: 1px solid #ffd3db; }
+        .p-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
+        .p-inputs input { padding: 2px; text-align: center; border-radius: 5px; border: 1px solid #ffd3db; }
+        .kumi-selector { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+        .kumi-selector label { font-size: 0.85em; background: #f1f3f5; padding: 6px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; text-align: left; padding-left: 15px; }
+        .kumi-selector input { display: none; }
+        .kumi-selector input:checked + label { background: #ffcbd5; border-color: #ff758f; font-weight: bold; color: #ff4b72; }
+        .preview-table { font-size: 0.75em; margin: 6px 0; background: #fff; border-radius: 8px; padding: 6px; border: 1px solid #ffe3e7; }
+        .preview-row { display: grid; grid-template-columns: 50px 1fr 1fr 1fr 1fr; gap: 2px; text-align: center; margin-bottom: 3px; }
+        .preview-row:last-child { margin-bottom: 0; }
+        .preview-head { font-weight: bold; color: #ff758f; border-bottom: 1px solid #ffd3db; padding-bottom: 2px; margin-bottom: 4px; }
+        .bbs-card { background: #fff; padding: 12px; border-radius: 15px; border: 1px dashed #ffcbd5; margin-bottom: 10px; }
+        .bbs-title { font-weight: bold; color: #ff758f; margin-bottom: 5px; font-size: 1.05em; display: flex; justify-content: space-between; align-items: center; }
+        .bbs-body { font-size: 0.9em; line-height: 1.4; color: #6d585c; white-space: pre-wrap; }
+        .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
+    </style>
+</head>
+<body>
+<div id="loading" class="loading-mask">📖 スプレッドシートと通信中...</div>
+<div class="box">
+    <header>
+        <button id="lock-btn" class="lock" onclick="goAdmin()">🔒 ひみつ</button>
+        <h1>🌸 レッスン手帳</h1>
+        <div id="badge" class="badge">✨ みんなの広場</div>
+    </header>
+
+    <div class="tabs">
+        <button id="tab-my" class="tab-btn active" onclick="switchView('my')">📋 マイページ</button>
+        <button id="tab-bbs" class="tab-btn" onclick="switchView('bbs')">📢 掲示板</button>
+        <button id="tab-all" class="tab-btn" onclick="switchView('all')">🏡 みんなの広場</button>
+    </div>
+
+    <div class="login" id="login-box-area">
+        <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
+        <div id="kumi-box-container" style="width:100%;">
+            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 所属する組を選んでね</div>
+            <div class="kumi-selector">
+                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana">花の歌組🌸</label>
+                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori">鳥の劇組🕊‎</label>
+                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze">風の舞組🍃</label>
+                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
+            </div>
+        </div>
+        <div style="display:flex; gap:5px; width:100%; margin-top:5px;">
+            <button onclick="login()" style="flex:1;">決定</button>
+            <button onclick="logout()" style="background:#baabb0; box-shadow:0 3px 0 #9e8e93;">解除</button>
+        </div>
+    </div>
+
+    <div class="admin" style="text-align: right; margin-bottom: 10px;">
+        <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;">⚙️ メニュー</button>
+    </div>
+    <div id="menu" class="menu">
+        <h3>🎨 設定</h3>
+        <label>テーマ色</label>
+        <select id="theme" onchange="changeTheme()">
+            <option value="pink">🌸 ピンク</option><option value="blue">💎 ブルー</option><option value="teal">🌿 グリーン</option>
+        </select>
+        <label>🔑 暗証番号</label><input type="password" id="pw" onchange="upPw()">
+        
+        <label>⏳ 1日のレッスン上限回数</label>
+        <input type="number" id="limit-input" min="1" max="10" onchange="upLimit()" style="width:80px; text-align:center;"> 回
+        
+        <h3>📢 掲示板のお知らせ編集</h3>
+        <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
+
+        <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
+        <div id="cfg-con"></div>
+        <h3>💾 バックアップ（手動）</h3>
+        <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
+        <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
+    </div>
+
+    <div id="view-my" class="view-section active">
+        <div id="my-card-space"></div>
+    </div>
+
+    <div id="view-bbs" class="view-section">
+        <div class="bbs-card">
+            <div class="bbs-title">🔮 今日のラッキー占い</div>
+            <div id="fortune-body" class="bbs-body"></div>
+        </div>
+        <div class="bbs-card">
+            <div class="bbs-title">📝 学園からのお知らせ</div>
+            <div id="bbs-body-text" class="bbs-body"></div>
+        </div>
+    </div>
+
+    <div id="view-all" class="view-section">
+        <div style="margin-bottom:8px;">
+            <label style="font-size:0.85em; font-weight:bold;">🔍 組でしぼりこむ:</label>
+            <select id="filter-kumi" onchange="render()"><option value="all">🌟 すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
+        </div>
+        <input type="text" id="search" placeholder="🔍 なまえ検索..." oninput="render()">
+        <div id="grid" class="grid"></div>
+    </div>
+</div>
+<script>
+    // 💡 正常稼働が確認できた最新のGoogle連携URLをあらかじめ埋め込みました！
+    const API_URL = "https://script.google.com/macros/s/AKfycbxVkTEsO8fn9xDx8SlVg4IEZK-KXm9JVCHbw7C4OFrLacHxXQGMooR7gLclQDhKj44xQA/exec";
+
+    const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
+    const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
+    const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
+    
+    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, members: [], bbsText: "", limit: 2 };
+    let user = ""; let currentView = "my";
+    
+    LESSONS.forEach(l => {
+        state.probs[l] = [
+            { name: "👑 大成功", prob: 20, pts: { vo: 3, pl: 3, da: 3, vi: 3 } },
+            { name: "✨ 成功", prob: 60, pts: { vo: 1, pl: 1, da: 1, vi: 1 } },
+            { name: "💦 失敗", prob: 20, pts: { vo: 0, pl: 0, da: 0, vi: 0 } }
+        ];
+    });
+
+    window.onload = function() {
+        const saved = localStorage.getItem('lesson_kumi_v21_local');
+        if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
+        user = localStorage.getItem('lesson_user_v21') || "";
+        document.getElementById('login-in').value = user;
+        changeThemeStyles(state.theme);
+        initForm();
+        fetchAllData();
+    };
+
+    function fetchAllData() {
+        document.getElementById('loading').style.display = 'flex';
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=readAll&callback=handleSpreadsheetData`;
+        script.onerror = function() {
+            alert("シートとの接続に失敗しました。ひみつボタンからURLや承認状況を確認してね。");
+            document.getElementById('loading').style.display = 'none';
+        };
+        document.body.appendChild(script);
+    }
+
+    window.handleSpreadsheetData = function(data) {
+        if(data) {
+            state.bbsText = data.bbsText;
+            state.limit = data.limit;
+            state.members = data.members;
+        }
+        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); render();
+        document.getElementById('loading').style.display = 'none';
+        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
+        scripts.forEach(s => s.remove());
+    };
+
+    function syncToSheet(m) {
+        document.getElementById('loading').style.display = 'flex';
+        let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
+        const params = new URLSearchParams({
+            action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
+            vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
+            callback: "handleSyncResponse"
+        });
+        
+        user = m.name;
+        localStorage.setItem('lesson_user_v21', user);
+        currentView = "my";
+
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params.toString()}`;
+        script.onerror = function() {
+            alert("送信に失敗しました。ネット環境か暗証番号メニューのURLを確認してね。");
+            document.getElementById('loading').style.display = 'none';
+        };
+        document.body.appendChild(script);
+    }
+
+    window.handleSyncResponse = function(response) {
+        fetchAllData();
+        const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
+        scripts.forEach(s => s.remove());
+    };
+
+    function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
+    function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
+    function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); if(view === 'bbs') updateBbsDisplay(); render(); }
+    function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
+    function getFortuneData() {
+        const dayCount = Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000));
+        const luckyKumi = KUMI_LIST[Math.abs(dayCount) % 4];
+        const statKeys = ["vo", "pl", "da", "vi"];
+        const statLabels = ["Vo (ボーカル)", "Pl (アピール)", "Da (ダンス)", "Vi (ビジュアル)"];
+        return { kumi: luckyKumi, key: statKeys[Math.abs(dayCount + 1) % 4], label: statLabels[Math.abs(dayCount + 1) % 4] };
+    }
+    function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
+    function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
+    function updateBbsDisplay() {
+        const fortune = getFortuneData();
+        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${fortune.kumi}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？✨<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルはレッスン時に該当ステータスが自動で +1 されます！</span>`;
+        document.getElementById('bbs-body-text').innerText = state.bbsText || "お知らせはまだありません。";
+        document.getElementById('admin-bbs-text').value = state.bbsText || "";
+    }
+    function upBbsText() {
+        state.bbsText = document.getElementById('admin-bbs-text').value;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&bbsText=${encodeURIComponent(state.bbsText)}&callback=handleBbsResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleBbsResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="action=updateSettings"]'); s.forEach(x => x.remove()); };
+    function upLimit() {
+        state.limit = parseInt(document.getElementById('limit-input').value) || 2;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&limit=${state.limit}&callback=handleLimitResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
+    function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
+    function changeThemeStyles(t) {
+        const r = document.documentElement;
+        if (t === 'pink') { r.style.setProperty('--p', '#ffb7c5'); r.style.setProperty('--bg', '#fff2f4'); }
+        else if (t === 'blue') { r.style.setProperty('--p', '#a5d8ff'); r.style.setProperty('--bg', '#e7f5ff'); }
+        else if (t === 'teal') { r.style.setProperty('--p', '#96f2d7'); r.style.setProperty('--bg', '#e6fcf5'); }
+    }
+    function upPw() { const p = document.getElementById('pw').value.trim(); if(p) { state.password = p; alert("変更しました"); saveLocal(); } }
+    function login() {
+        const n = document.getElementById('login-in').value.trim(); if(!n) return;
+        let m = state.members.find(m => m.name === n);
+        if(!m) {
+            const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
+            if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
+            m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "" };
+            syncToSheet(m);
+        } else {
+            if (!confirm(`「${n}」としてログインしますか？`)) return;
+            user = n; localStorage.setItem('lesson_user_v21', user); fetchAllData();
+        }
+    }
+    function logout() { user = ""; localStorage.removeItem('lesson_user_v21'); document.getElementById('login-in').value = ""; updateLoginBoxUI(); render(); }
+    function goAdmin() { if (state.isAdmin) { state.isAdmin = false; } else { if (prompt("暗証番号:") === state.password) state.isAdmin = true; } updateUI(); render(); }
+    function updateUI() {
+        const b = document.body; const badge = document.getElementById('badge');
+        if (state.isAdmin) { b.classList.add('is-admin'); badge.innerText = "⚙️ 管理者モード"; document.getElementById('lock-btn').innerText = "🔓 ロック"; } 
+        else { b.classList.remove('is-admin'); document.getElementById('menu').style.display = 'none'; badge.innerText = "✨ みんなの広場"; document.getElementById('lock-btn').innerText = "🔒 ひみつ"; }
+    }
+    function initForm() {
+        document.getElementById('pw').value = state.password; document.getElementById('limit-input').value = state.limit || 2;
+        const con = document.getElementById('cfg-con'); con.innerHTML = '';
+        LESSONS.forEach(l => {
+            const blk = document.createElement('div'); blk.className = 'cfg-blk';
+            let html = `<div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;"><input type="text" value="${state.emojis[l]}" onchange="upEmoji('${l}',this.value)" style="width:30px;margin:0;padding:2px;"><b>${l}</b></div>`;
+            state.probs[l].forEach((o, idx) => {
+                html += `<div style="background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;"><div class="p-row"><span><b>${o.name}</b> 確率:</span><div><input type="number" value="${o.prob}" onchange="upProb('${l}',${idx},'prob',this.value)">%</div></div><div class="p-inputs">Vo:<input type="number" value="${o.pts.vo}" onchange="upProb('${l}',${idx},'vo',this.value)">Pl:<input type="number" value="${o.pts.pl}" onchange="upProb('${l}',${idx},'pl',this.value)">Da:<input type="number" value="${o.pts.da}" onchange="upProb('${l}',${idx},'da',this.value)">Vi:<input type="number" value="${o.pts.vi}" onchange="upProb('${l}',${idx},'vi',this.value)"></div></div>`;
+            });
+            blk.innerHTML = html; con.appendChild(blk);
+        });
+    }
+    function upEmoji(l, v) { state.emojis[l] = v || "🏃‍♂️"; saveLocal(); render(); }
+    function upProb(l, idx, k, v) { const n = parseInt(v) || 0; if(k === 'prob') state.probs[l][idx].prob = n; else state.probs[l][idx].pts[k] = n; saveLocal(); updatePreviewTableAll(); render(); }
+    function toggleMenu() { const m = document.getElementById('menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+    function editPt(id, k) {
+        const m = state.members.find(m => m.id === id); if(!m) return; const v = prompt(`${m.name}の${k.toUpperCase()}:`, m.p[k]||0);
+        if (v !== null) { m.p[k] = parseInt(v) || 0; syncToSheet(m); }
+    }
+    function editProfile(id) {
+        const m = state.members.find(m => m.id === id); if(!m) return;
+        const newName = prompt(`【管理者編集】新しい名前を入力してください:`, m.name); if (newName === null) return;
+        const finalName = newName.trim(); if (!finalName) { alert("名前を空にできません。"); return; }
+        let kumiMsg = `【管理者編集】新しい所属組の番号を入力してください:\n`; KUMI_LIST.forEach((k, i) => { kumiMsg += `${i + 1} : ${k}\n`; });
+        const currentIdx = KUMI_LIST.indexOf(m.kumi) !== -1 ? KUMI_LIST.indexOf(m.kumi) + 1 : 1;
+        const kumiInput = prompt(kumiMsg, currentIdx); if (kumiInput === null) return;
+        const idx = parseInt(kumiInput) - 1;
+        if (isNaN(idx) || idx < 0 || idx >= KUMI_LIST.length) { alert("組は変更されませんでした。"); } else { m.kumi = KUMI_LIST[idx]; }
+        if (m.name === user) { user = finalName; localStorage.setItem('lesson_user_v21', user); }
+        m.name = finalName; syncToSheet(m);
+    }
+    function adminDeleteMember(id) {
+        const m = state.members.find(m => m.id === id); if(!m) return;
+        if (!confirm(`【警告】本当にアイドル「 ${m.name} 」さんを学園名簿から削除しますか？`)) return;
+        if (!confirm(`本当に本当によろしいですか？（取り消せません）`)) return;
+        if (m.name === user) { user = ""; localStorage.removeItem('lesson_user_v21'); }
+        document.getElementById('loading').style.display = 'flex';
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=deleteMember&id=${id}&callback=handleDeleteResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleDeleteResponse = function(r) { fetchAllData(); alert("削除しました。"); const s = document.querySelectorAll('script[src*="action=deleteMember"]'); s.forEach(x => x.remove()); };
+    function roll(id) {
+        checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
+        const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
+        const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
+        for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
+        m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
+        const fortune = getFortuneData();
+        ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } m.p[k] += addPt; });
+        syncToSheet(m);
+    }
+    function changePreview(id) {
+        const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
+        const outcomes = state.probs[l];
+        let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
+        outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
+        html += `</div>`; box.innerHTML = html;
+    }
+    function updatePreviewTableAll() { state.members.forEach(m => { if(document.getElementById(`sel-${m.id}`)) changePreview(m.id); }); }
+    function buildCardHtml(m, isMe) {
+        let opts = LESSONS.map(l => `<option value="${l}">${state.emojis[l]} ${l}</option>`).join('');
+        let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
+        const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
+        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
+        const lblClass = getLblClass(m.last);
+        return `<div class="head"><span class="name">${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div><div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div><div style="font-size:0.85em;margin-bottom:4px;">今日: <b>${m.r}/${state.limit||2} 回</b></div><div class="ctrl" style="display:${(isMe||state.isAdmin)?'block':'none'};"><label style="font-size:0.8em; font-weight:bold; color:#ff758f;">👇 レッスンを選択</label><select id="sel-${m.id}" onchange="changePreview('${m.id}')">${opts}</select><div id="pre-box-${m.id}"></div><button onclick="roll('${m.id}')" ${m.r>=state.limit?'disabled':''} style="width:100%;">${m.r>=state.limit?'終了':'受講する'}</button></div><div class="res ${lblClass}">${m.last ? '🎯 結果：' + m.last : 'お休み中'}</div><div class="history">${hHtml||'履歴なし'}</div>`;
+    }
+    function render() {
+        const mySpace = document.getElementById('my-card-space'); const grid = document.getElementById('grid'); mySpace.innerHTML = ''; grid.innerHTML = '';
+        const me = state.members.find(m => m.name === user);
+        if (me) { const card = document.createElement('div'); card.className = 'card my-border'; card.innerHTML = buildCardHtml(me, true); mySpace.appendChild(card); changePreview(me.id); } 
+        else { mySpace.innerHTML = '<div style="text-align:center; padding:20px; color:#aaa;">おなまえを登録してログインしてね！</div>'; }
+        const filterKumi = document.getElementById('filter-kumi').value; const q = document.getElementById('search').value.toLowerCase().trim();
+        state.members.forEach(m => {
+            if (filterKumi !== 'all' && m.kumi !== filterKumi) return; if (q && !m.name.toLowerCase().includes(q)) return;
+            const card = document.createElement('div'); card.className = 'card' + (m.name === user ? ' my-border' : ''); card.innerHTML = buildCardHtml(m, m.name === user); grid.appendChild(card); if(m.name===user||state.isAdmin) changePreview(m.id);
+        });
+    }
+    function expData() { navigator.clipboard.writeText(JSON.stringify(state)); alert("ローカル設定をコピーしました"); }
+    function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
+</script>
+</body>
+</html>
