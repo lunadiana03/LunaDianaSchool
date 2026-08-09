@@ -139,7 +139,7 @@
 </div>
 <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbyJ2grt8JqrvpUFcIL704TIcTBDdMGMSLpdl_lgUY8CXTeBgDnp41tGFfS6OeRhtf42aA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzG4F4iMByvAtSk5L5Y6-BZYE8NjwC6QUBEQ6dNOpu3RDNoLyIkcbLx8CgimnwzxsyW/exec";
 
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
@@ -329,6 +329,22 @@ window.handleProbsResponse = function(r) {
         const blk = document.createElement('div'); blk.className = 'cfg-blk';
         let html = `<div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;"><input type="text" value="${state.emojis[l]}" onchange="upEmoji('${l}',this.value)" style="width:30px;margin:0;padding:2px;"><b>${l}</b></div>`;
         state.probs[l].forEach((o, idx) => {
+            function addProb(l) {
+    const name = prompt("新しい判定の名前を入力してください（例: 💎 超大成功）", "💎 超大成功");
+    if (!name) return;
+    state.probs[l].unshift({ name: name, prob: 5, pts: { vo: 5, pl: 5, da: 5, vi: 5 } });
+    saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
+}
+function delProb(l, idx) {
+    if (state.probs[l].length <= 1) { alert("最低1つは残してください"); return; }
+    if (!confirm(`「${state.probs[l][idx].name}」を削除しますか？`)) return;
+    state.probs[l].splice(idx, 1);
+    saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
+}
+function upProbName(l, idx, v) {
+    state.probs[l][idx].name = v || "無題";
+    saveLocal(); syncProbs(); updatePreviewTableAll(); render();
+}
             html += `<div style="background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;"><div class="p-row"><input type="text" value="${o.name}" onchange="upProbName('${l}',${idx},this.value)" style="flex:1;margin:0;padding:2px;"><span>確率:</span><div><input type="number" value="${o.prob}" onchange="upProb('${l}',${idx},'prob',this.value)">%</div></div><div class="p-inputs">Vo:<input type="number" value="${o.pts.vo}" onchange="upProb('${l}',${idx},'vo',this.value)">Pl:<input type="number" value="${o.pts.pl}" onchange="upProb('${l}',${idx},'pl',this.value)">Da:<input type="number" value="${o.pts.da}" onchange="upProb('${l}',${idx},'da',this.value)">Vi:<input type="number" value="${o.pts.vi}" onchange="upProb('${l}',${idx},'vi',this.value)"></div><button class="edit-btn" onclick="delProb('${l}',${idx})" style="color:#f03e3e;border-color:#ffc9c9;margin-top:4px;width:100%;">この枠を削除</button></div>`;
         });
         html += `<button onclick="addProb('${l}')" style="width:100%;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;margin-top:4px;">＋ 新しい判定枠を追加</button>`;
