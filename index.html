@@ -137,7 +137,9 @@
         <div id="grid" class="grid"></div>
     </div>
 </div>
-<script>
+
+    }
+    <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
     const API_URL = "https://script.google.com/macros/s/AKfycbzG4F4iMByvAtSk5L5Y6-BZYE8NjwC6QUBEQ6dNOpu3RDNoLyIkcbLx8CgimnwzxsyW/exec";
 
@@ -154,33 +156,43 @@
             { name: "💦 失敗", prob: 20, pts: { vo: 0, pl: 0, da: 0, vi: 0 } }
         ];
     });
-window.handleSpreadsheetData = function(data) {
-    if(data) {
-        state.bbsText = data.bbsText;
-        state.limit = data.limit;
-        state.members = data.members.map(m => {
-            const h = {};
-            if (m.hStr) {
-                m.hStr.split(',').forEach(item => {
-                    if (!item) return;
-                    const i = item.indexOf(':');
-                    if (i === -1) return;
-                    const k = item.substring(0, i);
-                    const v = parseInt(item.substring(i + 1)) || 0;
-                    h[k] = v;
-                });
-            }
-            m.h = h;
-            return m;
-        });
-        if (data.probs) { state.probs = data.probs; }
-    }
-    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
-    document.getElementById('loading').style.display = 'none';
-    const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
-    scripts.forEach(s => s.remove());
-};
-    
+
+    window.onload = function() {
+        const saved = localStorage.getItem('lesson_kumi_v21_local');
+        if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
+        user = localStorage.getItem('lesson_user_v21') || "";
+        document.getElementById('login-in').value = user;
+        changeThemeStyles(state.theme);
+        initForm();
+        fetchAllData();
+    };
+
+    window.handleSpreadsheetData = function(data) {
+        if(data) {
+            state.bbsText = data.bbsText;
+            state.limit = data.limit;
+            state.members = data.members.map(m => {
+                const h = {};
+                if (m.hStr) {
+                    m.hStr.split(',').forEach(item => {
+                        if (!item) return;
+                        const i = item.indexOf(':');
+                        if (i === -1) return;
+                        const k = item.substring(0, i);
+                        const v = parseInt(item.substring(i + 1)) || 0;
+                        h[k] = v;
+                    });
+                }
+                m.h = h;
+                return m;
+            });
+            if (data.probs) { state.probs = data.probs; }
+        }
+        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
+        document.getElementById('loading').style.display = 'none';
+        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
+        scripts.forEach(s => s.remove());
+    };
 
     function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
@@ -192,31 +204,6 @@ window.handleSpreadsheetData = function(data) {
         };
         document.body.appendChild(script);
     }
-    window.handleSpreadsheetData = function(data) {
-    if(data) {
-        state.bbsText = data.bbsText;
-        state.limit = data.limit;
-        state.members = data.members.map(m => {
-            const h = {};
-            if (m.hStr) {
-                m.hStr.split(',').forEach(item => {
-                    if (!item) return;
-                    const i = item.indexOf(':');
-                    if (i === -1) return;
-                    const k = item.substring(0, i);
-                    const v = parseInt(item.substring(i + 1)) || 0;
-                    h[k] = v;
-                });
-            }
-            m.h = h;
-            return m;
-        });
-    }
-    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); render();
-    document.getElementById('loading').style.display = 'none';
-    const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
-    scripts.forEach(s => s.remove());
-};
 
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
@@ -272,14 +259,14 @@ window.handleSpreadsheetData = function(data) {
         document.body.appendChild(script);
     }
     function syncProbs() {
-    const script = document.createElement('script');
-    script.src = `${API_URL}?action=updateSettings&probsJson=${encodeURIComponent(JSON.stringify(state.probs))}&callback=handleProbsResponse`;
-    document.body.appendChild(script);
-}
-window.handleProbsResponse = function(r) {
-    const s = document.querySelectorAll('script[src*="probsJson="]');
-    s.forEach(x => x.remove());
-};
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&probsJson=${encodeURIComponent(JSON.stringify(state.probs))}&callback=handleProbsResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleProbsResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="probsJson="]');
+        s.forEach(x => x.remove());
+    };
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
     function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
     function changeThemeStyles(t) {
@@ -309,7 +296,6 @@ window.handleProbsResponse = function(r) {
         if (state.isAdmin) { b.classList.add('is-admin'); badge.innerText = "⚙️ 管理者モード"; document.getElementById('lock-btn').innerText = "🔓 ロック"; } 
         else { b.classList.remove('is-admin'); document.getElementById('menu').style.display = 'none'; badge.innerText = "✨ みんなの広場"; document.getElementById('lock-btn').innerText = "🔒 ひみつ"; }
     }
-    
     function editProfile(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
         const newName = prompt(`【管理者編集】新しい名前を入力してください:`, m.name); if (newName === null) return;
@@ -322,35 +308,42 @@ window.handleProbsResponse = function(r) {
         if (m.name === user) { user = finalName; localStorage.setItem('lesson_user_v21', user); }
         m.name = finalName; syncToSheet(m);
     }
+    function upEmoji(l, v) { state.emojis[l] = v || "🏃‍♂️"; saveLocal(); render(); }
+    function addProb(l) {
+        const name = prompt("新しい判定の名前を入力してください（例: 💎 超大成功）", "💎 超大成功");
+        if (!name) return;
+        state.probs[l].unshift({ name: name, prob: 5, pts: { vo: 5, pl: 5, da: 5, vi: 5 } });
+        saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
+    }
+    function delProb(l, idx) {
+        if (state.probs[l].length <= 1) { alert("最低1つは残してください"); return; }
+        if (!confirm(`「${state.probs[l][idx].name}」を削除しますか？`)) return;
+        state.probs[l].splice(idx, 1);
+        saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
+    }
+    function upProbName(l, idx, v) {
+        state.probs[l][idx].name = v || "無題";
+        saveLocal(); syncProbs(); updatePreviewTableAll(); render();
+    }
+    function upProb(l, idx, k, v) { const n = parseInt(v) || 0; if(k === 'prob') state.probs[l][idx].prob = n; else state.probs[l][idx].pts[k] = n; saveLocal(); syncProbs(); updatePreviewTableAll(); render(); }
+    function toggleMenu() { const m = document.getElementById('menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+    function editPt(id, k) {
+        const m = state.members.find(m => m.id === id); if(!m) return; const v = prompt(`${m.name}の${k.toUpperCase()}:`, m.p[k]||0);
+        if (v !== null) { m.p[k] = parseInt(v) || 0; syncToSheet(m); }
+    }
     function initForm() {
-    document.getElementById('pw').value = state.password; document.getElementById('limit-input').value = state.limit || 2;
-    const con = document.getElementById('cfg-con'); con.innerHTML = '';
-    LESSONS.forEach(l => {
-        const blk = document.createElement('div'); blk.className = 'cfg-blk';
-        let html = `<div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;"><input type="text" value="${state.emojis[l]}" onchange="upEmoji('${l}',this.value)" style="width:30px;margin:0;padding:2px;"><b>${l}</b></div>`;
-        state.probs[l].forEach((o, idx) => {
-            function addProb(l) {
-    const name = prompt("新しい判定の名前を入力してください（例: 💎 超大成功）", "💎 超大成功");
-    if (!name) return;
-    state.probs[l].unshift({ name: name, prob: 5, pts: { vo: 5, pl: 5, da: 5, vi: 5 } });
-    saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
-}
-function delProb(l, idx) {
-    if (state.probs[l].length <= 1) { alert("最低1つは残してください"); return; }
-    if (!confirm(`「${state.probs[l][idx].name}」を削除しますか？`)) return;
-    state.probs[l].splice(idx, 1);
-    saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
-}
-function upProbName(l, idx, v) {
-    state.probs[l][idx].name = v || "無題";
-    saveLocal(); syncProbs(); updatePreviewTableAll(); render();
-}
-            html += `<div style="background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;"><div class="p-row"><input type="text" value="${o.name}" onchange="upProbName('${l}',${idx},this.value)" style="flex:1;margin:0;padding:2px;"><span>確率:</span><div><input type="number" value="${o.prob}" onchange="upProb('${l}',${idx},'prob',this.value)">%</div></div><div class="p-inputs">Vo:<input type="number" value="${o.pts.vo}" onchange="upProb('${l}',${idx},'vo',this.value)">Pl:<input type="number" value="${o.pts.pl}" onchange="upProb('${l}',${idx},'pl',this.value)">Da:<input type="number" value="${o.pts.da}" onchange="upProb('${l}',${idx},'da',this.value)">Vi:<input type="number" value="${o.pts.vi}" onchange="upProb('${l}',${idx},'vi',this.value)"></div><button class="edit-btn" onclick="delProb('${l}',${idx})" style="color:#f03e3e;border-color:#ffc9c9;margin-top:4px;width:100%;">この枠を削除</button></div>`;
+        document.getElementById('pw').value = state.password; document.getElementById('limit-input').value = state.limit || 2;
+        const con = document.getElementById('cfg-con'); con.innerHTML = '';
+        LESSONS.forEach(l => {
+            const blk = document.createElement('div'); blk.className = 'cfg-blk';
+            let html = `<div style="display:flex;gap:5px;align-items:center;margin-bottom:5px;"><input type="text" value="${state.emojis[l]}" onchange="upEmoji('${l}',this.value)" style="width:30px;margin:0;padding:2px;"><b>${l}</b></div>`;
+            state.probs[l].forEach((o, idx) => {
+                html += `<div style="background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;"><div class="p-row"><input type="text" value="${o.name}" onchange="upProbName('${l}',${idx},this.value)" style="flex:1;margin:0;padding:2px;"><span>確率:</span><div><input type="number" value="${o.prob}" onchange="upProb('${l}',${idx},'prob',this.value)">%</div></div><div class="p-inputs">Vo:<input type="number" value="${o.pts.vo}" onchange="upProb('${l}',${idx},'vo',this.value)">Pl:<input type="number" value="${o.pts.pl}" onchange="upProb('${l}',${idx},'pl',this.value)">Da:<input type="number" value="${o.pts.da}" onchange="upProb('${l}',${idx},'da',this.value)">Vi:<input type="number" value="${o.pts.vi}" onchange="upProb('${l}',${idx},'vi',this.value)"></div><button class="edit-btn" onclick="delProb('${l}',${idx})" style="color:#f03e3e;border-color:#ffc9c9;margin-top:4px;width:100%;">この枠を削除</button></div>`;
+            });
+            html += `<button onclick="addProb('${l}')" style="width:100%;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;margin-top:4px;">＋ 新しい判定枠を追加</button>`;
+            blk.innerHTML = html; con.appendChild(blk);
         });
-        html += `<button onclick="addProb('${l}')" style="width:100%;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;margin-top:4px;">＋ 新しい判定枠を追加</button>`;
-        blk.innerHTML = html; con.appendChild(blk);
-    });
-}
+    }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
         if (!confirm(`【警告】本当にアイドル「 ${m.name} 」さんを学園名簿から削除しますか？`)) return;
@@ -372,13 +365,13 @@ function upProbName(l, idx, v) {
         ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } m.p[k] += addPt; });
         syncToSheet(m);
     }
-function changePreview(id) {
-    const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
-    const outcomes = state.probs[l];
-    let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>確率</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
-    outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
-    html += `</div>`; box.innerHTML = html;
-}
+    function changePreview(id) {
+        const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
+        const outcomes = state.probs[l];
+        let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>確率</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
+        outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
+        html += `</div>`; box.innerHTML = html;
+    }
     function updatePreviewTableAll() { state.members.forEach(m => { if(document.getElementById(`sel-${m.id}`)) changePreview(m.id); }); }
     function buildCardHtml(m, isMe) {
         let opts = LESSONS.map(l => `<option value="${l}">${state.emojis[l]} ${l}</option>`).join('');
@@ -402,5 +395,3 @@ function changePreview(id) {
     function expData() { navigator.clipboard.writeText(JSON.stringify(state)); alert("ローカル設定をコピーしました"); }
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
 </script>
-</body>
-</html>
