@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌸 レッスン手帳</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -66,21 +67,25 @@
         .bbs-title { font-weight: bold; color: #ff758f; margin-bottom: 5px; font-size: 1.05em; display: flex; justify-content: space-between; align-items: center; }
         .bbs-body { font-size: 0.9em; line-height: 1.4; color: #6d585c; white-space: pre-wrap; }
         .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
-        .climb-cabinet { background: linear-gradient(180deg,#2b2250,#4c3a8a); border-radius: 20px; padding: 16px; color: #fff; text-align:center; box-shadow: 0 6px 0 #1a1438; }
-.climb-title { font-size:1.1em; font-weight:bold; margin-bottom:6px; text-shadow:0 2px 0 #000; }
-.climb-stats { display:flex; justify-content:space-around; margin-bottom:10px; font-weight:bold; }
-.climb-track { background:rgba(255,255,255,0.15); border-radius:12px; height:120px; position:relative; margin-bottom:14px; overflow:hidden; }
-.climb-char { position:absolute; left:50%; bottom:0px; transform:translateX(-50%); font-size:2em; transition: bottom 0.15s ease-out; }
-.climb-prompt { font-size:3em; text-align:center; margin-bottom:14px; transition: transform 0.1s ease; }
-.climb-prompt.pop { transform: scale(1.3); }
+        .climb-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-size: 36px 36px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #fff; text-align:center; box-shadow: 0 6px 0 #4a3399, 0 0 20px rgba(255,158,203,0.6); }
+@keyframes sparkle-move { from { background-position: 0 0, 0 0; } to { background-position: 180px 180px, 0 0; } }
+.climb-title { font-size:1.1em; margin-bottom:8px; text-shadow:0 2px 3px rgba(0,0,0,0.35); letter-spacing:1px; }
+.climb-stats { display:flex; justify-content:space-around; margin-bottom:10px; font-weight:bold; text-shadow:0 1px 2px rgba(0,0,0,0.3); }
+.climb-track { background:rgba(255,255,255,0.2); border-radius:16px; height:130px; position:relative; margin-bottom:14px; overflow:hidden; border:2px solid rgba(255,255,255,0.5); }
+.climb-char { position:absolute; left:50%; bottom:0px; transform:translateX(-50%); transition: bottom 0.15s ease-out; }
+.climb-char img { width:64px; height:64px; object-fit:contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); animation: float-bob 1.1s ease-in-out infinite alternate; }
+@keyframes float-bob { from { transform: translateY(0);} to { transform: translateY(-6px);} }
+.climb-prompt { font-size:3em; text-align:center; margin-bottom:14px; transition: transform 0.1s ease; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)); }
+.climb-prompt.pop { transform: scale(1.35); }
 .climb-btns { display:grid; grid-template-columns: repeat(3,1fr); gap:8px; }
-.climb-btn { border:none; border-radius:14px; padding:20px 0; font-size:1.8em; font-weight:bold; color:#fff; box-shadow:0 4px 0 rgba(0,0,0,0.3); }
-.climb-btn:active { transform: translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.3); }
-.climb-btn-left { background:#2b8a3e; }
-.climb-btn-up { background:#e03131; }
-.climb-btn-right { background:#f5a800; }
-.climb-start-btn { width:100%; margin-top:10px; }
-.climb-result { text-align:center; font-weight:bold; margin-top:10px; min-height:1.2em; }
+.climb-btn { position:relative; overflow:hidden; border:3px solid rgba(255,255,255,0.85); border-radius: 45% 45% 50% 50% / 60% 60% 40% 40%; padding: 24px 0; font-size:1.8em; font-weight:bold; color:#fff; text-shadow: 0 2px 4px rgba(0,0,0,0.35); box-shadow: 0 5px 0 rgba(0,0,0,0.25), inset 0 -6px 10px rgba(255,255,255,0.25), inset 0 6px 10px rgba(255,255,255,0.55); }
+.climb-btn::after { content:''; position:absolute; top:-30%; left:-15%; width:55%; height:55%; background:rgba(255,255,255,0.55); border-radius:50%; filter: blur(6px); transform: rotate(-20deg); }
+.climb-btn:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0,0,0,0.25); }
+.climb-btn-left { background: linear-gradient(145deg, #8bf0a4, #2b8a3e); }
+.climb-btn-up { background: linear-gradient(145deg, #ff9fd6, #e6008a); }
+.climb-btn-right { background: linear-gradient(145deg, #ffe89e, #f5a800); }
+.climb-start-btn { width:100%; margin-top:10px; font-family: 'Mochiy Pop One', sans-serif; }
+.climb-result { text-align:center; font-weight:bold; margin-top:10px; min-height:1.2em; text-shadow:0 1px 2px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
