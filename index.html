@@ -455,9 +455,10 @@
         playSound('start');
         climb.active = true; climb.height = 0; climb.totalTime = 30; climb.timeLeft = 30; climb.targetId = me.id;
         document.getElementById('climb-result').innerText = '';
-        document.getElementById('climb-height').innerText = '0';
+        document.getElementById('climb-height').innerText = '0m';
         document.getElementById('climb-time').innerText = '30';
         document.getElementById('climb-char').style.bottom = '0px';
+        document.getElementById('climb-track').style.backgroundPositionY = '0px';
         document.getElementById('climb-start-btn').style.display = 'none';
         clearInterval(climb.gameTimer);
         climb.gameTimer = setInterval(climbTick, 1000);
@@ -516,10 +517,10 @@
         const m = state.members.find(x => x.id === climb.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.climbTiers || []).forEach(t => { if (climb.height >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        (state.climbTiers || []).forEach(t => { if ((climb.height * 5) >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r += 3;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
-        document.getElementById('climb-result').innerText = `結果: 高さ${climb.height} → Vo+${earned.vo} Pl+${earned.pl} Da+${earned.da} Vi+${earned.vi}`;
+        document.getElementById('climb-result').innerText = `結果: 高さ${climb.height * 5}m → Vo+${earned.vo} Pl+${earned.pl} Da+${earned.da} Vi+${earned.vi}`;
         syncToSheet(m);
     }
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
