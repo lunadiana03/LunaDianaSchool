@@ -183,16 +183,26 @@
 </div>
 
     
-    <script>
+  <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbxgB7zN-7QMac-Ob-t1mre8G3S6r4Nu-4CE9CpPIM2Y7QuhRYJIOd7TXP6_w8f6XuheVA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzw2hiw9yurraPlUoR-0BJmuvr9ffKC9PmunK81jSVZpEtW00bm1lpA-TZEunqU22x3oA/exec";
 
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
     const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };
+    const SOUNDS = {
+        correct: new Audio('sounds/correct.mp3'),
+        wrong: new Audio('sounds/wrong.mp3'),
+        start: new Audio('sounds/start.mp3'),
+        timeup: new Audio('sounds/timeup.mp3')
+    };
+    function playSound(name) {
+        try { const s = SOUNDS[name]; if (s) { s.currentTime = 0; s.play().catch(()=>{}); } } catch(e) {}
+    }
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
+    let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
 
     LESSONS.forEach(l => {
         state.probs[l] = [
@@ -201,6 +211,11 @@
             { name: "💦 失敗", prob: 20, pts: { vo: 0, pl: 0, da: 0, vi: 0 } }
         ];
     });
+    state.climbTiers = [
+        { height: 10, vo: 2, pl: 2, da: 2, vi: 2 },
+        { height: 20, vo: 3, pl: 3, da: 3, vi: 3 },
+        { height: 30, vo: 5, pl: 5, da: 5, vi: 5 }
+    ];
 
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
@@ -233,6 +248,7 @@
             });
             if (data.probs) { state.probs = data.probs; }
             if (data.meigenList) { state.meigen = data.meigenList; }
+            if (data.climbTiers) { state.climbTiers = data.climbTiers; }
         }
         checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
         document.getElementById('loading').style.display = 'none';
@@ -274,7 +290,7 @@
     };
     function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
     function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
-    function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); if(view === 'bbs') updateBbsDisplay(); render(); }
+    function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); if(view === 'bbs') updateBbsDisplay(); render(); }
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
     function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
@@ -294,11 +310,11 @@
     function toggleMeigen() {
         const body = document.getElementById('meigen-body');
         const arrow = document.getElementById('meigen-arrow');
+        if (!arrow) { body.style.display = 'block'; return; }
         const isHidden = body.style.display === 'none';
         body.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▲' : '▼';
-    }    
-     
+    }
     function updateBbsDisplay() {
         const fortune = getFortuneData();
         document.getElementById('meigen-body').innerText = getMeigenData();
@@ -358,6 +374,118 @@
         if (!confirm("この格言を削除しますか？")) return;
         state.meigen.splice(idx, 1);
         syncMeigen(); renderMeigenAdmin(); updateBbsDisplay();
+    }
+    function toggleMeigenList() {
+        const con = document.getElementById('meigen-con');
+        const arrow = document.getElementById('meigen-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }
+    function toggleClimbList() {
+        const con = document.getElementById('climb-con');
+        const arrow = document.getElementById('climb-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }
+    function renderClimbAdmin() {
+        const con = document.getElementById('climb-con'); if (!con) return;
+        con.innerHTML = '';
+        (state.climbTiers || []).forEach((t, idx) => {
+            const row = document.createElement('div');
+            row.style.cssText = "background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;";
+            row.innerHTML = `<div class="p-row"><span><b>高さ</b>:</span><div><input type="number" value="${t.height}" onchange="upClimbTier(${idx},'height',this.value)" style="width:50px;"></div></div><div class="p-inputs">Vo:<input type="number" value="${t.vo}" onchange="upClimbTier(${idx},'vo',this.value)">Pl:<input type="number" value="${t.pl}" onchange="upClimbTier(${idx},'pl',this.value)">Da:<input type="number" value="${t.da}" onchange="upClimbTier(${idx},'da',this.value)">Vi:<input type="number" value="${t.vi}" onchange="upClimbTier(${idx},'vi',this.value)"></div><button class="edit-btn" onclick="delClimbTier(${idx})" style="color:#f03e3e;border-color:#ffc9c9;width:100%;margin-top:2px;">この段階を削除</button>`;
+            con.appendChild(row);
+        });
+    }
+    function addClimbTier() {
+        if (!state.climbTiers) state.climbTiers = [];
+        state.climbTiers.push({ height: 10, vo:2, pl:2, da:2, vi:2 });
+        state.climbTiers.sort((a,b) => a.height - b.height);
+        syncClimbTiers(); renderClimbAdmin();
+    }
+    function delClimbTier(idx) {
+        if (!confirm("この段階を削除しますか？")) return;
+        state.climbTiers.splice(idx,1);
+        syncClimbTiers(); renderClimbAdmin();
+    }
+    function upClimbTier(idx, k, v) {
+        const n = parseInt(v) || 0;
+        state.climbTiers[idx][k] = n;
+        if (k === 'height') state.climbTiers.sort((a,b) => a.height - b.height);
+        syncClimbTiers(); renderClimbAdmin();
+    }
+    function syncClimbTiers() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&climbJson=${encodeURIComponent(JSON.stringify(state.climbTiers))}&callback=handleClimbResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleClimbResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="climbJson="]');
+        s.forEach(x => x.remove());
+    };
+    function startClimb() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r + 3 > state.limit) { alert("残りのレッスン回数が足りません（3回分必要です）"); return; }
+        if (!confirm("崖登りチャレンジを始めますか？（レッスン3回分を消費します）")) return;
+        playSound('start');
+        climb.active = true; climb.height = 0; climb.totalTime = 30; climb.timeLeft = 30; climb.targetId = me.id;
+        document.getElementById('climb-result').innerText = '';
+        document.getElementById('climb-height').innerText = '0';
+        document.getElementById('climb-time').innerText = '30';
+        document.getElementById('climb-char').style.bottom = '0px';
+        document.getElementById('climb-start-btn').style.display = 'none';
+        clearInterval(climb.gameTimer);
+        climb.gameTimer = setInterval(climbTick, 1000);
+        climbNextArrow();
+    }
+    function climbTick() {
+        climb.timeLeft--;
+        document.getElementById('climb-time').innerText = climb.timeLeft;
+        if (climb.timeLeft <= 0) endClimb();
+    }
+    function climbNextArrow() {
+        if (!climb.active) return;
+        const dirs = ['left','up','right'];
+        climb.dir = dirs[Math.floor(Math.random()*3)];
+        const box = document.getElementById('climb-prompt');
+        const arrows = { left:'⬅️', up:'⬆️', right:'➡️' };
+        box.innerText = arrows[climb.dir];
+        box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+        clearTimeout(climb.reactTimer);
+        const reactTime = Math.max(1600 - climb.height * 30, 500);
+        climb.reactTimer = setTimeout(() => { if (climb.active) climbNextArrow(); }, reactTime);
+    }
+    function climbPress(dir) {
+        if (!climb.active) return;
+        if (dir === climb.dir) {
+            playSound('correct');
+            climb.height++;
+            document.getElementById('climb-height').innerText = climb.height;
+            document.getElementById('climb-char').style.bottom = Math.min(climb.height * 4, 90) + 'px';
+        } else {
+            playSound('wrong');
+        }
+        clearTimeout(climb.reactTimer);
+        climbNextArrow();
+    }
+    function endClimb() {
+        climb.active = false;
+        clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
+        playSound('timeup');
+        document.getElementById('climb-prompt').innerText = '🏁';
+        document.getElementById('climb-start-btn').style.display = 'block';
+        const m = state.members.find(x => x.id === climb.targetId);
+        if (!m) return;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.climbTiers || []).forEach(t => { if (climb.height >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r += 3;
+        ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        document.getElementById('climb-result').innerText = `結果: 高さ${climb.height} → Vo+${earned.vo} Pl+${earned.pl} Da+${earned.da} Vi+${earned.vi}`;
+        syncToSheet(m);
     }
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
     function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
@@ -419,13 +547,6 @@
     }
     function upProb(l, idx, k, v) { const n = parseInt(v) || 0; if(k === 'prob') state.probs[l][idx].prob = n; else state.probs[l][idx].pts[k] = n; saveLocal(); syncProbs(); updatePreviewTableAll(); render(); }
     function toggleMenu() { const m = document.getElementById('menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
-     function toggleMeigenList() {
-        const con = document.getElementById('meigen-con');
-        const arrow = document.getElementById('meigen-list-arrow');
-        const isHidden = con.style.display === 'none';
-        con.style.display = isHidden ? 'block' : 'none';
-        arrow.innerText = isHidden ? '▼' : '▶';
-    }   
     function editPt(id, k) {
         const m = state.members.find(m => m.id === id); if(!m) return; const v = prompt(`${m.name}の${k.toUpperCase()}:`, m.p[k]||0);
         if (v !== null) { m.p[k] = parseInt(v) || 0; syncToSheet(m); }
@@ -443,6 +564,7 @@
             blk.innerHTML = html; con.appendChild(blk);
         });
         renderMeigenAdmin();
+        renderClimbAdmin();
     }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
@@ -494,4 +616,4 @@
     }
     function expData() { navigator.clipboard.writeText(JSON.stringify(state)); alert("ローカル設定をコピーしました"); }
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
-</script>
+</script>  
