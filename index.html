@@ -146,6 +146,7 @@
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
+const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };        
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
 
@@ -356,15 +357,15 @@
     }
     window.handleDeleteResponse = function(r) { fetchAllData(); alert("削除しました。"); const s = document.querySelectorAll('script[src*="action=deleteMember"]'); s.forEach(x => x.remove()); };
     function roll(id) {
-        checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
-        const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
-        const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
-        for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
-        m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
-        const fortune = getFortuneData();
-        ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } m.p[k] += addPt; });
-        syncToSheet(m);
-    }
+    checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
+    const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
+    const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
+    for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
+    m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
+    const fortune = getFortuneData();
+    ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } m.p[k] += addPt; });
+    syncToSheet(m);
+}
     function changePreview(id) {
         const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
         const outcomes = state.probs[l];
