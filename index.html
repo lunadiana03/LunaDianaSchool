@@ -232,17 +232,7 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
     function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); if(view === 'bbs') updateBbsDisplay(); render(); }
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
     function getFortuneData() {
-        const dayCount = Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000));
-        const luckyKumi = KUMI_LIST[Math.abs(dayCount) % 4];
-        const statKeys = ["vo", "pl", "da", "vi"];
-        const statLabels = ["Vo (ボーカル)", "Pl (アピール)", "Da (ダンス)", "Vi (ビジュアル)"];
-        return { kumi: luckyKumi, key: statKeys[Math.abs(dayCount + 1) % 4], label: statLabels[Math.abs(dayCount + 1) % 4] };
-    }
-    function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
-    function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
-    function updateBbsDisplay() {
-        const fortune = getFortuneData();
-        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${fortune.kumi}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？✨<br><span style="color:#ff758f; font-size:0.85em;">※対象 of the kumi idols will automatically get +1 to the stat on lesson!</span>`;
+        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${fortune.kumi}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？✨<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+1されます！</span>`;
         document.getElementById('bbs-body-text').innerText = state.bbsText || "お知らせはまだありません。";
         document.getElementById('admin-bbs-text').value = state.bbsText || "";
     }
