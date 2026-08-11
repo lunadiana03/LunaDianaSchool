@@ -113,7 +113,9 @@
         <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
         <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
         <div id="cfg-con"></div>
-        <h3>🎴 格言リスト管理</h3>
+        <h3 onclick="toggleMeigenList()" style="cursor:pointer;">🎴 格言リスト管理 <span id="meigen-list-arrow">▶</span></h3>
+        <div id="meigen-con" style="display:none;"></div>
+        <button onclick="addMeigen()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 格言を追加</button>
         <div id="meigen-con"></div>
         <button onclick="addMeigen()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 格言を追加</button>
         <h3>💾 バックアップ（手動）</h3>
@@ -261,13 +263,7 @@
         body.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▲' : '▼';
     }    
-     function toggleMeigen() {
-        const body = document.getElementById('meigen-body');
-        const arrow = document.getElementById('meigen-arrow');
-        const isHidden = body.style.display === 'none';
-        body.style.display = isHidden ? 'block' : 'none';
-        arrow.innerText = isHidden ? '▲' : '▼';
-    }   
+     
     function updateBbsDisplay() {
         const fortune = getFortuneData();
         document.getElementById('meigen-body').innerText = getMeigenData();
@@ -388,6 +384,13 @@
     }
     function upProb(l, idx, k, v) { const n = parseInt(v) || 0; if(k === 'prob') state.probs[l][idx].prob = n; else state.probs[l][idx].pts[k] = n; saveLocal(); syncProbs(); updatePreviewTableAll(); render(); }
     function toggleMenu() { const m = document.getElementById('menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+     function toggleMeigenList() {
+        const con = document.getElementById('meigen-con');
+        const arrow = document.getElementById('meigen-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }   
     function editPt(id, k) {
         const m = state.members.find(m => m.id === id); if(!m) return; const v = prompt(`${m.name}の${k.toUpperCase()}:`, m.p[k]||0);
         if (v !== null) { m.p[k] = parseInt(v) || 0; syncToSheet(m); }
