@@ -122,9 +122,9 @@
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
-        <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
-            <div class="bbs-title">🎴 今日のアイカツ格言</div>
-            <div id="meigen-body" class="bbs-body" style="font-weight:bold; text-align:center; font-size:1.1em;"></div>
+       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
+            <div class="bbs-title" onclick="toggleMeigen()" style="cursor:pointer;">🎴 今日のアイカツ格言 <span id="meigen-arrow">▼</span></div>
+            <div id="meigen-body" class="bbs-body" style="font-weight:bold; text-align:center; font-size:1.1em; display:none;"></div>
         </div>
         <div class="bbs-card">
             <div class="bbs-title">🔮 今日のいいこと占い</div>
@@ -254,6 +254,13 @@
         const idx = Math.abs(dayCount) % state.meigen.length;
         return state.meigen[idx];
     }
+    function toggleMeigen() {
+        const body = document.getElementById('meigen-body');
+        const arrow = document.getElementById('meigen-arrow');
+        const isHidden = body.style.display === 'none';
+        body.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▲' : '▼';
+    }    
     function updateBbsDisplay() {
         const fortune = getFortuneData();
         document.getElementById('meigen-body').innerText = getMeigenData();
