@@ -113,12 +113,19 @@
         <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
         <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
         <div id="cfg-con"></div>
+        <h3>🎴 格言リスト管理</h3>
+        <div id="meigen-con"></div>
+        <button onclick="addMeigen()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 格言を追加</button>
         <h3>💾 バックアップ（手動）</h3>
         <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
+        <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
+            <div class="bbs-title">🎴 今日のアイカツ格言</div>
+            <div id="meigen-body" class="bbs-body" style="font-weight:bold; text-align:center; font-size:1.1em;"></div>
+        </div>
         <div class="bbs-card">
             <div class="bbs-title">🔮 今日のいいこと占い</div>
             <div id="fortune-body" class="bbs-body"></div>
@@ -141,13 +148,13 @@
     
     <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbzG4F4iMByvAtSk5L5Y6-BZYE8NjwC6QUBEQ6dNOpu3RDNoLyIkcbLx8CgimnwzxsyW/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxgB7zN-7QMac-Ob-t1mre8G3S6r4Nu-4CE9CpPIM2Y7QuhRYJIOd7TXP6_w8f6XuheVA/exec";
 
     const LESSONS = ["崖登り", "ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
-const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };        
-    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, members: [], bbsText: "", limit: 2 };
+    const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };
+    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
 
     LESSONS.forEach(l => {
@@ -188,6 +195,7 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
                 return m;
             });
             if (data.probs) { state.probs = data.probs; }
+            if (data.meigenList) { state.meigen = data.meigenList; }
         }
         checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
         document.getElementById('loading').style.display = 'none';
@@ -240,8 +248,15 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
         const statLabels = ["Vo (ボーカル)", "Pl (アピール)", "Da (ダンス)", "Vi (ビジュアル)"];
         return { kumi: luckyKumi, key: statKeys[Math.abs(dayCount + 1) % 4], label: statLabels[Math.abs(dayCount + 1) % 4] };
     }
+    function getMeigenData() {
+        if (!state.meigen || state.meigen.length === 0) return "（格言はまだ登録されていません）";
+        const dayCount = Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000));
+        const idx = Math.abs(dayCount) % state.meigen.length;
+        return state.meigen[idx];
+    }
     function updateBbsDisplay() {
         const fortune = getFortuneData();
+        document.getElementById('meigen-body').innerText = getMeigenData();
         document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${fortune.kumi}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？✨<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+1されます！</span>`;
         document.getElementById('bbs-body-text').innerText = state.bbsText || "お知らせはまだありません。";
         document.getElementById('admin-bbs-text').value = state.bbsText || "";
@@ -268,6 +283,37 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
         const s = document.querySelectorAll('script[src*="probsJson="]');
         s.forEach(x => x.remove());
     };
+    function syncMeigen() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&meigenJson=${encodeURIComponent(JSON.stringify(state.meigen))}&callback=handleMeigenResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleMeigenResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="meigenJson="]');
+        s.forEach(x => x.remove());
+    };
+    function renderMeigenAdmin() {
+        const con = document.getElementById('meigen-con'); if (!con) return;
+        con.innerHTML = '';
+        (state.meigen || []).forEach((txt, idx) => {
+            const row = document.createElement('div');
+            row.style.cssText = "display:flex; gap:5px; align-items:center; background:#fff; padding:4px; border-radius:5px; margin-bottom:4px;";
+            row.innerHTML = `<span style="flex:1; font-size:0.85em;">${txt}</span><button class="edit-btn" onclick="delMeigen(${idx})" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>`;
+            con.appendChild(row);
+        });
+    }
+    function addMeigen() {
+        const t = prompt("新しい格言を入力してください（例: ＜芸能人はカードが命＞）");
+        if (!t) return;
+        if (!state.meigen) state.meigen = [];
+        state.meigen.push(t);
+        syncMeigen(); renderMeigenAdmin(); updateBbsDisplay();
+    }
+    function delMeigen(idx) {
+        if (!confirm("この格言を削除しますか？")) return;
+        state.meigen.splice(idx, 1);
+        syncMeigen(); renderMeigenAdmin(); updateBbsDisplay();
+    }
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
     function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
     function changeThemeStyles(t) {
@@ -344,6 +390,7 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
             html += `<button onclick="addProb('${l}')" style="width:100%;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;margin-top:4px;">＋ 新しい判定枠を追加</button>`;
             blk.innerHTML = html; con.appendChild(blk);
         });
+        renderMeigenAdmin();
     }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
@@ -357,15 +404,15 @@ const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "
     }
     window.handleDeleteResponse = function(r) { fetchAllData(); alert("削除しました。"); const s = document.querySelectorAll('script[src*="action=deleteMember"]'); s.forEach(x => x.remove()); };
     function roll(id) {
-    checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
-    const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
-    const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
-    for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
-    m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
-    const fortune = getFortuneData();
-    ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } m.p[k] += addPt; });
-    syncToSheet(m);
-}
+        checkReset(); const m = state.members.find(m => m.id === id); if (!m || m.r >= state.limit) return;
+        const l = document.getElementById(`sel-${id}`).value; if (!confirm(`本当に「 ${l} 」の授業を受けますか？`)) return;
+        const outcomes = state.probs[l]; const r = Math.random() * 100; let cv = 0; let f = outcomes[outcomes.length - 1];
+        for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
+        m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
+        const fortune = getFortuneData();
+        ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } m.p[k] += addPt; });
+        syncToSheet(m);
+    }
     function changePreview(id) {
         const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
         const outcomes = state.probs[l];
