@@ -196,12 +196,28 @@
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
     const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };
-    const SOUNDS = {
-        correct: new Audio('correct.mp3'),
-        wrong: new Audio('wrong.mp3'),
-        start: new Audio('start.mp3'),
-        timeup: new Audio('timeup.mp3')
-    };
+    let audioCtx = null;
+    const SOUND_FILES = { correct:'correct.mp3', wrong:'wrong.mp3', start:'start.mp3', timeup:'timeup.mp3' };
+    const SOUND_BUFFERS = {};
+    function initAudio() {
+        if (audioCtx) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            Object.keys(SOUND_FILES).forEach(name => {
+                fetch(SOUND_FILES[name]).then(r => r.arrayBuffer()).then(buf => audioCtx.decodeAudioData(buf)).then(decoded => { SOUND_BUFFERS[name] = decoded; }).catch(()=>{});
+            });
+        } catch(e) {}
+    }
+    function playSound(name) {
+        try {
+            if (!audioCtx || !SOUND_BUFFERS[name]) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const src = audioCtx.createBufferSource();
+            src.buffer = SOUND_BUFFERS[name];
+            src.connect(audioCtx.destination);
+            src.start(0);
+        } catch(e) {}
+    }
     function playSound(name) {
         try { const s = SOUNDS[name]; if (s) { s.currentTime = 0; s.play().catch(()=>{}); } } catch(e) {}
     }
