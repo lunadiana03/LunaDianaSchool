@@ -237,7 +237,7 @@
         { height: 20, vo: 3, pl: 3, da: 3, vi: 3 },
         { height: 30, vo: 5, pl: 5, da: 5, vi: 5 }
     ];
-
+　　initAudio();
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
         if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
