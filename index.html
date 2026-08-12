@@ -542,7 +542,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         if(!m) {
             const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
             if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
-            m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "" };
+           m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
             syncToSheet(m);
         } else {
             if (!confirm(`「${n}」としてログインしますか？`)) return;
