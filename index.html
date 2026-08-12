@@ -707,6 +707,13 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         renderMeigenAdmin();
         renderClimbAdmin();
     }
+      function adminResetClimb(id) {
+        const m = state.members.find(m => m.id === id); if(!m) return;
+        if (!confirm(`「${m.name}」の崖登りを再挑戦できるようにリセットしますか？\n（本日分の挑戦済み記録と、レッスン回数消費もリセットされます）`)) return;
+        m.climbDate = "";
+        m.r = Math.max(0, m.r - 3);
+        syncToSheet(m);
+    }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
         if (!confirm(`【警告】本当にアイドル「 ${m.name} 」さんを学園名簿から削除しますか？`)) return;
@@ -740,7 +747,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         let opts = LESSONS.map(l => `<option value="${l}">${state.emojis[l]} ${l}</option>`).join('');
         let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
-        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
+      const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminResetClimb('${m.id}')" style="margin-right:4px; color:#2b8a3e; border-color:#8bf0a4;">崖リセット</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const lblClass = getLblClass(m.last);
         return `<div class="head"><span class="name">${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div><div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div><div style="font-size:0.85em;margin-bottom:4px;">今日: <b>${m.r}/${state.limit||2} 回</b></div><div class="ctrl" style="display:${(isMe||state.isAdmin)?'block':'none'};"><label style="font-size:0.8em; font-weight:bold; color:#ff758f;">👇 レッスンを選択</label><select id="sel-${m.id}" onchange="changePreview('${m.id}')">${opts}</select><div id="pre-box-${m.id}"></div><button onclick="roll('${m.id}')" ${m.r>=state.limit?'disabled':''} style="width:100%;">${m.r>=state.limit?'終了':'受講する'}</button></div><div class="res ${lblClass}">${m.last ? '🎯 結果：' + m.last : 'お休み中'}</div><div class="history">${hHtml||'履歴なし'}</div>`;
     }
