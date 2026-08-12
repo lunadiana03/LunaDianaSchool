@@ -70,6 +70,7 @@
         .climb-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-size: 36px 36px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #fff; text-align:center; box-shadow: 0 6px 0 #4a3399, 0 0 20px rgba(255,158,203,0.6); }
 .climb-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg, #8ec9ff 0%, #cdeaff 55%, #eaf7ff 100%); border-radius: 24px; padding: 16px; color: #2b3a55; text-align:center; box-shadow: 0 6px 0 #5a9bd8, 0 0 20px rgba(142,201,255,0.6); position:relative; overflow:hidden; }
 .climb-title { font-size:1.1em; margin-bottom:10px; color:#2b5a8a; letter-spacing:1px; position:relative; z-index:1; }
+   .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }     
 .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; height:150px; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; }
 .climb-track::before { content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 20px), repeating-linear-gradient(65deg, rgba(0,0,0,0.08) 0 4px, transparent 4px 26px); pointer-events:none; }
 .climb-height-badge { position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.85); color:#2b3a55; font-size:0.8em; font-weight:bold; padding:3px 8px; border-radius:12px; z-index:2; }
@@ -151,6 +152,7 @@
        <h3 onclick="toggleClimbList()" style="cursor:pointer;">🧗 崖登りポイント設定 <span id="climb-list-arrow">▶</span></h3>
         <div id="climb-con" style="display:none;"></div>
         <button onclick="addClimbTier()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 段階を追加</button>
+        <textarea id="admin-climb-desc" rows="3" placeholder="崖登りの説明文を入力してね" onchange="upClimbDesc()"></textarea>
         <h3>💾 バックアップ（手動）</h3>
         <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
@@ -172,7 +174,8 @@
     </div>
     <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
-            <div class="climb-title">🧗‍♀️ Let'Climbing!!</div>
+            <div class="climb-title">🧗‍♀️ Let's Climbing!!</div>
+            <div id="climb-desc" class="climb-desc"></div>
             <div class="climb-track" id="climb-track">
                 <div class="climb-height-badge">📏 <span id="climb-height">0m</span></div>
                 <div id="climb-char" class="climb-char"><img src="climb-char.png" alt="idol"></div>
