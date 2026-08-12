@@ -455,6 +455,17 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         if (k === 'height') state.climbTiers.sort((a,b) => a.height - b.height);
         syncClimbTiers(); renderClimbAdmin();
     }
+      function upClimbDesc() {
+        state.climbDesc = document.getElementById('admin-climb-desc').value;
+        document.getElementById('climb-desc').innerText = state.climbDesc;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&climbDesc=${encodeURIComponent(state.climbDesc)}&callback=handleClimbDescResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleClimbDescResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="climbDesc="]');
+        s.forEach(x => x.remove());
+    };
     function syncClimbTiers() {
         const script = document.createElement('script');
         script.src = `${API_URL}?action=updateSettings&climbJson=${encodeURIComponent(JSON.stringify(state.climbTiers))}&callback=handleClimbResponse`;
