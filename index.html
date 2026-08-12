@@ -166,12 +166,14 @@
     <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
             <div class="climb-title">🧗‍♀️ 崖登りチャレンジ</div>
-            <div class="climb-stats">
-                <div>⏱️ 残り: <span id="climb-time">--</span>秒</div>
-                <div>📏 高さ: <span id="climb-height">0</span></div>
+            <div class="climb-track" id="climb-track">
+                <div class="climb-height-badge">📏 <span id="climb-height">0m</span></div>
+                <div id="climb-char" class="climb-char"><img src="climb-char.png" alt="idol"></div>
+                <div id="climb-countdown" class="climb-countdown"></div>
             </div>
-         <div class="climb-track" id="climb-track"><div id="climb-char" class="climb-char"><img src="climb-char.png" alt="idol"></div></div>
-            <div id="climb-prompt" class="climb-prompt">▶</div>
+            <div class="climb-progress-track"><div id="climb-progress-fill" class="climb-progress-fill"></div><div id="climb-progress-dot" class="climb-progress-dot"></div></div>
+            <div class="climb-time-row"><span id="climb-elapsed">0:00</span><span id="climb-total">0:30</span></div>
+            <div id="climb-prompt" class="climb-prompt">→</div>
             <div class="climb-btns">
                 <button class="climb-btn climb-btn-left" onclick="climbPress('left')">←</button>
                 <button class="climb-btn climb-btn-up" onclick="climbPress('up')">↑</button>
