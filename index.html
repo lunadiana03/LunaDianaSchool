@@ -218,9 +218,7 @@
             src.start(0);
         } catch(e) {}
     }
-    function playSound(name) {
-        try { const s = SOUNDS[name]; if (s) { s.currentTime = 0; s.play().catch(()=>{}); } } catch(e) {}
-    }
+    
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
