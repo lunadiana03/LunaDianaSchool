@@ -225,6 +225,9 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2 };
     let user = ""; let currentView = "my";
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
+      const CLIMB_START_BOTTOM = -40;
+    const CLIMB_MID_BOTTOM = 45;
+    const CLIMB_CAP_TAPS = 8;
 
     LESSONS.forEach(l => {
         state.probs[l] = [
