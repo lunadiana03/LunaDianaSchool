@@ -298,24 +298,13 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         const params = new URLSearchParams({
             action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
+            climbDate: m.climbDate||"", climbHeight: m.climbHeight||0,
             callback: "handleSyncResponse"
         });
         user = m.name;
         localStorage.setItem('lesson_user_v21', user);
         currentView = "my";
-        const script = document.createElement('script');
-        script.src = `${API_URL}?${params.toString()}`;
-        document.body.appendChild(script);
-    }
-
-    window.handleSyncResponse = function(response) {
-        fetchAllData();
-        const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
-        scripts.forEach(s => s.remove());
-    };
-    function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
-    function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
-    function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); if(view === 'bbs') updateBbsDisplay(); render(); }
+        const script = document.createElement('script');').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); if(view === 'bbs') updateBbsDisplay(); render(); }
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
     function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
@@ -454,14 +443,16 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
+        const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
+        if (me.climbDate === todayKey) { alert("本日の崖登りチャレンジはもう挑戦済みです。また明日挑戦してね！"); return; }
         if (me.r + 3 > state.limit) { alert("残りのレッスン回数が足りません（3回分必要です）"); return; }
-        if (!confirm("崖登りチャレンジを始めますか？（レッスン3回分を消費します）")) return;
+        if (!confirm("崖登りチャレンジを始めますか？（レッスン3回分を消費します、1日1回まで）")) return;
         playSound('start');
         climb.active = true; climb.height = 0; climb.totalTime = 30; climb.timeLeft = 30; climb.targetId = me.id;
-        document.getElementById('climb-result').innerText = '';
+        document.getElementById('climb-result').innerHTML = '';
         document.getElementById('climb-height').innerText = '0m';
         document.getElementById('climb-time').innerText = '30';
-        document.getElementById('climb-char').style.bottom = '0px';
+        document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
         document.getElementById('climb-track').style.backgroundPositionY = '0px';
         document.getElementById('climb-start-btn').style.display = 'none';
         clearInterval(climb.gameTimer);
@@ -488,15 +479,15 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         climb.reactTimer = setTimeout(() => { if (climb.active) climbNextArrow(); }, reactTime);
     }
       function updateClimbVisual() {
-        const capTaps = 15; const perTap = 6;
+        const perTap = (CLIMB_MID_BOTTOM - CLIMB_START_BOTTOM) / CLIMB_CAP_TAPS;
         const char = document.getElementById('climb-char');
         const track = document.getElementById('climb-track');
-        if (climb.height <= capTaps) {
-            char.style.bottom = (climb.height * perTap) + 'px';
+        if (climb.height <= CLIMB_CAP_TAPS) {
+            char.style.bottom = (CLIMB_START_BOTTOM + climb.height * perTap) + 'px';
             track.style.backgroundPositionY = '0px';
         } else {
-            char.style.bottom = (capTaps * perTap) + 'px';
-            track.style.backgroundPositionY = '-' + ((climb.height - capTaps) * perTap) + 'px';
+            char.style.bottom = CLIMB_MID_BOTTOM + 'px';
+            track.style.backgroundPositionY = '-' + ((climb.height - CLIMB_CAP_TAPS) * 6) + 'px';
         }
         document.getElementById('climb-height').innerText = (climb.height * 5) + 'm';
     }
@@ -512,19 +503,53 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         clearTimeout(climb.reactTimer);
         climbNextArrow();
     }
+      function refreshClimbGateUI() {
+        if (climb.active) return;
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('climb-start-btn');
+        const resultBox = document.getElementById('climb-result');
+        document.getElementById('climb-prompt').innerText = '▶';
+        document.getElementById('climb-height').innerText = '0m';
+        document.getElementById('climb-time').innerText = '--';
+        document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
+        document.getElementById('climb-track').style.backgroundPositionY = '0px';
+        if (!me) { startBtn.style.display = 'block'; resultBox.innerHTML = ''; return; }
+        const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
+        if (me.climbDate === todayKey) {
+            startBtn.style.display = 'none';
+            resultBox.innerHTML = `
+                <div class="climb-result-title">🏆 今日の結果！</div>
+                <div class="climb-result-height">${me.climbHeight||0}m</div>
+                <div style="font-size:0.85em;opacity:0.85;">また明日挑戦してね！</div>`;
+        } else {
+            startBtn.style.display = 'block';
+            resultBox.innerHTML = '';
+        }
+    }
     function endClimb() {
         climb.active = false;
         clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
         playSound('timeup');
         document.getElementById('climb-prompt').innerText = '🏁';
-        document.getElementById('climb-start-btn').style.display = 'block';
         const m = state.members.find(x => x.id === climb.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.climbTiers || []).forEach(t => { if ((climb.height * 5) >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        const heightM = climb.height * 5;
+        (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r += 3;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
-        document.getElementById('climb-result').innerText = `結果: 高さ${climb.height * 5}m → Vo+${earned.vo} Pl+${earned.pl} Da+${earned.da} Vi+${earned.vi}`;
+        m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
+        m.climbHeight = heightM;
+        document.getElementById('climb-result').innerHTML = `
+            <div class="climb-result-title">🏆 今日の結果！</div>
+            <div class="climb-result-height">${heightM}m</div>
+            <div class="climb-result-stats">
+                <div>Vo ${earned.vo}↑</div>
+                <div>Pl ${earned.pl}↑</div>
+                <div>Da ${earned.da}↑</div>
+                <div>Vi ${earned.vi}↑</div>
+            </div>`;
+        document.getElementById('climb-start-btn').style.display = 'none';
         syncToSheet(m);
     }
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
