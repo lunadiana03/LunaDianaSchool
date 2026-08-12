@@ -234,7 +234,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         } catch(e) {}
     }
     
-    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2 };
+    let state = { theme: "pink", password: "0315", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "" };
     let user = ""; let currentView = "my";
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
@@ -286,6 +286,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             if (data.probs) { state.probs = data.probs; }
             if (data.meigenList) { state.meigen = data.meigenList; }
             if (data.climbTiers) { state.climbTiers = data.climbTiers; }
+            if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
         }
         checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
         document.getElementById('loading').style.display = 'none';
