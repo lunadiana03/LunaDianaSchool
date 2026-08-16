@@ -98,12 +98,35 @@
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
 .climb-result-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.85em; }
 .climb-result-stats div { background:rgba(255,255,255,0.5); border-radius:8px; padding:4px 0; }
+        .cal-btn { position: absolute; top: 8px; left: 8px; background: #4c6ef5; font-size: 0.75em; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 0 #364fc7; color:#fff; }
+        .calendar-overlay { display:none; position: fixed; inset: 0; background: rgba(90,75,78,0.55); z-index: 5000; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
+        .calendar-overlay.open { display: flex; }
+        .calendar-panel { background: var(--c); border-radius: 18px; border: 2px dashed #ffcbd5; width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto; padding: 12px; box-sizing: border-box; }
+        .calendar-topbar { display:flex; justify-content: space-between; align-items:center; margin-bottom: 8px; }
+        .calendar-topbar b { color:#ff758f; font-size:1.05em; }
+        .cal-nav-btn { background:#e2dbdd; box-shadow:0 2px 0 #cdc4c6; color:#5a4b4e; padding:4px 10px; }
+        .cal-close-btn { background:#baabb0; box-shadow:0 2px 0 #9e8e93; padding:4px 10px; }
+        .calendar-weekrow, .calendar-gridbody { display:grid; grid-template-columns: repeat(7,1fr); gap:3px; }
+        .calendar-weekrow div { text-align:center; font-size:0.75em; font-weight:bold; color:#ba9ba1; padding-bottom:4px; }
+        .cal-day { position:relative; background:#fff; border:1px solid #ffe3e7; border-radius:8px; min-height:44px; padding:3px; font-size:0.75em; text-align:left; cursor:pointer; box-sizing:border-box; }
+        .cal-day.other-month { opacity:0.35; }
+        .cal-day.today { border:2px solid #ff758f; }
+        .cal-day.selected { background:#ffe3e7; }
+        .cal-day-num { font-weight:bold; }
+        .cal-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#ff758f; margin:2px 1px 0 0; }
+        .cal-day-panel { margin-top:10px; background:#fffdfd; border:1px dashed #ffcbd5; border-radius:12px; padding:10px; }
+        .cal-event-item { display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid #ffe3e7; border-radius:10px; padding:6px 8px; margin-bottom:6px; font-size:0.85em; }
+        .cal-event-item span.txt { flex:1; word-break: break-word; }
+        .cal-add-row { display:flex; gap:6px; margin-top:6px; }
+        .cal-add-row input { margin:0; }
+        .cal-add-row button { white-space:nowrap; }
     </style>
 </head>
 <body>
 <div id="loading" class="loading-mask">📖 アイカツシステムと通信中...</div>
 <div class="box">
     <header>
+        <button id="cal-open-btn" class="cal-btn" onclick="openCalendar()">📅 予定</button>
         <button id="lock-btn" class="lock" onclick="goAdmin()">🔒 ひみつ</button>
         <h1>🌸 レッスン手帳</h1>
         <div id="badge" class="badge">✨ みんなの広場</div>
@@ -203,10 +226,26 @@
     </div>
 </div>
 
+<div id="calendar-modal" class="calendar-overlay">
+    <div class="calendar-panel">
+        <div class="calendar-topbar">
+            <button class="cal-nav-btn" onclick="calChangeMonth(-1)">◀</button>
+            <b id="cal-month-label"></b>
+            <button class="cal-nav-btn" onclick="calChangeMonth(1)">▶</button>
+            <button class="cal-close-btn" onclick="closeCalendar()">✕ 閉じる</button>
+        </div>
+        <div class="calendar-weekrow"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
+        <div id="calendar-gridbody" class="calendar-gridbody"></div>
+        <div id="calendar-day-panel" class="cal-day-panel">
+            <div style="text-align:center; color:#baabb0; font-size:0.85em;">日付を選んでね</div>
+        </div>
+    </div>
+</div>
+
     
   <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbxNHnPoPbSiOOOKINjRrJYjMeNkuUBQeE_iKOdb6-gMFapiyOJwJ9r-siESeZf44MXzMA/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxnJlxQnFR5p2BsSbM0lMkHLsZB6-glB-QL4mJRR8vwYWvYraEhEdyn517NhaRON1yp/exec";
 const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
@@ -764,4 +803,120 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     }
     function expData() { navigator.clipboard.writeText(JSON.stringify(state)); alert("ローカル設定をコピーしました"); }
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
-</script>  
+
+    // ===================== 📅 カレンダー機能 =====================
+    let calState = { events: [], viewDate: new Date(), selectedDate: null, loaded: false };
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+    function dateKey(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+
+    function openCalendar() {
+        document.getElementById('calendar-modal').classList.add('open');
+        calState.viewDate = new Date();
+        calState.selectedDate = dateKey(new Date());
+        renderCalendarGrid();
+        fetchCalendarEvents();
+    }
+    function closeCalendar() { document.getElementById('calendar-modal').classList.remove('open'); }
+
+    function fetchCalendarEvents() {
+        const con = document.getElementById('calendar-day-panel');
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=getEvents&callback=handleCalendarEvents`;
+        script.onerror = function() { con.innerHTML = '<div style="text-align:center;color:#f03e3e;font-size:0.85em;">予定の取得に失敗しました</div>'; };
+        document.body.appendChild(script);
+    }
+    window.handleCalendarEvents = function(data) {
+        calState.events = (data && data.events) ? data.events : [];
+        calState.loaded = true;
+        renderCalendarGrid();
+        renderCalDayPanel();
+        const s = document.querySelectorAll('script[src*="action=getEvents"]');
+        s.forEach(x => x.remove());
+    };
+
+    function calChangeMonth(delta) {
+        calState.viewDate.setMonth(calState.viewDate.getMonth() + delta);
+        calState.viewDate = new Date(calState.viewDate);
+        renderCalendarGrid();
+    }
+
+    function renderCalendarGrid() {
+        const y = calState.viewDate.getFullYear();
+        const m = calState.viewDate.getMonth();
+        document.getElementById('cal-month-label').innerText = `${y}年 ${m + 1}月`;
+        const body = document.getElementById('calendar-gridbody');
+        body.innerHTML = '';
+        const firstDay = new Date(y, m, 1);
+        const startOffset = firstDay.getDay();
+        const gridStart = new Date(y, m, 1 - startOffset);
+        const todayKey = dateKey(new Date());
+        const eventsByDate = {};
+        calState.events.forEach(ev => { (eventsByDate[ev.date] = eventsByDate[ev.date] || []).push(ev); });
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(gridStart); d.setDate(gridStart.getDate() + i);
+            const k = dateKey(d);
+            const cell = document.createElement('div');
+            cell.className = 'cal-day' + (d.getMonth() !== m ? ' other-month' : '') + (k === todayKey ? ' today' : '') + (k === calState.selectedDate ? ' selected' : '');
+            let dotsHtml = '';
+            const evs = eventsByDate[k] || [];
+            evs.slice(0, 3).forEach(() => { dotsHtml += '<span class="cal-dot"></span>'; });
+            cell.innerHTML = `<div class="cal-day-num">${d.getDate()}</div><div>${dotsHtml}</div>`;
+            cell.onclick = () => selectCalDay(k);
+            body.appendChild(cell);
+        }
+    }
+
+    function selectCalDay(k) { calState.selectedDate = k; renderCalendarGrid(); renderCalDayPanel(); }
+
+    function renderCalDayPanel() {
+        const panel = document.getElementById('calendar-day-panel');
+        if (!calState.selectedDate) { panel.innerHTML = '<div style="text-align:center; color:#baabb0; font-size:0.85em;">日付を選んでね</div>'; return; }
+        const k = calState.selectedDate;
+        const [yy, mm, dd] = k.split('-');
+        const evs = calState.events.filter(ev => ev.date === k);
+        let html = `<div style="font-weight:bold; color:#ff758f; margin-bottom:6px;">🗓️ ${mm}月${dd}日 の予定</div>`;
+        if (evs.length === 0) { html += `<div style="font-size:0.85em; color:#baabb0; margin-bottom:6px;">まだ予定はありません</div>`; }
+        else {
+            evs.forEach(ev => {
+                const delBtn = state.isAdmin ? `<button class="edit-btn" onclick="deleteCalEvent('${ev.id}')" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>` : '';
+                html += `<div class="cal-event-item"><span class="txt">${ev.text}</span>${delBtn}</div>`;
+            });
+        }
+        if (state.isAdmin) {
+            html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
+        }
+        panel.innerHTML = html;
+    }
+
+    function addCalEvent() {
+        const input = document.getElementById('cal-new-text');
+        const text = input.value.trim();
+        if (!text) return;
+        const k = calState.selectedDate;
+        input.disabled = true;
+        const script = document.createElement('script');
+        const params = new URLSearchParams({ action: 'addEvent', date: k, text: text, callback: 'handleAddEventResponse' });
+        script.src = `${API_URL}?${params.toString()}`;
+        document.body.appendChild(script);
+    }
+    window.handleAddEventResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="action=addEvent"]');
+        s.forEach(x => x.remove());
+        fetchCalendarEvents();
+    };
+
+    function deleteCalEvent(id) {
+        if (!confirm('この予定を削除しますか？')) return;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=deleteEvent&id=${encodeURIComponent(id)}&callback=handleDeleteEventResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleDeleteEventResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="action=deleteEvent"]');
+        s.forEach(x => x.remove());
+        fetchCalendarEvents();
+    };
+</script>
+</body>
+</html>
