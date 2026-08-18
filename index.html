@@ -18,6 +18,9 @@
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
         button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
         .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 10px; }
+        .tabs.has-live { grid-template-columns: repeat(5, 1fr); }
+.live-cabinet { background:#fff; border:2px dashed #ff9aa9; border-radius:15px; padding:14px; text-align:center; }
+.live-title { font-weight:bold; color:#ff758f; margin-bottom:8px; font-size:1.1em; }
         .tab-btn { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; border-radius: 10px; padding: 8px 4px; font-size: 0.85em; text-align: center; color: #5a4b4e; font-weight: bold; }
         .tab-btn.active { background: #ff758f; box-shadow: 0 3px 0 #ff4b72; color: #fff; }
         .view-section { display: none; }
@@ -178,6 +181,14 @@
         <button onclick="addClimbTier()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 段階を追加</button>
         <textarea id="admin-climb-desc" rows="3" placeholder="崖登りの説明文を入力してね" onchange="upClimbDesc()"></textarea>
         <h3>💾 バックアップ（手動）</h3>
+        <h3 onclick="toggleLiveList()" style="cursor:pointer;">🎤 ライブ設定 <span id="live-list-arrow">▶</span></h3>
+        <div id="live-con" style="display:none;">
+            <button id="live-tab-toggle-btn" onclick="toggleLiveTabVisibility()" style="width:100%; margin-bottom:8px;">タブ表示切替</button>
+            <div style="font-size:0.85em; font-weight:bold; margin-bottom:4px;">👇 出演者を選んでね（3〜5人推奨）</div>
+            <div id="live-performer-checks"></div>
+            <button onclick="createLive()" style="width:100%; background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-top:8px;">🎤 このメンバーでライブ作成</button>
+            <div id="live-admin-summary" style="font-size:0.85em; margin-top:8px; background:#fff; padding:6px; border-radius:8px;"></div>
+        </div>
         <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
     </div>
@@ -215,6 +226,12 @@
             </div>
             <div id="climb-result" class="climb-result"></div>
             <button id="climb-start-btn" class="climb-start-btn" onclick="startClimb()">スタート（レッスン3回分消費）</button>
+        </div>
+    </div>
+    <div id="view-live" class="view-section">
+        <div class="live-cabinet">
+            <div class="live-title">🎤 ライブ会場</div>
+            <div id="live-body">準備中です…</div>
         </div>
     </div>
     <div id="view-all" class="view-section">
@@ -273,8 +290,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             src.start(0);
         } catch(e) {}
     }
-    
-    let state = { theme: "pink", password: "0315", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "" };
+    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1 } };
     let user = ""; let currentView = "my";
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
@@ -327,8 +343,9 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             if (data.meigenList) { state.meigen = data.meigenList; }
             if (data.climbTiers) { state.climbTiers = data.climbTiers; }
             if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
+            if (data.live) { state.live = data.live; }
         }
-        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); render();
+        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveTabVisibility(); render();
         document.getElementById('loading').style.display = 'none';
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
@@ -460,6 +477,86 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         const isHidden = con.style.display === 'none';
         con.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▼' : '▶';
+    }
+      function toggleLiveList() {
+        const con = document.getElementById('live-con');
+        const arrow = document.getElementById('live-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }
+    function syncLive() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&liveJson=${encodeURIComponent(JSON.stringify(state.live))}&callback=handleLiveResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleLiveResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="liveJson="]');
+        s.forEach(x => x.remove());
+    };
+    function refreshLiveTabVisibility() {
+        const tab = document.getElementById('tab-live');
+        const tabsBox = document.querySelector('.tabs');
+        if (!tab) return;
+        const show = state.live && state.live.showTab;
+        tab.style.display = show ? 'block' : 'none';
+        if (tabsBox) tabsBox.classList.toggle('has-live', !!show);
+        if (!show && currentView === 'live') { switchView('my'); }
+        renderLiveView();
+    }
+    function toggleLiveTabVisibility() {
+        if (!state.live) state.live = { showTab:false, status:'idle', performers:[], currentIndex:-1 };
+        state.live.showTab = !state.live.showTab;
+        syncLive();
+        refreshLiveTabVisibility();
+        renderLiveAdminSummary();
+    }
+    function renderLivePerformerChecks() {
+        const con = document.getElementById('live-performer-checks'); if (!con) return;
+        con.innerHTML = '';
+        state.members.forEach(m => {
+            const row = document.createElement('label');
+            row.style.cssText = "display:flex; align-items:center; gap:6px; background:#fff; padding:4px 6px; border-radius:6px; margin-bottom:3px; font-size:0.85em;";
+            row.innerHTML = `<input type="checkbox" value="${m.id}" class="live-perf-check"><span>${m.icon||'👤'} ${m.name}</span>`;
+            con.appendChild(row);
+        });
+    }
+    function createLive() {
+        const checks = document.querySelectorAll('.live-perf-check:checked');
+        if (checks.length < 2) { alert("出演者を2人以上選んでください"); return; }
+        const performers = Array.from(checks).map(c => {
+            const m = state.members.find(x => x.id === c.value);
+            return { id: m.id, name: m.name, icon: m.icon || '👤' };
+        });
+        if (!confirm(`${performers.length}人でライブを作成しますか？`)) return;
+        state.live = { showTab: state.live ? state.live.showTab : false, status: 'idle', performers: performers, currentIndex: -1 };
+        syncLive();
+        renderLiveAdminSummary();
+        renderLiveView();
+    }
+    function renderLiveAdminSummary() {
+        const box = document.getElementById('live-admin-summary'); if (!box) return;
+        const btn = document.getElementById('live-tab-toggle-btn');
+        const show = state.live && state.live.showTab;
+        if (btn) btn.innerText = show ? 'タブを非表示にする' : 'タブを表示する';
+        if (!state.live || !state.live.performers || state.live.performers.length === 0) {
+            box.innerText = '出演者未設定です';
+            return;
+        }
+        box.innerHTML = '出演者: ' + state.live.performers.map(p => `${p.icon}${p.name}`).join('、');
+    }
+    function renderLiveView() {
+        const body = document.getElementById('live-body');
+        if (!body) return;
+        if (!state.live || !state.live.performers || state.live.performers.length === 0) {
+            body.innerHTML = '準備中です…';
+            return;
+        }
+        let html = '<div style="font-weight:bold;margin-bottom:8px;">出演者</div>';
+        state.live.performers.forEach((p,i) => {
+            html += `<div style="margin-bottom:4px;">${i+1}. ${p.icon||'👤'} ${p.name}</div>`;
+        });
+        body.innerHTML = html;
     }
     function toggleClimbList() {
         const con = document.getElementById('climb-con');
