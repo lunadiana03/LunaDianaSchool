@@ -368,12 +368,12 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
             if (data.live) { state.live = data.live; }
         }
-        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveTabVisibility(); render();
+        
         document.getElementById('loading').style.display = 'none';
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
     };
-
+checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
     function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
         const script = document.createElement('script');
@@ -547,10 +547,10 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         if (checks.length < 2) { alert("出演者を2人以上選んでください"); return; }
         const performers = Array.from(checks).map(c => {
             const m = state.members.find(x => x.id === c.value);
-            return { id: m.id, name: m.name, icon: m.icon || '👤' };
+            return { id: m.id, name: m.name, icon: m.icon || '👤', cheers: 0, votes: 0 };
         });
         if (!confirm(`${performers.length}人でライブを作成しますか？`)) return;
-        state.live = { showTab: state.live ? state.live.showTab : false, status: 'idle', performers: performers, currentIndex: -1 };
+        state.live = { showTab: state.live ? state.live.showTab : false, status: 'idle', performers: performers, currentIndex: -1, voters: [], gimmick: null };
         syncLive();
         renderLiveAdminSummary();
         renderLiveView();
@@ -569,16 +569,150 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     function renderLiveView() {
         const body = document.getElementById('live-body');
         if (!body) return;
-        if (!state.live || !state.live.performers || state.live.performers.length === 0) {
-            body.innerHTML = '準備中です…';
+        const lv = state.live || { performers: [] };
+        if (!lv.performers || lv.performers.length === 0) {
+            body.innerHTML = '<div style="padding:20px;">準備中です…</div>';
             return;
         }
-        let html = '<div style="font-weight:bold;margin-bottom:8px;">出演者</div>';
-        state.live.performers.forEach((p,i) => {
-            html += `<div style="margin-bottom:4px;">${i+1}. ${p.icon||'👤'} ${p.name}</div>`;
-        });
+        const me = state.members.find(m => m.name === user);
+        let html = '';
+        if (lv.status === 'idle') {
+            html += `<div class="live-spotlight"><div style="font-weight:bold;">まもなく開演！</div></div>`;
+            html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${p.icon} ${p.name}</div>`).join('') + `</div>`;
+        } else if (lv.status === 'live') {
+            const cur = lv.performers[lv.currentIndex];
+            html += `<div class="live-spotlight"><div class="live-current-icon">${cur.icon||'👤'}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
+            html += `<button class="live-cheer-btn" onclick="liveCheer()">💗 応援する！</button>`;
+            if (me && me.name === cur.name) {
+                html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ 技発動！</button>`;
+            }
+            html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${p.icon} ${p.name}</div>`).join('') + `</div>`;
+        } else if (lv.status === 'voting') {
+            html += `<div class="live-spotlight"><div style="font-weight:bold;">🗳 投票タイム！好きな演者に投票してね</div></div>`;
+            const voted = (lv.voters||[]).includes(me ? me.id : '');
+            lv.performers.forEach(p => {
+                html += `<div class="live-vote-row"><span>${p.icon} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`;
+            });
+            if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:6px;">投票ありがとう！結果発表をお待ちください</div>`;
+        } else if (lv.status === 'result') {
+            html += `<div class="live-spotlight"><div style="font-weight:bold;">🏆 結果発表 🏆</div></div>`;
+            html += `<div id="live-result-list"></div>`;
+        }
+        if (state.isAdmin) {
+            html += `<div class="live-admin-ctrl">`;
+            if (lv.status === 'idle') {
+                html += `<button onclick="liveAdvance()">▶ ライブ開始</button>`;
+            } else if (lv.status === 'live') {
+                const isLast = lv.currentIndex >= lv.performers.length - 1;
+                html += `<button onclick="liveAdvance()">${isLast ? '🗳 投票を開始' : '⏭ 次の出演者へ'}</button>`;
+            } else if (lv.status === 'voting') {
+                html += `<button onclick="liveReveal()">🏆 結果発表する</button>`;
+            } else if (lv.status === 'result') {
+                html += `<button onclick="liveResetAll()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">🔚 ライブを終了してリセット</button>`;
+            }
+            html += `</div>`;
+        }
         body.innerHTML = html;
+        if (lv.status === 'result') { renderLiveResultReveal(); }
     }
+    function renderLiveResultReveal() {
+        const list = document.getElementById('live-result-list'); if (!list) return;
+        if (list.dataset.done === '1') return;
+        list.dataset.done = '1';
+        const lv = state.live;
+        const sorted = [...lv.performers].sort((a,b) => (a.votes||0) - (b.votes||0));
+        sorted.forEach((p, i) => {
+            setTimeout(() => {
+                const rank = sorted.length - i;
+                const row = document.createElement('div');
+                row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
+                row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span style="font-size:1.5em;">${p.icon||'👤'}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
+                list.appendChild(row);
+            }, i * 900);
+        });
+    }
+    function liveAdvance() {
+        if (!state.isAdmin) return;
+        const lv = state.live;
+        if (lv.status === 'idle') {
+            lv.currentIndex = 0; lv.status = 'live';
+        } else if (lv.status === 'live') {
+            if (lv.currentIndex >= lv.performers.length - 1) { lv.status = 'voting'; }
+            else { lv.currentIndex++; }
+        }
+        syncLive(); renderLiveView();
+    }
+    function liveCheer() {
+        const lv = state.live;
+        if (!lv || lv.status !== 'live') return;
+        const cur = lv.performers[lv.currentIndex];
+        cur.cheers = (cur.cheers||0) + 1;
+        syncLive(); renderLiveView();
+    }
+    function liveGimmick() {
+        const lv = state.live;
+        if (!lv || lv.status !== 'live') return;
+        lv.gimmick = { index: lv.currentIndex, ts: Date.now() };
+        syncLive();
+        triggerGimmickFlash();
+    }
+    function liveVote(pid) {
+        const lv = state.live;
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にログインしてください"); return; }
+        if (!lv.voters) lv.voters = [];
+        if (lv.voters.includes(me.id)) { alert("投票済みです"); return; }
+        const p = lv.performers.find(x => x.id === pid); if (!p) return;
+        p.votes = (p.votes||0) + 1;
+        lv.voters.push(me.id);
+        syncLive(); renderLiveView();
+    }
+    function liveReveal() {
+        if (!state.isAdmin) return;
+        state.live.status = 'result';
+        syncLive(); renderLiveView();
+    }
+    function liveResetAll() {
+        if (!state.isAdmin) return;
+        if (!confirm("ライブをリセットしますか？")) return;
+        state.live.status = 'idle';
+        state.live.currentIndex = -1;
+        state.live.performers.forEach(p => { p.cheers = 0; p.votes = 0; });
+        state.live.voters = [];
+        state.live.gimmick = null;
+        syncLive(); renderLiveView(); renderLiveAdminSummary();
+    }
+    function triggerGimmickFlash() {
+        const cab = document.querySelector('.live-cabinet'); if (!cab) return;
+        const flash = document.createElement('div');
+        flash.className = 'live-flash';
+        cab.appendChild(flash);
+        setTimeout(() => flash.remove(), 650);
+    }
+    let livePollTimer = null;
+    function startLivePolling() {
+        stopLivePolling();
+        livePollTimer = setInterval(fetchLiveOnly, 4000);
+    }
+    function stopLivePolling() {
+        if (livePollTimer) { clearInterval(livePollTimer); livePollTimer = null; }
+    }
+    function fetchLiveOnly() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=readAll&callback=handleLiveOnlyData`;
+        document.body.appendChild(script);
+    }
+    window.handleLiveOnlyData = function(data) {
+        if (data && data.live) {
+            const prevTs = state.live && state.live.gimmick ? state.live.gimmick.ts : null;
+            state.live = data.live;
+            renderLiveView();
+            const newTs = state.live.gimmick ? state.live.gimmick.ts : null;
+            if (newTs && newTs !== prevTs) { triggerGimmickFlash(); }
+        }
+        const scripts = document.querySelectorAll('script[src*="callback=handleLiveOnlyData"]');
+        scripts.forEach(s => s.remove());
+    };
     function toggleClimbList() {
         const con = document.getElementById('climb-con');
         const arrow = document.getElementById('climb-list-arrow');
