@@ -62,6 +62,10 @@
         .kumi-selector label { font-size: 0.85em; background: #f1f3f5; padding: 6px; border-radius: 8px; border: 1px solid #ccc; cursor: pointer; text-align: left; padding-left: 15px; }
         .kumi-selector input { display: none; }
         .kumi-selector input:checked + label { background: #ffcbd5; border-color: #ff758f; font-weight: bold; color: #ff4b72; }
+        .icon-selector { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; width:100%; }
+.icon-selector label { font-size:1.3em; background:#f1f3f5; border-radius:8px; border:1px solid #ccc; text-align:center; padding:4px 0; cursor:pointer; }
+.icon-selector input { display:none; }
+.icon-selector input:checked + label { background:#ffcbd5; border-color:#ff758f; }
         .preview-table { font-size: 0.75em; margin: 6px 0; background: #fff; border-radius: 8px; padding: 6px; border: 1px solid #ffe3e7; }
         .preview-row { display: grid; grid-template-columns: 44px 40px 1fr 1fr 1fr 1fr; gap: 2px; text-align: center; margin-bottom: 3px; }
         .preview-row:last-child { margin-bottom: 0; }
@@ -173,6 +177,28 @@
                 <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze">風の舞組🍃</label>
                 <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
             </div>
+        </div>
+        <div id="icon-box-container" style="width:100%;">
+            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 アイコンを選んでね</div>
+            <div class="icon-selector">
+                <input type="radio" name="icon-choice" id="icon-0" value="🐰" checked><label for="icon-0">🐰</label>
+                <input type="radio" name="icon-choice" id="icon-1" value="🐱"><label for="icon-1">🐱</label>
+                <input type="radio" name="icon-choice" id="icon-2" value="🐶"><label for="icon-2">🐶</label>
+                <input type="radio" name="icon-choice" id="icon-3" value="🦊"><label for="icon-3">🦊</label>
+                <input type="radio" name="icon-choice" id="icon-4" value="🐻"><label for="icon-4">🐻</label>
+                <input type="radio" name="icon-choice" id="icon-5" value="🐼"><label for="icon-5">🐼</label>
+                <input type="radio" name="icon-choice" id="icon-6" value="🦁"><label for="icon-6">🦁</label>
+                <input type="radio" name="icon-choice" id="icon-7" value="🐨"><label for="icon-7">🐨</label>
+                <input type="radio" name="icon-choice" id="icon-8" value="🌸"><label for="icon-8">🌸</label>
+                <input type="radio" name="icon-choice" id="icon-9" value="🎀"><label for="icon-9">🎀</label>
+                <input type="radio" name="icon-choice" id="icon-10" value="✨"><label for="icon-10">✨</label>
+                <input type="radio" name="icon-choice" id="icon-11" value="🦄"><label for="icon-11">🦄</label>
+                <input type="radio" name="icon-choice" id="icon-12" value="🍓"><label for="icon-12">🍓</label>
+                <input type="radio" name="icon-choice" id="icon-13" value="🎵"><label for="icon-13">🎵</label>
+                <input type="radio" name="icon-choice" id="icon-14" value="👑"><label for="icon-14">👑</label>
+                <input type="radio" name="icon-choice" id="icon-15" value="💎"><label for="icon-15">💎</label>
+            </div>
+            <input type="text" id="icon-custom-input" placeholder="自分の画像を使う場合はファイル名を入力（例: icon_hana.png）" style="margin-top:4px;">
         </div>
         <div style="display:flex; gap:5px; width:100%; margin-top:5px;">
             <button onclick="login()" style="flex:1;">決定</button>
@@ -930,19 +956,9 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
     function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
     function changeThemeStyles(t) {
-        const r = document.documentElement;
-        if (t === 'pink') { r.style.setProperty('--p', '#ffb7c5'); r.style.setProperty('--bg', '#fff2f4'); }
-        else if (t === 'blue') { r.style.setProperty('--p', '#a5d8ff'); r.style.setProperty('--bg', '#e7f5ff'); }
-        else if (t === 'teal') { r.style.setProperty('--p', '#96f2d7'); r.style.setProperty('--bg', '#e6fcf5'); }
-    }
-    function upPw() { const p = document.getElementById('pw').value.trim(); if(p) { state.password = p; alert("変更しました"); saveLocal(); } }
-    function login() {
-        const n = document.getElementById('login-in').value.trim(); if(!n) return;
-        let m = state.members.find(m => m.name === n);
-        if(!m) {
-            const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
-            if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
-           m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
+        const customIcon = document.getElementById('icon-custom-input').value.trim();
+            const icon = customIcon || document.querySelector('input[name="icon-choice"]:checked').value;
+            m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: icon, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
             syncToSheet(m);
         } else {
             if (!confirm(`「${n}」としてログインしますか？`)) return;
