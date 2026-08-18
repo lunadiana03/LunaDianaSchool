@@ -944,8 +944,20 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     window.handleLimitResponse = function(r) { fetchAllData(); const s = document.querySelectorAll('script[src*="limit="]'); s.forEach(x => x.remove()); };
     function changeTheme() { state.theme = document.getElementById('theme').value; changeThemeStyles(state.theme); saveLocal(); render(); }
     function changeThemeStyles(t) {
-        const customIcon = document.getElementById('icon-custom-input').value.trim();
-            const icon = customIcon || document.querySelector('input[name="icon-choice"]:checked').value;
+        const r = document.documentElement;
+        if (t === 'pink') { r.style.setProperty('--p', '#ffb7c5'); r.style.setProperty('--bg', '#fff2f4'); }
+        else if (t === 'blue') { r.style.setProperty('--p', '#a5d8ff'); r.style.setProperty('--bg', '#e7f5ff'); }
+        else if (t === 'teal') { r.style.setProperty('--p', '#96f2d7'); r.style.setProperty('--bg', '#e6fcf5'); }
+    }
+    function upPw() { const p = document.getElementById('pw').value.trim(); if(p) { state.password = p; alert("変更しました"); saveLocal(); } }
+    function login() {
+        const n = document.getElementById('login-in').value.trim(); if(!n) return;
+        let m = state.members.find(m => m.name === n);
+        if(!m) {
+            const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
+            const icon = document.getElementById('icon-custom-input').value.trim();
+            if (!icon) { alert("アイコン画像のファイル名を入力してください"); return; }
+            if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
             m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: icon, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
             syncToSheet(m);
         } else {
