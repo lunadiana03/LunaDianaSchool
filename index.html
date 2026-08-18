@@ -380,13 +380,8 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     document.getElementById('loading').style.display = 'none';
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
-};
-            
-        document.getElementById('loading').style.display = 'none';
-        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
-        scripts.forEach(s => s.remove());
-    };
-      
+};       
+        
  function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
         const script = document.createElement('script');
