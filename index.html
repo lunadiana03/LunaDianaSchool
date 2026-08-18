@@ -843,6 +843,8 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         });
         renderMeigenAdmin();
         renderClimbAdmin();
+        renderLivePerformerChecks();
+        renderLiveAdminSummary();
     }
       function adminResetClimb(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
