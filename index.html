@@ -376,13 +376,21 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
             if (data.live) { state.live = data.live; }
         }
-        
+        window.handleSpreadsheetData = function(data) {
+        if(data) {
+            ...(中身はそのまま)...
+        }
+        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
         document.getElementById('loading').style.display = 'none';
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
     };
-checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
-    function fetchAllData() {
+        document.getElementById('loading').style.display = 'none';
+        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
+        scripts.forEach(s => s.remove());
+    };
+      
+ function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
         const script = document.createElement('script');
         script.src = `${API_URL}?action=readAll&callback=handleSpreadsheetData`;
