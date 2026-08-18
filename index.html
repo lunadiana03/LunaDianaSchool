@@ -647,19 +647,6 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
         }
         body.innerHTML = html;
         if (lv.status === 'result') { renderLiveResultReveal(); }
-    }
-    function renderLiveResultReveal() {
-        const list = document.getElementById('live-result-list'); if (!list) return;
-        if (list.dataset.done === '1') return;
-        list.dataset.done = '1';
-        const lv = state.live;
-        const sorted = [...lv.performers].sort((a,b) => (a.votes||0) - (b.votes||0));
-        sorted.forEach((p, i) => {
-            setTimeout(() => {
-                const rank = sorted.length - i;
-                const row = document.createElement('div');
-                row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
-                row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span style="font-size:1.5em;">${p.icon||'👤'}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
                 list.appendChild(row);
             }, i * 900);
         });
@@ -672,6 +659,7 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
         } else if (lv.status === 'live') {
             if (lv.currentIndex >= lv.performers.length - 1) { lv.status = 'voting'; }
             else { lv.currentIndex++; }
+            row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
         }
         syncLive(); renderLiveView();
     }
