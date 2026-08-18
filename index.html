@@ -535,12 +535,19 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
     function renderLivePerformerChecks() {
         const con = document.getElementById('live-performer-checks'); if (!con) return;
         con.innerHTML = '';
+        const iconList = ["🐰","🐱","🐶","🦊","🐻","🐼","🦁","🐨","🌸","🎀","✨","🦄","🍓","🎵","👑","💎"];
         state.members.forEach(m => {
-            const row = document.createElement('label');
+            const row = document.createElement('div');
             row.style.cssText = "display:flex; align-items:center; gap:6px; background:#fff; padding:4px 6px; border-radius:6px; margin-bottom:3px; font-size:0.85em;";
-            row.innerHTML = `<input type="checkbox" value="${m.id}" class="live-perf-check"><span>${m.icon||'👤'} ${m.name}</span>`;
+            const opts = iconList.map(ic => `<option value="${ic}" ${m.icon===ic?'selected':''}>${ic}</option>`).join('');
+            row.innerHTML = `<input type="checkbox" value="${m.id}" class="live-perf-check"><span style="flex:1;">${m.name}</span><select onchange="setMemberIcon('${m.id}', this.value)" style="width:60px; margin:0; padding:2px;">${opts}</select>`;
             con.appendChild(row);
         });
+    }
+    function setMemberIcon(id, icon) {
+        const m = state.members.find(x => x.id === id); if (!m) return;
+        m.icon = icon;
+        syncToSheet(m);
     }
     function createLive() {
         const checks = document.querySelectorAll('.live-perf-check:checked');
