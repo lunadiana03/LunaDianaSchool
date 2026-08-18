@@ -604,7 +604,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'live') {
             const cur = lv.performers[lv.currentIndex];
-           html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
+            html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
             html += `<button class="live-cheer-btn" onclick="liveCheer()">💗 応援する！</button>`;
             if (me && me.name === cur.name) {
                 html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ 技発動！</button>`;
@@ -614,7 +614,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             html += `<div class="live-spotlight"><div style="font-weight:bold;">🗳 投票タイム！好きな演者に投票してね</div></div>`;
             const voted = (lv.voters||[]).includes(me ? me.id : '');
             lv.performers.forEach(p => {
-               html += `<div class="live-vote-row"><span>${getIconHtml(p.icon,'1.2em')} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`; 
+                html += `<div class="live-vote-row"><span>${getIconHtml(p.icon,'1.2em')} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`;
             });
             if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:6px;">投票ありがとう！結果発表をお待ちください</div>`;
         } else if (lv.status === 'result') {
@@ -637,6 +637,19 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         }
         body.innerHTML = html;
         if (lv.status === 'result') { renderLiveResultReveal(); }
+    }
+    function renderLiveResultReveal() {
+        const list = document.getElementById('live-result-list'); if (!list) return;
+        if (list.dataset.done === '1') return;
+        list.dataset.done = '1';
+        const lv = state.live;
+        const sorted = [...lv.performers].sort((a,b) => (a.votes||0) - (b.votes||0));
+        sorted.forEach((p, i) => {
+            setTimeout(() => {
+                const rank = sorted.length - i;
+                const row = document.createElement('div');
+                row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
+                row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
                 list.appendChild(row);
             }, i * 900);
         });
@@ -649,7 +662,6 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         } else if (lv.status === 'live') {
             if (lv.currentIndex >= lv.performers.length - 1) { lv.status = 'voting'; }
             else { lv.currentIndex++; }
-            row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
         }
         syncLive(); renderLiveView();
     }
