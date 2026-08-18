@@ -614,7 +614,7 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
             html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${p.icon} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'live') {
             const cur = lv.performers[lv.currentIndex];
-            html += `<div class="live-spotlight"><div class="live-current-icon">${cur.icon||'👤'}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
+           html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
             html += `<button class="live-cheer-btn" onclick="liveCheer()">💗 応援する！</button>`;
             if (me && me.name === cur.name) {
                 html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ 技発動！</button>`;
