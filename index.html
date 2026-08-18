@@ -178,10 +178,11 @@
                 <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
             </div>
         </div>
-        <div id="icon-box-container" style="width:100%;">
-            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 自分のアイコン画像のファイル名を入力してね</div>
-            <input type="text" id="icon-custom-input" placeholder="例: icon_hana.png" style="margin-top:4px;">
-        </div>
+       <div id="icon-box-container" style="width:100%;">
+    <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 自分の画像を選んでね</div>
+    <input type="file" id="icon-file-input" accept="image/*" style="margin-top:4px;">
+    <div id="icon-preview-wrap" style="text-align:center; margin-top:6px;"></div>
+</div>
         <div style="display:flex; gap:5px; width:100%; margin-top:5px;">
             <button onclick="login()" style="flex:1;">決定</button>
             <button onclick="logout()" style="background:#baabb0; box-shadow:0 3px 0 #9e8e93;">解除</button>
@@ -381,6 +382,49 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
 };       
+      let pendingIconBase64 = null;
+
+function resizeImageFile(file, maxDim, quality) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                if (w > h) { if (w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; } }
+                else { if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; } }
+                const canvas = document.createElement('canvas');
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = reject;
+            img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+function uploadIcon(base64, memberName) {
+    return fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'uploadIcon', name: memberName, image: base64 })
+    }).then(r => r.json()).then(res => res.url);
+}
+
+document.addEventListener('change', function(e) {
+    if (e.target && e.target.id === 'icon-file-input') {
+        const file = e.target.files[0];
+        if (!file) return;
+        resizeImageFile(file, 300, 0.8).then(base64 => {
+            pendingIconBase64 = base64;
+            document.getElementById('icon-preview-wrap').innerHTML =
+                `<img src="${base64}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #ff758f;">`;
+        });
+    }
+});
         
  function fetchAllData() {
         document.getElementById('loading').style.display = 'flex';
