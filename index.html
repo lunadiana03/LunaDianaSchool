@@ -352,24 +352,35 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     };
 
     window.handleSpreadsheetData = function(data) {
-        if(data) {
-            state.bbsText = data.bbsText;
-            state.limit = data.limit;
-            state.members = data.members.map(m => {
-                const h = {};
-                if (m.hStr) {
-                    m.hStr.split(',').forEach(item => {
-                        if (!item) return;
-                        const i = item.indexOf(':');
-                        if (i === -1) return;
-                        const k = item.substring(0, i);
-                        const v = parseInt(item.substring(i + 1)) || 0;
-                        h[k] = v;
-                    });
-                }
-                m.h = h;
-                return m;
-            });
+    if(data) {
+        state.bbsText = data.bbsText;
+        state.limit = data.limit;
+        state.members = data.members.map(m => {
+            const h = {};
+            if (m.hStr) {
+                m.hStr.split(',').forEach(item => {
+                    if (!item) return;
+                    const i = item.indexOf(':');
+                    if (i === -1) return;
+                    const k = item.substring(0, i);
+                    const v = parseInt(item.substring(i + 1)) || 0;
+                    h[k] = v;
+                });
+            }
+            m.h = h;
+            return m;
+        });
+        if (data.probs) { state.probs = data.probs; }
+        if (data.meigenList) { state.meigen = data.meigenList; }
+        if (data.climbTiers) { state.climbTiers = data.climbTiers; }
+        if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
+        if (data.live) { state.live = data.live; }
+    }
+    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
+    document.getElementById('loading').style.display = 'none';
+    const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
+    scripts.forEach(s => s.remove());
+};
             if (data.probs) { state.probs = data.probs; }
             if (data.meigenList) { state.meigen = data.meigenList; }
             if (data.climbTiers) { state.climbTiers = data.climbTiers; }
