@@ -381,21 +381,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
 };
-            if (data.probs) { state.probs = data.probs; }
-            if (data.meigenList) { state.meigen = data.meigenList; }
-            if (data.climbTiers) { state.climbTiers = data.climbTiers; }
-            if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
-            if (data.live) { state.live = data.live; }
-        }
-        window.handleSpreadsheetData = function(data) {
-        if(data) {
-            ...(中身はそのまま)...
-        }
-        checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
-        document.getElementById('loading').style.display = 'none';
-        const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
-        scripts.forEach(s => s.remove());
-    };
+            
         document.getElementById('loading').style.display = 'none';
         const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
         scripts.forEach(s => s.remove());
