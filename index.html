@@ -585,7 +585,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             box.innerText = '出演者未設定です';
             return;
         }
-        box.innerHTML = '出演者: ' + state.live.performers.map(p => `${p.icon}${p.name}`).join('、');
+        box.innerHTML = '出演者: ' + state.live.performers.map(p => getIconHtml(p.icon,'1.1em') + p.name).join('、');
     }
     function renderLiveView() {
         const body = document.getElementById('live-body');
