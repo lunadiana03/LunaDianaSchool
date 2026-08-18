@@ -313,7 +313,7 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
             src.start(0);
         } catch(e) {}
     }
-    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1 } };
+    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1, voters: [], gimmick: null } };
     let user = ""; let currentView = "my";
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
@@ -517,21 +517,19 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         const s = document.querySelectorAll('script[src*="liveJson="]');
         s.forEach(x => x.remove());
     };
-    function refreshLiveTabVisibility() {
-        const tab = document.getElementById('tab-live');
-        const tabsBox = document.querySelector('.tabs');
-        if (!tab) return;
+    function refreshLiveBannerVisibility() {
+        const banner = document.getElementById('live-banner');
+        if (!banner) return;
         const show = state.live && state.live.showTab;
-        tab.style.display = show ? 'block' : 'none';
-        if (tabsBox) tabsBox.classList.toggle('has-live', !!show);
-        if (!show && currentView === 'live') { switchView('my'); }
+        banner.style.display = show ? 'block' : 'none';
+        if (!show && currentView === 'live') { switchView('bbs'); }
         renderLiveView();
     }
     function toggleLiveTabVisibility() {
         if (!state.live) state.live = { showTab:false, status:'idle', performers:[], currentIndex:-1 };
         state.live.showTab = !state.live.showTab;
         syncLive();
-        refreshLiveTabVisibility();
+        refreshLiveBannerVisibility();
         renderLiveAdminSummary();
     }
     function renderLivePerformerChecks() {
