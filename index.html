@@ -611,7 +611,7 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
         let html = '';
         if (lv.status === 'idle') {
             html += `<div class="live-spotlight"><div style="font-weight:bold;">まもなく開演！</div></div>`;
-            html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${p.icon} ${p.name}</div>`).join('') + `</div>`;
+            html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'live') {
             const cur = lv.performers[lv.currentIndex];
            html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
@@ -619,12 +619,12 @@ checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); up
             if (me && me.name === cur.name) {
                 html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ 技発動！</button>`;
             }
-            html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${p.icon} ${p.name}</div>`).join('') + `</div>`;
+            html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'voting') {
             html += `<div class="live-spotlight"><div style="font-weight:bold;">🗳 投票タイム！好きな演者に投票してね</div></div>`;
             const voted = (lv.voters||[]).includes(me ? me.id : '');
             lv.performers.forEach(p => {
-                html += `<div class="live-vote-row"><span>${p.icon} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`;
+               html += `<div class="live-vote-row"><span>${getIconHtml(p.icon,'1.2em')} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`; 
             });
             if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:6px;">投票ありがとう！結果発表をお待ちください</div>`;
         } else if (lv.status === 'result') {
