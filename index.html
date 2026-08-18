@@ -551,12 +551,10 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
     function renderLivePerformerChecks() {
         const con = document.getElementById('live-performer-checks'); if (!con) return;
         con.innerHTML = '';
-        const iconList = ["🐰","🐱","🐶","🦊","🐻","🐼","🦁","🐨","🌸","🎀","✨","🦄","🍓","🎵","👑","💎"];
         state.members.forEach(m => {
             const row = document.createElement('div');
             row.style.cssText = "display:flex; align-items:center; gap:6px; background:#fff; padding:4px 6px; border-radius:6px; margin-bottom:3px; font-size:0.85em;";
-            const opts = iconList.map(ic => `<option value="${ic}" ${m.icon===ic?'selected':''}>${ic}</option>`).join('');
-            row.innerHTML = `<input type="checkbox" value="${m.id}" class="live-perf-check"><span style="flex:1;">${m.name}</span><select onchange="setMemberIcon('${m.id}', this.value)" style="width:60px; margin:0; padding:2px;">${opts}</select>`;
+            row.innerHTML = `<input type="checkbox" value="${m.id}" class="live-perf-check">${getIconHtml(m.icon,'1.4em')}<span style="flex:1;">${m.name}</span><button class="edit-btn" onclick="editIcon('${m.id}')">変更</button>`;
             con.appendChild(row);
         });
     }
