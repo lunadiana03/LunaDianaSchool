@@ -516,9 +516,22 @@ document.addEventListener('change', function(e) {
             climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
             callback: "handleSyncResponse"
         });
-        user = m.name;
-        localStorage.setItem('lesson_user_v21', user);
-        currentView = "my";classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-live').classList.toggle('active', view === 'live'); document.querySelector('.box').classList.toggle('stage-mode', view === 'live'); if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); } if(view === 'bbs') updateBbsDisplay(); if(view === 'climb') refreshClimbGateUI(); render(); }
+        function syncToSheet(m) {
+    document.getElementById('loading').style.display = 'flex';
+    let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
+    const params = new URLSearchParams({
+        action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
+        vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
+        climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
+        callback: "handleSyncResponse"
+    });
+    user = m.name;
+    localStorage.setItem('lesson_user_v21', user);
+    currentView = "my";
+    const script = document.createElement('script');
+    script.src = `${API_URL}?${params.toString()}`;
+    document.body.appendChild(script);
+}
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
     function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
