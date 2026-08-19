@@ -444,9 +444,10 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         if (data.meigenList) { state.meigen = data.meigenList; }
         if (data.climbTiers) { state.climbTiers = data.climbTiers; }
         if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
+        if (data.runTiers) { state.runTiers = data.runTiers; }
         if (data.live) { state.live = data.live; }
     }
-    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); render();
+    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshRunGateUI(); renderMascotPage(); render();
     document.getElementById('loading').style.display = 'none';
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
@@ -512,25 +513,12 @@ document.addEventListener('change', function(e) {
         const params = new URLSearchParams({
             action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
-            climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"",
+            climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
             callback: "handleSyncResponse"
         });
         user = m.name;
         localStorage.setItem('lesson_user_v21', user);
-        currentView = "my";
-        const script = document.createElement('script');
-        script.src = `${API_URL}?${params.toString()}`;
-        document.body.appendChild(script);
-    }
-
-    window.handleSyncResponse = function(response) {
-        fetchAllData();
-        const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
-        scripts.forEach(s => s.remove());
-    };
-    function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
-    function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
- function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-live').classList.toggle('active', view === 'live'); document.querySelector('.box').classList.toggle('stage-mode', view === 'live'); if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); } if(view === 'bbs') updateBbsDisplay(); if(view === 'climb') refreshClimbGateUI(); render(); }
+        currentView = "my";classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-live').classList.toggle('active', view === 'live'); document.querySelector('.box').classList.toggle('stage-mode', view === 'live'); if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); } if(view === 'bbs') updateBbsDisplay(); if(view === 'climb') refreshClimbGateUI(); render(); }
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); box.style.display = (user && isRegistered) ? 'none' : 'flex'; }
     function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
@@ -543,7 +531,7 @@ document.addEventListener('change', function(e) {
     }
     function getMeigenData() {
         if (!state.meigen || state.meigen.length === 0) return "（格言はまだ登録されていません）";
-        const dayCount = Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000));
+        function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('tab-run').classList.toggle('active', view === 'run'); document.getElementById('tab-mascot').classList.toggle('active', view === 'mascot'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-run').classList.toggle('active', view === 'run'); document.getElementById('view-mascot').classList.toggle('active', view === 'mascot'); document.getElementById('view-live').classList.toggle('active', view === 'live'); document.querySelector('.box').classList.toggle('stage-mode', view === 'live'); if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); } if(view === 'bbs') updateBbsDisplay(); if(view === 'climb') refreshClimbGateUI(); if(view === 'run') refreshRunGateUI(); if(view === 'mascot') renderMascotPage(); render(); }
         const idx = Math.abs(dayCount) % state.meigen.length;
         return state.meigen[idx];
     }
@@ -850,33 +838,60 @@ document.addEventListener('change', function(e) {
         con.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▼' : '▶';
     }
-    function renderClimbAdmin() {
-        const con = document.getElementById('climb-con'); if (!con) return;
-        con.innerHTML = '';
-        (state.climbTiers || []).forEach((t, idx) => {
-            const row = document.createElement('div');
-            row.style.cssText = "background:#fff;margin-bottom:4px;padding:4px;border-radius:5px;";
-            row.innerHTML = `<div class="p-row"><span><b>高さ</b>:</span><div><input type="number" value="${t.height}" onchange="upClimbTier(${idx},'height',this.value)" style="width:50px;"></div></div><div class="p-inputs">Vo:<input type="number" value="${t.vo}" onchange="upClimbTier(${idx},'vo',this.value)">Pl:<input type="number" value="${t.pl}" onchange="upClimbTier(${idx},'pl',this.value)">Da:<input type="number" value="${t.da}" onchange="upClimbTier(${idx},'da',this.value)">Vi:<input type="number" value="${t.vi}" onchange="upClimbTier(${idx},'vi',this.value)"></div><button class="edit-btn" onclick="delClimbTier(${idx})" style="color:#f03e3e;border-color:#ffc9c9;width:100%;margin-top:2px;">この段階を削除</button>`;
-            con.appendChild(row);
+    function renderTierAdmin(containerId) {
+        const cfg = TIER_CONFIGS[containerId];
+        const con = document.getElementById(containerId); if (!con || !cfg) return;
+        const tiers = cfg.getArr();
+        let html = `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
+        tiers.forEach((t, idx) => {
+            html += `<div class="tier-row">
+                <input type="number" value="${t[cfg.keyProp]}" onchange="upTierField('${containerId}',${idx},'${cfg.keyProp}',this.value)">
+                <input type="number" value="${t.vo}" onchange="upTierField('${containerId}',${idx},'vo',this.value)">
+                <input type="number" value="${t.pl}" onchange="upTierField('${containerId}',${idx},'pl',this.value)">
+                <input type="number" value="${t.da}" onchange="upTierField('${containerId}',${idx},'da',this.value)">
+                <input type="number" value="${t.vi}" onchange="upTierField('${containerId}',${idx},'vi',this.value)">
+                <button class="edit-btn" onclick="delTierRow('${containerId}',${idx})">✕</button>
+            </div>`;
         });
+        html += `</div><button onclick="addTierRow('${containerId}')" style="width:100%;margin-top:6px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
+        con.innerHTML = html;
     }
-    function addClimbTier() {
-        if (!state.climbTiers) state.climbTiers = [];
-        state.climbTiers.push({ height: 10, vo:2, pl:2, da:2, vi:2 });
-        state.climbTiers.sort((a,b) => a.height - b.height);
-        syncClimbTiers(); renderClimbAdmin();
+    function upTierField(containerId, idx, field, val) {
+        const cfg = TIER_CONFIGS[containerId];
+        const n = parseInt(val) || 0;
+        cfg.getArr()[idx][field] = n;
+        if (field === cfg.keyProp) cfg.getArr().sort((a,b) => a[cfg.keyProp] - b[cfg.keyProp]);
+        cfg.sync(); renderTierAdmin(containerId);
     }
-    function delClimbTier(idx) {
+    function addTierRow(containerId) {
+        const cfg = TIER_CONFIGS[containerId];
+        const base = { vo:2, pl:2, da:2, vi:2 }; base[cfg.keyProp] = 10;
+        cfg.getArr().push(base);
+        cfg.getArr().sort((a,b) => a[cfg.keyProp] - b[cfg.keyProp]);
+        cfg.sync(); renderTierAdmin(containerId);
+    }
+    function delTierRow(containerId, idx) {
         if (!confirm("この段階を削除しますか？")) return;
-        state.climbTiers.splice(idx,1);
-        syncClimbTiers(); renderClimbAdmin();
+        const cfg = TIER_CONFIGS[containerId];
+        cfg.getArr().splice(idx,1);
+        cfg.sync(); renderTierAdmin(containerId);
     }
-    function upClimbTier(idx, k, v) {
-        const n = parseInt(v) || 0;
-        state.climbTiers[idx][k] = n;
-        if (k === 'height') state.climbTiers.sort((a,b) => a.height - b.height);
-        syncClimbTiers(); renderClimbAdmin();
+    function toggleRunList() {
+        const con = document.getElementById('run-con');
+        const arrow = document.getElementById('run-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
     }
+    function syncRunTiers() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&runJson=${encodeURIComponent(JSON.stringify(state.runTiers))}&callback=handleRunTiersResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleRunTiersResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="runJson="]');
+        s.forEach(x => x.remove());
+    };
       function upClimbDesc() {
         state.climbDesc = document.getElementById('admin-climb-desc').value;
         document.getElementById('climb-desc').innerText = state.climbDesc;
@@ -1060,25 +1075,25 @@ document.addEventListener('change', function(e) {
     }
     function upPw() { const p = document.getElementById('pw').value.trim(); if(p) { state.password = p; alert("変更しました"); saveLocal(); } }
     function login() {
-    const n = document.getElementById('login-in').value.trim(); if(!n) return;
-    let m = state.members.find(m => m.name === n);
-    if(!m) {
-        const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
-        if (!pendingIconBase64) { alert("自分の画像を選んでください"); return; }
-        if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
-        document.getElementById('loading').style.display = 'flex';
-        uploadIcon(pendingIconBase64, n).then(url => {
-            m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: url, r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
-            syncToSheet(m);
-        }).catch(() => {
-            document.getElementById('loading').style.display = 'none';
-            alert("画像のアップロードに失敗しました");
-        });
-    } else {
-        if (!confirm(`「${n}」としてログインしますか？`)) return;
-        user = n; localStorage.setItem('lesson_user_v21', user); fetchAllData();
+        const n = document.getElementById('login-in').value.trim(); if(!n) return;
+        let m = state.members.find(m => m.name === n);
+        if(!m) {
+            const kumi = document.querySelector('input[name="kumi-choice"]:checked').value;
+            if (!pendingIconBase64) { alert("自分の画像を選んでください"); return; }
+            if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
+            document.getElementById('loading').style.display = 'flex';
+            uploadIcon(pendingIconBase64, n).then(url => {
+                m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: url, mascotId: 'mascot1', r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0 };
+                syncToSheet(m);
+            }).catch(() => {
+                document.getElementById('loading').style.display = 'none';
+                alert("画像のアップロードに失敗しました");
+            });
+        } else {
+            if (!confirm(`「${n}」としてログインしますか？`)) return;
+            user = n; localStorage.setItem('lesson_user_v21', user); fetchAllData();
+        }
     }
-}
     function logout() { user = ""; localStorage.removeItem('lesson_user_v21'); document.getElementById('login-in').value = ""; updateLoginBoxUI(); render(); }
     function goAdmin() { if (state.isAdmin) { state.isAdmin = false; } else { if (prompt("暗証番号:") === state.password) state.isAdmin = true; } updateUI(); render(); }
     function updateUI() {
@@ -1134,7 +1149,8 @@ document.addEventListener('change', function(e) {
             blk.innerHTML = html; con.appendChild(blk);
         });
         renderMeigenAdmin();
-        renderClimbAdmin();
+        renderTierAdmin('climb-con');
+        renderTierAdmin('run-con');
         renderLivePerformerChecks();
         renderLiveAdminSummary();
     }
@@ -1144,6 +1160,168 @@ document.addEventListener('change', function(e) {
         m.climbDate = "";
         m.r = Math.max(0, m.r - 3);
         syncToSheet(m);
+    }
+      function refreshRunGateUI() {
+        if (run.active) return;
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('run-start-btn');
+        const distEl = document.getElementById('run-distance');
+        const obsCon = document.getElementById('run-obstacles');
+        const cd = document.getElementById('run-countdown');
+        const charImg = document.getElementById('run-char-img');
+        const char = document.getElementById('run-char');
+        if (!startBtn || !distEl) return;
+        distEl.innerText = '0m';
+        if (obsCon) obsCon.innerHTML = '';
+        if (cd) cd.style.display = 'none';
+        if (char) char.style.bottom = '0px';
+        const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        if (charImg) charImg.src = ms.img;
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; }
+    }
+    function startRun() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("ランニングを始めますか？")) return;
+        document.getElementById('run-start-btn').style.display = 'none';
+        document.getElementById('run-result').innerHTML = '';
+        runCountdown(me);
+    }
+    function runCountdown(me) {
+        const cd = document.getElementById('run-countdown');
+        let n = 3;
+        cd.style.display = 'flex'; cd.innerText = n;
+        playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartRun(me); }
+        }, 1200);
+    }
+    function actuallyStartRun(me) {
+        playSound('start');
+        run = { active:true, distance:0, obstacles:[], jumping:false, jumpStart:0, speed:6, spawnTimer:60, targetId:me.id, frameIdx:0, frameTimer:0 };
+        document.getElementById('run-distance').innerText = '0m';
+        document.getElementById('run-obstacles').innerHTML = '';
+        document.getElementById('run-char').style.bottom = '0px';
+        clearInterval(run.tick);
+        run.tick = setInterval(runLoop, 50);
+    }
+    function runJump() {
+        if (!run.active || run.jumping) return;
+        run.jumping = true;
+        run.jumpStart = Date.now();
+    }
+    function updateRunCharFrame() {
+        const me = state.members.find(m => m.id === run.targetId);
+        const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        const frames = (ms.runFrames && ms.runFrames.length) ? ms.runFrames : MASCOTS[0].runFrames;
+        const idx = run.frameIdx % frames.length;
+        const img = document.getElementById('run-char-img');
+        if (img) img.src = frames[idx];
+    }
+    function spawnObstacle() {
+        const track = document.getElementById('run-track'); if (!track) return;
+        const el = document.createElement('div');
+        el.className = 'run-obstacle';
+        track.appendChild(el);
+        const x = track.clientWidth;
+        el.style.left = x + 'px';
+        run.obstacles.push({ x: x, el: el });
+    }
+    function runLoop() {
+        if (!run.active) return;
+        run.distance += Math.round(run.speed / 3);
+        document.getElementById('run-distance').innerText = run.distance + 'm';
+        run.speed = Math.min(14, 6 + run.distance / 100);
+
+        run.frameTimer += 50;
+        if (run.frameTimer > 150) {
+            run.frameTimer = 0;
+            run.frameIdx++;
+            updateRunCharFrame();
+        }
+
+        const char = document.getElementById('run-char');
+        let jumpHeight = 0;
+        if (run.jumping) {
+            const t = Date.now() - run.jumpStart;
+            if (t >= RUN_JUMP_DURATION) { run.jumping = false; char.style.bottom = '0px'; }
+            else {
+                const progress = t / RUN_JUMP_DURATION;
+                jumpHeight = Math.sin(progress * Math.PI) * RUN_JUMP_HEIGHT;
+                char.style.bottom = jumpHeight + 'px';
+            }
+        }
+
+        run.spawnTimer -= run.speed;
+        if (run.spawnTimer <= 0) {
+            spawnObstacle();
+            run.spawnTimer = 120 + Math.random() * 100;
+        }
+        run.obstacles.forEach(o => {
+            o.x -= run.speed;
+            o.el.style.left = o.x + 'px';
+        });
+        run.obstacles = run.obstacles.filter(o => {
+            if (o.x < -30) { o.el.remove(); return false; }
+            return true;
+        });
+
+        for (const o of run.obstacles) {
+            if (o.x < RUN_CHAR_X + 26 && o.x + 18 > RUN_CHAR_X) {
+                if (jumpHeight < 30) { endRun(); return; }
+            }
+        }
+    }
+    function endRun() {
+        run.active = false;
+        clearInterval(run.tick);
+        playSound('timeup');
+        const m = state.members.find(x => x.id === run.targetId);
+        if (!m) return;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.runTiers || []).forEach(t => { if (run.distance >= t.distance) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++;
+        ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        document.getElementById('run-result').innerHTML = `
+            <div class="climb-result-title">🏁 結果！</div>
+            <div class="climb-result-height">${run.distance}m</div>
+            <div class="climb-result-stats">
+                <div>Vo ${earned.vo}↑</div>
+                <div>Pl ${earned.pl}↑</div>
+                <div>Da ${earned.da}↑</div>
+                <div>Vi ${earned.vi}↑</div>
+            </div>`;
+        document.getElementById('run-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function renderMascotPage() {
+        const con = document.getElementById('mascot-grid'); if (!con) return;
+        const me = state.members.find(m => m.name === user);
+        con.innerHTML = MASCOTS.map(ms => {
+            const selected = me && me.mascotId === ms.id;
+            const cls = 'mascot-card' + (selected ? ' selected' : '') + (!ms.available ? ' locked' : '');
+            const onclick = ms.available ? `onclick="selectMascot('${ms.id}')"` : '';
+            return `<div class="${cls}" ${onclick}>
+                <img src="${ms.img}" onerror="this.style.opacity=0.2">
+                <div class="mascot-name">${ms.name}</div>
+                ${!ms.available ? '<div class="mascot-lock">近日公開</div>' : ''}
+                ${selected ? '<div class="mascot-check">✔ 使用中</div>' : ''}
+            </div>`;
+        }).join('');
+    }
+    function selectMascot(id) {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にログインしてください"); return; }
+        me.mascotId = id;
+        syncToSheet(me);
+        renderMascotPage();
     }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
