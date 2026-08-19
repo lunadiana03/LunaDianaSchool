@@ -543,11 +543,34 @@ document.addEventListener('change', function(e) {
         return { kumi: luckyKumi, key: statKeys[Math.abs(dayCount + 1) % 4], label: statLabels[Math.abs(dayCount + 1) % 4] };
     }
     function getMeigenData() {
-        if (!state.meigen || state.meigen.length === 0) return "（格言はまだ登録されていません）";
-        function switchView(view) { currentView = view; document.getElementById('tab-my').classList.toggle('active', view === 'my'); document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('tab-all').classList.toggle('active', view === 'all'); document.getElementById('tab-climb').classList.toggle('active', view === 'climb'); document.getElementById('tab-run').classList.toggle('active', view === 'run'); document.getElementById('tab-mascot').classList.toggle('active', view === 'mascot'); document.getElementById('view-my').classList.toggle('active', view === 'my'); document.getElementById('view-bbs').classList.toggle('active', view === 'bbs'); document.getElementById('view-all').classList.toggle('active', view === 'all'); document.getElementById('view-climb').classList.toggle('active', view === 'climb'); document.getElementById('view-run').classList.toggle('active', view === 'run'); document.getElementById('view-mascot').classList.toggle('active', view === 'mascot'); document.getElementById('view-live').classList.toggle('active', view === 'live'); document.querySelector('.box').classList.toggle('stage-mode', view === 'live'); if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); } if(view === 'bbs') updateBbsDisplay(); if(view === 'climb') refreshClimbGateUI(); if(view === 'run') refreshRunGateUI(); if(view === 'mascot') renderMascotPage(); render(); }
-        const idx = Math.abs(dayCount) % state.meigen.length;
-        return state.meigen[idx];
-    }
+    if (!state.meigen || state.meigen.length === 0) return "（格言はまだ登録されていません）";
+    const dayCount = Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000));
+    const idx = Math.abs(dayCount) % state.meigen.length;
+    return state.meigen[idx];
+}
+        function switchView(view) {
+    currentView = view;
+    document.getElementById('tab-my').classList.toggle('active', view === 'my');
+    document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs');
+    document.getElementById('tab-all').classList.toggle('active', view === 'all');
+    document.getElementById('tab-climb').classList.toggle('active', view === 'climb');
+    document.getElementById('tab-run').classList.toggle('active', view === 'run');
+    document.getElementById('tab-mascot').classList.toggle('active', view === 'mascot');
+    document.getElementById('view-my').classList.toggle('active', view === 'my');
+    document.getElementById('view-bbs').classList.toggle('active', view === 'bbs');
+    document.getElementById('view-all').classList.toggle('active', view === 'all');
+    document.getElementById('view-climb').classList.toggle('active', view === 'climb');
+    document.getElementById('view-run').classList.toggle('active', view === 'run');
+    document.getElementById('view-mascot').classList.toggle('active', view === 'mascot');
+    document.getElementById('view-live').classList.toggle('active', view === 'live');
+    document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
+    if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); }
+    if (view === 'bbs') updateBbsDisplay();
+    if (view === 'climb') refreshClimbGateUI();
+    if (view === 'run') refreshRunGateUI();
+    if (view === 'mascot') renderMascotPage();
+    render();
+}
     function toggleMeigen() {
         const body = document.getElementById('meigen-body');
         const arrow = document.getElementById('meigen-arrow');
