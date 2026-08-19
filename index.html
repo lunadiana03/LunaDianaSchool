@@ -109,14 +109,14 @@
 .live-banner { background: linear-gradient(135deg,#ff6fa5,#ffd36e); color:#fff; text-align:center; font-weight:900; font-size:1.1em; padding:14px; border-radius:16px; margin-bottom:10px; box-shadow:0 4px 0 #d9436f, 0 0 16px rgba(255,111,165,0.7); cursor:pointer; animation:live-banner-pulse 1.4s ease-in-out infinite; }
 @keyframes live-banner-pulse { 0%,100% { transform:scale(1);} 50% { transform:scale(1.03);} }
 .live-cabinet { font-family:'Mochiy Pop One', sans-serif; background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15), transparent 60%), linear-gradient(180deg,#241a45,#120c26); border-radius:20px; padding:18px; text-align:center; color:#fff; box-shadow:0 0 30px rgba(255,111,165,0.4); position:relative; overflow:hidden; }
-.live-cabinet::before { content:''; position:absolute; inset:0; background-image: radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px); background-size:30px 30px; animation: sparkle-move 6s linear infinite; opacity:0.4; }
+.live-cabinet::before { content:''; position:absolute; inset:0; background-image: radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px); background-size:30px 30px; animation: sparkle-move 6s linear infinite; opacity:0.4; pointer-events:none; }
 .live-title { font-size:1.3em; margin-bottom:12px; text-shadow:0 0 10px #ff9ecb, 0 2px 3px rgba(0,0,0,0.5); position:relative; z-index:1; }
 .live-spotlight { position:relative; z-index:1; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.3); border-radius:16px; padding:16px; margin-bottom:12px; }
 .live-current-icon { font-size:3.5em; filter:drop-shadow(0 0 12px #ffd36e); animation:float-bob 1.2s ease-in-out infinite alternate; }
 .live-current-name { font-size:1.2em; margin-top:6px; font-weight:bold; }
 .live-cheer-count { font-size:0.85em; opacity:0.85; margin-top:4px; }
-.live-cheer-btn { background:linear-gradient(145deg,#ff9fd6,#e6008a); width:100%; margin-top:10px; font-size:1.1em; padding:12px; border-radius:16px; }
-.live-gimmick-btn { background:linear-gradient(145deg,#ffe89e,#f5a800); width:100%; margin-top:8px; font-size:1.1em; padding:12px; border-radius:16px; }
+.live-cheer-btn { background:linear-gradient(145deg,#ff9fd6,#e6008a); width:100%; margin-top:10px; font-size:1.1em; padding:12px; border-radius:16px; position:relative; z-index:2; }
+.live-gimmick-btn { background:linear-gradient(145deg,#ffe89e,#f5a800); width:100%; margin-top:8px; font-size:1.1em; padding:12px; border-radius:16px; position:relative; z-index:2; }
 .live-queue { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:10px; position:relative; z-index:1; }
 .live-queue-item { background:rgba(255,255,255,0.12); border-radius:10px; padding:6px 8px; font-size:0.85em; opacity:0.6; }
 .live-queue-item.current { opacity:1; background:rgba(255,211,110,0.35); border:1px solid #ffd36e; }
@@ -126,7 +126,9 @@
 .live-result-row { display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); border-radius:12px; padding:10px; margin-bottom:6px; opacity:0; animation: live-reveal-in 0.5s ease forwards; }
 @keyframes live-reveal-in { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
 .live-result-row.gold { background:linear-gradient(90deg,rgba(255,211,110,0.3),rgba(255,255,255,0.1)); border:2px solid #ffd36e; box-shadow:0 0 14px rgba(255,211,110,0.6); }
-.live-flash { position:absolute; inset:0; background:radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%); animation: live-flash-anim 0.6s ease-out; pointer-events:none; z-index:10; }
+.live-flash { position:absolute; inset:0; background:radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%); animation: live-flash-anim 0.6s ease-out; pointer-events:none; z-index:10; } 
+        .box.stage-mode header, .box.stage-mode .tabs, .box.stage-mode .login, .box.stage-mode .admin { display:none !important; }
+.live-exit-btn { background:#4c6ef5; color:#fff; font-size:0.8em; padding:6px 12px; border-radius:10px; box-shadow:0 2px 0 #364fc7; margin-bottom:10px; }
 @keyframes live-flash-anim { from { opacity:1; } to { opacity:0; } }
         .cal-btn { position: absolute; top: 8px; left: 8px; background: #4c6ef5; font-size: 0.75em; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 0 #364fc7; color:#fff; }
         .calendar-overlay { display:none; position: fixed; inset: 0; background: rgba(90,75,78,0.55); z-index: 5000; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
