@@ -263,6 +263,7 @@
         </div>
     </div>
     <div id="view-live" class="view-section">
+        <button class="live-exit-btn" onclick="exitLiveView()">🚪 退出する</button>
         <div class="live-cabinet">
             <div class="live-title">🎤 ライブ会場</div>
             <div id="live-body">準備中です…</div>
@@ -625,6 +626,10 @@ document.addEventListener('change', function(e) {
         }
         box.innerHTML = '出演者: ' + state.live.performers.map(p => getIconHtml(p.icon,'1.1em') + p.name).join('、');
     }
+      function exitLiveView() {
+        if (!confirm('ライブ会場から退出しますか？')) return;
+        switchView('bbs');
+    }
     function renderLiveView() {
         const body = document.getElementById('live-body');
         if (!body) return;
@@ -643,7 +648,7 @@ document.addEventListener('change', function(e) {
             html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
             html += `<button class="live-cheer-btn" onclick="liveCheer()">💗 応援する！</button>`;
             if (me && me.name === cur.name) {
-                html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ 技発動！</button>`;
+                html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ アピールを発動！</button>`;
             }
             html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'voting') {
