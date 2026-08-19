@@ -523,21 +523,6 @@ document.addEventListener('change', function(e) {
         script.src = `${API_URL}?${params.toString()}`;
         document.body.appendChild(script);
     }
-    document.getElementById('loading').style.display = 'flex';
-    let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
-    const params = new URLSearchParams({
-        action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
-        vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
-        climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
-        callback: "handleSyncResponse"
-    });
-    user = m.name;
-    localStorage.setItem('lesson_user_v21', user);
-    currentView = "my";
-    const script = document.createElement('script');
-    script.src = `${API_URL}?${params.toString()}`;
-    document.body.appendChild(script);
-}
       window.handleSyncResponse = function(response) {
         fetchAllData();
         const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
