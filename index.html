@@ -17,7 +17,8 @@
         button { background: var(--p); color: #fff; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9em; box-shadow: 0 3px 0 #ff9aa9; }
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
         button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
-        .tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 10px; }
+       .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+.tab-btn { flex: 1 1 30%; }
         .tabs.has-live { grid-template-columns: repeat(5, 1fr); }
 .live-cabinet { background:#fff; border:2px dashed #ff9aa9; border-radius:15px; padding:14px; text-align:center; }
 .live-title { font-weight:bold; color:#ff758f; margin-bottom:8px; font-size:1.1em; }
@@ -105,6 +106,29 @@
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
 .climb-result-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.85em; }
 .climb-result-stats div { background:rgba(255,255,255,0.5); border-radius:8px; padding:4px 0; }
+        .tier-table { background:#fff; border-radius:8px; padding:4px; margin-bottom:6px; }
+.tier-row { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 26px; gap:3px; align-items:center; padding:3px 0; border-bottom:1px solid #ffe3e7; }
+.tier-row:last-child { border-bottom:none; }
+.tier-head { font-weight:bold; font-size:0.7em; color:#ff758f; border-bottom:2px solid #ffd3db; }
+.tier-row input { margin:0; padding:3px; font-size:0.8em; text-align:center; }
+.run-cabinet { font-family:'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ffe89e,#ffb26b); border-radius:24px; padding:16px; color:#5a3a1e; text-align:center; box-shadow:0 6px 0 #d98a3d; }
+.run-title { font-size:1.1em; margin-bottom:8px; }
+.run-stats { font-weight:bold; margin-bottom:8px; }
+.run-track { background:linear-gradient(180deg,#fff6e0,#f5deb3); border-radius:16px; height:120px; position:relative; overflow:hidden; border:3px solid #fff; margin-bottom:10px; }
+.run-char { position:absolute; left:40px; bottom:0px; width:40px; height:40px; }
+.run-char img { width:100%; height:100%; object-fit:contain; }
+.run-obstacle { position:absolute; bottom:0; width:18px; height:30px; background:#5a3a1e; border-radius:4px 4px 0 0; }
+.run-jump-btn { width:100%; margin-bottom:8px; background:linear-gradient(145deg,#ff9fd6,#e6008a); font-size:1.1em; padding:14px; border-radius:16px; }
+.mascot-page { background:#fff; border:2px dashed #ffcbd5; border-radius:15px; padding:14px; }
+.mascot-title { font-weight:bold; color:#ff758f; text-align:center; margin-bottom:10px; }
+.mascot-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.mascot-card { position:relative; background:#fff9fa; border:2px solid #ffe3e7; border-radius:14px; padding:10px; text-align:center; }
+.mascot-card img { width:100%; max-width:100px; height:100px; object-fit:contain; }
+.mascot-card.selected { border-color:#ff758f; background:#ffe3e7; }
+.mascot-card.locked { opacity:0.5; }
+.mascot-name { font-weight:bold; margin-top:4px; font-size:0.9em; }
+.mascot-lock { position:absolute; top:6px; right:6px; background:#baabb0; color:#fff; font-size:0.65em; padding:2px 6px; border-radius:8px; }
+.mascot-check { color:#ff758f; font-weight:bold; font-size:0.8em; margin-top:2px; }
         .box.stage-mode { background: radial-gradient(circle at 50% 0%, #3a2b6d 0%, #150f2e 60%, #0a0716 100%); border-radius:20px; padding-top:10px; }
 .live-banner { background: linear-gradient(135deg,#ff6fa5,#ffd36e); color:#fff; text-align:center; font-weight:900; font-size:1.1em; padding:14px; border-radius:16px; margin-bottom:10px; box-shadow:0 4px 0 #d9436f, 0 0 16px rgba(255,111,165,0.7); cursor:pointer; animation:live-banner-pulse 1.4s ease-in-out infinite; }
 @keyframes live-banner-pulse { 0%,100% { transform:scale(1);} 50% { transform:scale(1.03);} }
@@ -167,7 +191,9 @@
         <button id="tab-my" class="tab-btn active" onclick="switchView('my')">📋 マイページ</button>
         <button id="tab-bbs" class="tab-btn" onclick="switchView('bbs')">📢 掲示板</button>
         <button id="tab-all" class="tab-btn" onclick="switchView('all')">🏡 みんなの広場</button>
-        <button id="tab-climb" class="tab-btn" onclick="switchView('climb')">🧗 崖登り!!</button>
+        <button id="tab-climb" class="tab-btn" onclick="switchView('climb')">🧗‍♀️ 崖登り!!</button>
+        <button id="tab-run" class="tab-btn" onclick="switchView('run')">🏃‍♀️ ランニング</button>
+        <button id="tab-mascot" class="tab-btn" onclick="switchView('mascot')">︎🌟 マスコット</button>
     </div>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
@@ -211,8 +237,9 @@
         <button onclick="addMeigen()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 格言を追加</button>
        <h3 onclick="toggleClimbList()" style="cursor:pointer;">🧗 崖登りポイント設定 <span id="climb-list-arrow">▶</span></h3>
         <div id="climb-con" style="display:none;"></div>
-        <button onclick="addClimbTier()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 段階を追加</button>
         <textarea id="admin-climb-desc" rows="3" placeholder="崖登りの説明文を入力してね" onchange="upClimbDesc()"></textarea>
+        <h3 onclick="toggleRunList()" style="cursor:pointer;">🏃‍♀️ START DASH !! ポイント設定 <span id="run-list-arrow">▶</span></h3>
+        <div id="run-con" style="display:none;"></div>
         <h3>💾 バックアップ（手動）</h3>
         <h3 onclick="toggleLiveList()" style="cursor:pointer;">🎤 ライブ設定 <span id="live-list-arrow">▶</span></h3>
         <div id="live-con" style="display:none;">
@@ -242,6 +269,26 @@
         </div>
     </div>
     <div id="view-climb" class="view-section">
+        <div id="view-run" class="view-section">
+        <div class="run-cabinet">
+            <div class="run-title">🏃‍♀️ START DASH !!</div>
+            <div class="run-stats">📏 距離: <span id="run-distance">0m</span></div>
+            <div class="run-track" id="run-track">
+                <div id="run-char" class="run-char"><img id="run-char-img" src="mascot1.png"></div>
+                <div id="run-obstacles"></div>
+                <div id="run-countdown" class="climb-countdown"></div>
+            </div>
+            <div id="run-result" class="climb-result"></div>
+            <button id="run-jump-btn" class="run-jump-btn" onclick="runJump()">⬆ ジャンプ</button>
+            <button id="run-start-btn" class="climb-start-btn" onclick="startRun()">スタート（レッスン1回分消費）</button>
+        </div>
+    </div>
+    <div id="view-mascot" class="view-section">
+        <div class="mascot-page">
+            <div class="mascot-title">🎭 マスコットをえらぼう</div>
+            <div id="mascot-grid" class="mascot-grid"></div>
+        </div>
+    </div>
         <div class="climb-cabinet">
             <div class="climb-title">🧗‍♀️ Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
@@ -299,10 +346,20 @@
   <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
     const API_URL = "https://script.google.com/macros/s/AKfycbz-5OhCKMD9wz9I02O4lF6bnRILjK67fm7ywZQxqIioZE9IgqNBNTscK0B9Rm5vYbxJIA/exec";
-const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
-    const EMOJIS = { "崖登り":"🧗‍♀️", "ランニング":"🏃‍♂️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
+const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
+    const EMOJIS = { "崖登り":"🧗‍♀️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
     const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };
+      const MASCOTS = [
+        { id: 'mascot1', name: 'キャラ1', img: 'mascot1.png', runFrames: ['mascot1_run1.png','mascot1_run2.png'], available: true },
+        { id: 'mascot2', name: 'キャラ2', img: 'mascot2.png', runFrames: ['mascot2_run1.png','mascot2_run2.png','mascot2_run3.png'], available: false },
+        { id: 'mascot3', name: 'キャラ3', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png','mascot3_run3.png'], available: false },
+        { id: 'mascot4', name: 'キャラ4', img: 'mascot4.png', runFrames: ['mascot4_run1.png','mascot4_run2.png','mascot4_run3.png'], available: false }
+    ];
+    const TIER_CONFIGS = {
+        'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
+        'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() }
+    };
     let audioCtx = null;
     const SOUND_FILES = { correct:'correct.mp3', wrong:'wrong.mp3', start:'start.mp3', timeup:'timeup.mp3', count:'count.mp3' };
     const SOUND_BUFFERS = {};
@@ -344,6 +401,15 @@ const LESSONS = ["ランニング", "筋トレ", "トランポリン", "ダン�
         { height: 20, vo: 3, pl: 3, da: 3, vi: 3 },
         { height: 30, vo: 5, pl: 5, da: 5, vi: 5 }
     ];
+      state.runTiers = [
+        { distance: 100, vo: 2, pl: 2, da: 2, vi: 2 },
+        { distance: 300, vo: 3, pl: 3, da: 3, vi: 3 },
+        { distance: 600, vo: 5, pl: 5, da: 5, vi: 5 }
+    ];
+    let run = { active:false, distance:0, tick:null, obstacles:[], jumping:false, jumpStart:0, speed:6, spawnTimer:0, targetId:null, frameIdx:0, frameTimer:0 };
+    const RUN_JUMP_DURATION = 600;
+    const RUN_JUMP_HEIGHT = 55;
+    const RUN_CHAR_X = 40;
 　　initAudio();
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
