@@ -114,7 +114,8 @@
 .run-cabinet { font-family:'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ffe89e,#ffb26b); border-radius:24px; padding:16px; color:#5a3a1e; text-align:center; box-shadow:0 6px 0 #d98a3d; }
 .run-title { font-size:1.1em; margin-bottom:8px; }
 .run-stats { font-weight:bold; margin-bottom:8px; }
-.run-track { background:linear-gradient(180deg,#fff6e0,#f5deb3); border-radius:16px; height:120px; position:relative; overflow:hidden; border:3px solid #fff; margin-bottom:10px; }
+.run-track { background: linear-gradient(180deg, #8ec9ff 0%, #bfe6ff 45%, #6fae63 45%, #4d8f47 100%); border-radius:16px; height:120px; position:relative; overflow:hidden; border:3px solid #fff; margin-bottom:10px; }
+.run-track::before { content:''; position:absolute; left:0; right:0; top:20%; height:25%; background-image: radial-gradient(circle, rgba(255,255,255,0.5) 8px, transparent 9px); background-size:60px 40px; opacity:0.6; }
 .run-char { position:absolute; left:40px; bottom:0px; width:40px; height:40px; }
 .run-char img { width:100%; height:100%; object-fit:contain; }
 .run-obstacle { position:absolute; bottom:0; width:18px; height:30px; background:#5a3a1e; border-radius:4px 4px 0 0; }
@@ -240,6 +241,7 @@
         <textarea id="admin-climb-desc" rows="3" placeholder="崖登りの説明文を入力してね" onchange="upClimbDesc()"></textarea>
         <h3 onclick="toggleRunList()" style="cursor:pointer;">🏃‍♀️ START DASH !! ポイント設定 <span id="run-list-arrow">▶</span></h3>
         <div id="run-con" style="display:none;"></div>
+        <textarea id="admin-run-desc" rows="3" placeholder="ランニングの説明文を入力してね" onchange="upRunDesc()"></textarea>
         <h3>💾 バックアップ（手動）</h3>
         <h3 onclick="toggleLiveList()" style="cursor:pointer;">🎤 ライブ設定 <span id="live-list-arrow">▶</span></h3>
         <div id="live-con" style="display:none;">
