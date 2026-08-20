@@ -409,6 +409,7 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         { distance: 300, vo: 3, pl: 3, da: 3, vi: 3 },
         { distance: 600, vo: 5, pl: 5, da: 5, vi: 5 }
     ];
+      state.runDesc = "";
     let run = { active:false, distance:0, tick:null, obstacles:[], jumping:false, jumpStart:0, speed:6, spawnTimer:0, targetId:null, frameIdx:0, frameTimer:0 };
     const RUN_JUMP_DURATION = 600;
     const RUN_JUMP_HEIGHT = 55;
