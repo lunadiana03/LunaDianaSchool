@@ -1287,7 +1287,6 @@ document.addEventListener('change', function(e) {
         run.obstacles.push({ x: x, el: el });
     }
     function runLoop() {
-    function runLoop() {
         if (!run.active) return;
         run.distance += 2;
         document.getElementById('run-distance').innerText = run.distance + 'm';
