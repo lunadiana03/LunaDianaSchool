@@ -449,6 +449,7 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         if (data.climbTiers) { state.climbTiers = data.climbTiers; }
         if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
         if (data.runTiers) { state.runTiers = data.runTiers; }
+        if (data.runDesc !== undefined) { state.runDesc = data.runDesc; const rd = document.getElementById('run-desc'); if (rd) rd.innerText = state.runDesc; const ard = document.getElementById('admin-run-desc'); if (ard) ard.value = state.runDesc; }
         if (data.live) { state.live = data.live; }
     }
     checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshRunGateUI(); renderMascotPage(); render();
@@ -921,6 +922,17 @@ document.addEventListener('change', function(e) {
         con.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▼' : '▶';
     }
+   function upRunDesc() {
+        state.runDesc = document.getElementById('admin-run-desc').value;
+        document.getElementById('run-desc').innerText = state.runDesc;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&runDesc=${encodeURIComponent(state.runDesc)}&callback=handleRunDescResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleRunDescResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="runDesc="]');
+        s.forEach(x => x.remove());
+    };   
     function syncRunTiers() {
         const script = document.createElement('script');
         script.src = `${API_URL}?action=updateSettings&runJson=${encodeURIComponent(JSON.stringify(state.runTiers))}&callback=handleRunTiersResponse`;
