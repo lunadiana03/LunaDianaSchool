@@ -1253,6 +1253,7 @@ document.addEventListener('change', function(e) {
         if (!run.active || run.jumping) return;
         run.jumping = true;
         run.jumpStart = Date.now();
+        playSound('jump');
     }
     function updateRunCharFrame() {
         const me = state.members.find(m => m.id === run.targetId);
@@ -1273,10 +1274,10 @@ document.addEventListener('change', function(e) {
         run.obstacles.push({ x: x, el: el });
     }
     function runLoop() {
+    function runLoop() {
         if (!run.active) return;
-        run.distance += Math.round(run.speed / 3);
+        run.distance += 2;
         document.getElementById('run-distance').innerText = run.distance + 'm';
-        run.speed = Math.min(14, 6 + run.distance / 100);
 
         run.frameTimer += 50;
         if (run.frameTimer > 150) {
@@ -1300,7 +1301,8 @@ document.addEventListener('change', function(e) {
         run.spawnTimer -= run.speed;
         if (run.spawnTimer <= 0) {
             spawnObstacle();
-            run.spawnTimer = 120 + Math.random() * 100;
+            const baseGap = Math.max(55, 130 - run.distance / 12);
+            run.spawnTimer = baseGap + Math.random() * 70;
         }
         run.obstacles.forEach(o => {
             o.x -= run.speed;
@@ -1312,7 +1314,9 @@ document.addEventListener('change', function(e) {
         });
 
         for (const o of run.obstacles) {
-            if (o.x < RUN_CHAR_X + 26 && o.x + 18 > RUN_CHAR_X) {
+            const obsLeft = o.x + 5;
+            const obsRight = obsLeft + 8;
+            if (obsLeft < RUN_CHAR_X + 16 && obsRight > RUN_CHAR_X + 2) {
                 if (jumpHeight < 30) { endRun(); return; }
             }
         }
