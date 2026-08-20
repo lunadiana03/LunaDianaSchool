@@ -1316,6 +1316,7 @@ document.addEventListener('change', function(e) {
     function endRun() {
         run.active = false;
         clearInterval(run.tick);
+        document.getElementById('run-obstacles').innerHTML = '';
         playSound('timeup');
         const m = state.members.find(x => x.id === run.targetId);
         if (!m) return;
