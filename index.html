@@ -364,7 +364,7 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() }
     };
     let audioCtx = null;
-    const SOUND_FILES = { correct:'correct.mp3', wrong:'wrong.mp3', start:'start.mp3', timeup:'timeup.mp3', count:'count.mp3' };
+    const SOUND_FILES = { correct:'correct.mp3', wrong:'wrong.mp3', start:'start.mp3', timeup:'timeup.mp3', count:'count.mp3', jump:'jump.mp3' };
     const SOUND_BUFFERS = {};
     function initAudio() {
         if (audioCtx) return;
@@ -1263,10 +1263,11 @@ document.addEventListener('change', function(e) {
         if (img) img.src = frames[idx];
     }
     function spawnObstacle() {
-        const track = document.getElementById('run-track'); if (!track) return;
+        const track = document.getElementById('run-track');
+        const con = document.getElementById('run-obstacles'); if (!track || !con) return;
         const el = document.createElement('div');
         el.className = 'run-obstacle';
-        track.appendChild(el);
+        con.appendChild(el);
         const x = track.clientWidth;
         el.style.left = x + 'px';
         run.obstacles.push({ x: x, el: el });
