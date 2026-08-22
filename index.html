@@ -81,6 +81,16 @@
    .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }     
 .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; height:150px; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; }
 .climb-track::before { content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 20px), repeating-linear-gradient(65deg, rgba(0,0,0,0.08) 0 4px, transparent 4px 26px); pointer-events:none; }
+    .climb-track { 
+    background-image: url('climb-bg.png'), linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%);
+    background-size: cover, 100% 400%;
+    background-position: center, center;
+}
+.run-track { 
+    background-image: url('run-bg.png'), linear-gradient(180deg, #8ec9ff 0%, #bfe6ff 45%, #6fae63 45%, #4d8f47 100%);
+    background-size: cover, 100% 100%;
+    background-position: center, center;
+}    
 .climb-height-badge { position:absolute; top:8px; right:8px; background:rgba(255,255,255,0.85); color:#2b3a55; font-size:0.8em; font-weight:bold; padding:3px 8px; border-radius:12px; z-index:2; }
 .climb-char { position:absolute; left:50%; bottom:0px; transform:translateX(-50%); transition: bottom 0.15s ease-out; z-index:1; }
 .climb-char img { width:64px; height:64px; object-fit:contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); animation: float-bob 1.1s ease-in-out infinite alternate; }
