@@ -999,6 +999,8 @@ document.addEventListener('change', function(e) {
         document.getElementById('climb-progress-fill').style.width = '0%';
         document.getElementById('climb-progress-dot').style.left = '0%';
         document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
+        const climbCharImg = document.getElementById('climb-char-img');
+        if (climbCharImg) { const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg.src = ms.img; }
         document.getElementById('climb-track').style.backgroundPositionY = '0px';
         clearInterval(climb.gameTimer);
         climb.gameTimer = setInterval(climbTick, 1000);
