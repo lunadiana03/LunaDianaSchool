@@ -1006,6 +1006,8 @@ document.addEventListener('change', function(e) {
     }
     function actuallyStartClimb(me) {
         playSound('start');
+        setGameMode(true);
+        document.getElementById('climb-exit-btn').style.display = 'block';
         climb.active = true; climb.height = 0; climb.totalTime = 30; climb.timeLeft = 30; climb.targetId = me.id;
         document.getElementById('climb-height').innerText = '0m';
         document.getElementById('climb-elapsed').innerText = '0:00';
@@ -1133,6 +1135,8 @@ document.addEventListener('change', function(e) {
         clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
         playSound('timeup');
         document.getElementById('climb-prompt').innerText = '🏁';
+        setGameMode(false);
+        document.getElementById('climb-exit-btn').style.display = 'none';
         const m = state.members.find(x => x.id === climb.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
@@ -1252,6 +1256,8 @@ document.addEventListener('change', function(e) {
     }
       function refreshRunGateUI() {
         if (run.active) return;
+          setGameMode(false);
+        const runExitBtn = document.getElementById('run-exit-btn'); if (runExitBtn) runExitBtn.style.display = 'none';
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('run-start-btn');
         const distEl = document.getElementById('run-distance');
@@ -1294,6 +1300,8 @@ document.addEventListener('change', function(e) {
     }
     function actuallyStartRun(me) {
         playSound('start');
+        setGameMode(true);
+        document.getElementById('run-exit-btn').style.display = 'block';
         run = { active:true, distance:0, obstacles:[], jumping:false, jumpStart:0, speed:6, spawnTimer:60, targetId:me.id, frameIdx:0, frameTimer:0 };
         document.getElementById('run-distance').innerText = '0m';
         document.getElementById('run-obstacles').innerHTML = '';
@@ -1376,6 +1384,8 @@ document.addEventListener('change', function(e) {
         run.active = false;
         clearInterval(run.tick);
         document.getElementById('run-obstacles').innerHTML = '';
+        setGameMode(false);
+        document.getElementById('run-exit-btn').style.display = 'none';
         playSound('timeup');
         const m = state.members.find(x => x.id === run.targetId);
         if (!m) return;
