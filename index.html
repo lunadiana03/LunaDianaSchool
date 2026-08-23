@@ -162,6 +162,8 @@
 @keyframes live-reveal-in { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
 .live-result-row.gold { background:linear-gradient(90deg,rgba(255,211,110,0.3),rgba(255,255,255,0.1)); border:2px solid #ffd36e; box-shadow:0 0 14px rgba(255,211,110,0.6); }
 .live-flash { position:absolute; inset:0; background:radial-gradient(circle, rgba(255,255,255,0.9), transparent 70%); animation: live-flash-anim 0.6s ease-out; pointer-events:none; z-index:10; } 
+        .box.game-mode header, .box.game-mode .tabs, .box.game-mode .login, .box.game-mode .admin { display:none !important; }
+.game-exit-btn { background:#4c6ef5; color:#fff; font-size:0.8em; padding:6px 12px; border-radius:10px; box-shadow:0 2px 0 #364fc7; margin-bottom:10px; }
         .box.stage-mode header, .box.stage-mode .tabs, .box.stage-mode .login, .box.stage-mode .admin { display:none !important; }
 .live-exit-btn { background:#4c6ef5; color:#fff; font-size:0.8em; padding:6px 12px; border-radius:10px; box-shadow:0 2px 0 #364fc7; margin-bottom:10px; }
 @keyframes live-flash-anim { from { opacity:1; } to { opacity:0; } }
@@ -282,6 +284,7 @@
     </div>
     <div id="view-run" class="view-section">
         <div class="run-cabinet">
+           <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;">🚪 やめる</button>
             <div class="run-title">🏃‍♀️ START DASH !!</div>
             <div class="run-stats">📏 距離: <span id="run-distance">0m</span></div>
             <div id="run-desc" class="climb-desc"></div>
@@ -303,6 +306,7 @@
     </div>
     <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
+            <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;">🚪 やめる</button>
             <div class="climb-title">🧗‍♀️ Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
             <div class="climb-track" id="climb-track">
@@ -1073,8 +1077,29 @@ document.addEventListener('change', function(e) {
         clearTimeout(climb.reactTimer);
         climbNextArrow();
     }
+      function setGameMode(on) {
+        const box = document.querySelector('.box');
+        if (box) box.classList.toggle('game-mode', on);
+    }
+    function exitClimbGame() {
+        if (!confirm('崖登りをやめますか？（記録は保存されません）')) return;
+        climb.active = false;
+        clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
+        setGameMode(false);
+        refreshClimbGateUI();
+    }
+    function exitRunGame() {
+        if (!confirm('ランニングをやめますか？（記録は保存されません）')) return;
+        run.active = false;
+        clearInterval(run.tick);
+        document.getElementById('run-obstacles').innerHTML = '';
+        setGameMode(false);
+        refreshRunGateUI();
+    }
       function refreshClimbGateUI() {
         if (climb.active) return;
+          setGameMode(false);
+        const exitBtn = document.getElementById('climb-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('climb-start-btn');
         const resultBox = document.getElementById('climb-result');
