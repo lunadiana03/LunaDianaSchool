@@ -1121,6 +1121,7 @@ document.addEventListener('change', function(e) {
         document.getElementById('climb-progress-dot').style.left = '0%';
         document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
           const climbCharImg2 = document.getElementById('climb-char-img');
+          const descEl = document.getElementById('climb-desc'); if (descEl) descEl.style.display = 'block';
         if (climbCharImg2) { const ms2 = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg2.src = ms2.climbImg || ms2.img; }
         document.getElementById('climb-track').style.backgroundPositionY = '0px';
         if (!me) { startBtn.style.display = 'block'; resultBox.innerHTML = ''; return; }
