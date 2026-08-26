@@ -1056,15 +1056,18 @@ document.addEventListener('change', function(e) {
         climb.reactTimer = setTimeout(() => { if (climb.active) { climbMiss(); climbNextArrow(); } }, 1600);
     }
       function updateClimbVisual() {
-        const perTap = (CLIMB_MID_BOTTOM - CLIMB_START_BOTTOM) / CLIMB_CAP_TAPS;
         const char = document.getElementById('climb-char');
         const track = document.getElementById('climb-track');
+        const trackH = track.clientHeight || 300;
+        const midBottom = trackH * 0.75;
+        const perTap = (midBottom - CLIMB_START_BOTTOM) / CLIMB_CAP_TAPS;
         if (climb.height <= CLIMB_CAP_TAPS) {
             char.style.bottom = (CLIMB_START_BOTTOM + climb.height * perTap) + 'px';
             track.style.backgroundPositionY = '0px';
         } else {
-            char.style.bottom = CLIMB_MID_BOTTOM + 'px';
-            track.style.backgroundPositionY = '-' + ((climb.height - CLIMB_CAP_TAPS) * 6) + 'px';
+            char.style.bottom = midBottom + 'px';
+            const scrollAmount = (climb.height - CLIMB_CAP_TAPS) * (trackH * 0.05);
+            track.style.backgroundPositionY = '-' + scrollAmount + 'px';
         }
         document.getElementById('climb-height').innerText = (climb.height * 5) + 'm';
     }
