@@ -1263,6 +1263,7 @@ document.addEventListener('change', function(e) {
         if (run.active) return;
           setGameMode(false);
         const runExitBtn = document.getElementById('run-exit-btn'); if (runExitBtn) runExitBtn.style.display = 'none';
+          const runTrackEl = document.getElementById('run-track'); if (runTrackEl) runTrackEl.classList.remove('show');
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('run-start-btn');
         const distEl = document.getElementById('run-distance');
