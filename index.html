@@ -989,6 +989,7 @@ document.addEventListener('change', function(e) {
         setGameMode(true);
         document.getElementById('climb-exit-btn').style.display = 'block';
         document.getElementById('climb-track').classList.add('show');
+        document.getElementById('climb-desc').style.display = 'none';
         document.getElementById('climb-start-btn').style.display = 'none';
         document.getElementById('climb-result').innerHTML = '';
         runClimbCountdown(me);
