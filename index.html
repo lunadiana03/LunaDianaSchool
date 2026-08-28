@@ -191,6 +191,16 @@
         .cal-add-row { display:flex; gap:6px; margin-top:6px; }
         .cal-add-row input { margin:0; }
         .cal-add-row button { white-space:nowrap; }
+        .piano-wrap { position:relative; height:150px; background:#fff; border-radius:10px; margin-bottom:10px; border:2px solid #5a4b4e; overflow:hidden; }
+.piano-key { position:absolute; top:0; box-sizing:border-box; border:1px solid #5a4b4e; border-radius:0 0 6px 6px; cursor:pointer; transition:background 0.1s; }
+.piano-white { height:100%; background:#fff; z-index:1; }
+.piano-black { height:60%; background:#2b2b2b; z-index:2; }
+.piano-key.lit { background:#ffd36e !important; }
+.piano-key.wrong { background:#ff5c5c !important; }
+.kintore-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; margin-bottom:10px; }
+.kintore-cell { aspect-ratio:1/1; background:#fff; border:2px solid #d98a3d; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1em; cursor:pointer; color:#5a3a1e; }
+.kintore-cell.done { background:#e2dbdd; opacity:0.3; pointer-events:none; }
+.kintore-cell.wrong { background:#ff5c5c; color:#fff; }
     </style>
 </head>
 <body>
@@ -209,6 +219,8 @@
         <button id="tab-climb" class="tab-btn" onclick="switchView('climb')">🧗‍♀️ 崖登り!!</button>
         <button id="tab-run" class="tab-btn" onclick="switchView('run')">🏃‍♀️ ランニング</button>
         <button id="tab-mascot" class="tab-btn" onclick="switchView('mascot')">︎🌟 マスコット</button>
+        <button id="tab-music" class="tab-btn" onclick="switchView('music')">🎹 音感</button>
+        <button id="tab-kintore" class="tab-btn" onclick="switchView('kintore')">💪🏻 筋トレ</button>
     </div>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
