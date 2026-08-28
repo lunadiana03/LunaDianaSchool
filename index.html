@@ -425,7 +425,10 @@
     </div>
 </div>
     <div id="view-member" class="view-section">
-        <button class="game-exit-btn" onclick="closeMemberProfile()">🚪 もどる</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <button class="game-exit-btn" onclick="closeMemberProfile()" style="margin-bottom:0;">🚪 もどる</button>
+            <button id="member-edit-toggle-btn" class="edit-btn" onclick="toggleMemberEditMode()" style="display:none;">✏️ 編集</button>
+        </div>
         <div class="member-profile-card">
             <div class="member-profile-header">
                 <div id="member-profile-badges" class="member-profile-badges"></div>
@@ -447,6 +450,10 @@
                     <input type="text" id="member-profile-yt-input" placeholder="YouTubeのURLを貼ってね">
                     <button onclick="saveMemberYoutube()" style="width:100%;">保存</button>
                 </div>
+            </div>
+            <div id="member-profile-admin-ctrl" style="display:none; gap:6px; margin-top:14px;">
+                <button onclick="adminEditFromProfile()" style="flex:1;background:#1c7ed6;box-shadow:0 3px 0 #145a99;">名/組/スート編集</button>
+                <button onclick="adminDeleteFromProfile()" style="flex:1;background:#f03e3e;box-shadow:0 3px 0 #c92a2a;">除名</button>
             </div>
         </div>
     </div>
