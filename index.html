@@ -424,6 +424,32 @@
        <div id="grid" class="plaza-grid"></div>
     </div>
 </div>
+    <div id="view-member" class="view-section">
+        <button class="game-exit-btn" onclick="closeMemberProfile()">🚪 もどる</button>
+        <div class="member-profile-card">
+            <div class="member-profile-header">
+                <div id="member-profile-badges" class="member-profile-badges"></div>
+                <div id="member-profile-icon-wrap" class="member-profile-icon-wrap"></div>
+                <div id="member-profile-name" class="member-profile-name"></div>
+                <span id="member-profile-kumi" class="kumi-tag"></span>
+            </div>
+            <div class="member-profile-section">
+                <div class="member-profile-section-title">📷 しょうかい画像</div>
+                <div id="member-profile-img-wrap"></div>
+                <div id="member-profile-img-edit" style="display:none;margin-top:6px;">
+                    <input type="file" id="member-profile-img-input" accept="image/*">
+                </div>
+            </div>
+            <div class="member-profile-section">
+                <div class="member-profile-section-title">🎬 YouTube</div>
+                <div id="member-profile-yt-wrap"></div>
+                <div id="member-profile-yt-edit" style="display:none;margin-top:6px;">
+                    <input type="text" id="member-profile-yt-input" placeholder="YouTubeのURLを貼ってね">
+                    <button onclick="saveMemberYoutube()" style="width:100%;">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div id="calendar-modal" class="calendar-overlay">
     <div class="calendar-panel">
@@ -456,6 +482,15 @@ const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッ
     { id: 'mascot3', name: 'スターリア', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png'], climbImg: 'mascot3_climb.png', musicImg: null, kintoreImg: null, available: true },
     { id: 'mascot4', name: 'キャラ4', img: 'mascot4.png', runFrames: ['mascot4_run1.png','mascot4_run2.png'], climbImg: 'mascot4_climb.png', musicImg: null, kintoreImg: null, available: false }
     ];
+      const SUITS = {
+        cute: { label: 'キュート', symbol: '♡', color: '#ff6fa5' },
+        cool: { label: 'クール', symbol: '♢﻿', color: '#4c6ef5' },
+        sexy: { label: 'セクシー', symbol: '♤', color: '#333333' },
+        pop:  { label: 'ポップ', symbol: '♧', color: '#f5a800' }
+    };
+    const KUMI_EMOJI_LIST = ['🌸', '🕊', '🍃', '🌙'];
+    const KUMI_EMOJI_MAP = {};
+    KUMI_LIST.forEach((k, i) => { KUMI_EMOJI_MAP[k] = KUMI_EMOJI_LIST[i]; });
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
         'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() },
