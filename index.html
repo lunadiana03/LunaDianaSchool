@@ -207,6 +207,29 @@
 .mini-char-img { width:88px; height:88px; object-fit:contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.25)); animation: float-bob 1.2s ease-in-out infinite alternate; }
 .lives-row { font-size:1.3em; text-align:center; margin-bottom:8px; letter-spacing:3px; display:none; }
 .lives-row.show { display:block; }
+        .plaza-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.plaza-card { position:relative; background:var(--c); border:1px solid #ffe3e7; border-radius:16px; padding:10px 6px 8px; text-align:center; cursor:pointer; transition:transform 0.1s; }
+.plaza-card:active { transform:scale(0.96); }
+.plaza-card.mine { border:2px solid #ff758f; background:#fffcfd; }
+.plaza-icon-wrap { width:100%; aspect-ratio:1/1; border-radius:50%; overflow:hidden; margin:0 auto 6px; background:#fff0f2; display:flex; align-items:center; justify-content:center; font-size:2em; }
+.plaza-icon-wrap img { width:100%; height:100%; object-fit:cover; }
+.plaza-badges { position:absolute; top:6px; right:6px; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.plaza-suit-badge { width:22px; height:22px; border-radius:50%; color:#fff; font-size:0.85em; font-weight:bold; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 3px rgba(0,0,0,0.2); }
+.plaza-kumi-badge { width:22px; height:22px; border-radius:50%; background:#fff; font-size:0.9em; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 3px rgba(0,0,0,0.2); }
+.plaza-name { font-size:0.8em; font-weight:bold; color:#6d585c; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.member-profile-card { background:var(--c); border-radius:18px; padding:16px; border:1px dashed #ffcbd5; }
+.member-profile-header { position:relative; text-align:center; margin-bottom:14px; }
+.member-profile-badges { display:flex; justify-content:center; gap:8px; margin-bottom:8px; }
+.member-profile-icon-wrap { width:120px; height:120px; border-radius:50%; overflow:hidden; margin:0 auto 8px; background:#fff0f2; display:flex; align-items:center; justify-content:center; font-size:3em; border:3px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.15); }
+.member-profile-icon-wrap img { width:100%; height:100%; object-fit:cover; }
+.member-profile-name { font-weight:bold; font-size:1.2em; color:#6d585c; }
+.member-profile-section { margin-top:14px; }
+.member-profile-section-title { font-weight:bold; color:#ff758f; margin-bottom:6px; font-size:0.9em; }
+.member-profile-photo { width:100%; border-radius:12px; display:block; }
+.member-profile-photo-empty { background:#fff9fa; border:1px dashed #ffd3db; border-radius:12px; padding:24px; text-align:center; color:#baabb0; font-size:0.85em; }
+.member-profile-yt-link { position:relative; display:block; }
+.member-profile-yt-thumb { width:100%; border-radius:12px; display:block; }
+.member-profile-yt-play { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:52px; height:52px; background:rgba(0,0,0,0.6); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4em; }
     </style>
 </head>
 <body>
