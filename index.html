@@ -2170,9 +2170,94 @@ document.addEventListener('change', function(e) {
         const filterKumi = document.getElementById('filter-kumi').value; const q = document.getElementById('search').value.toLowerCase().trim();
         state.members.forEach(m => {
             if (filterKumi !== 'all' && m.kumi !== filterKumi) return; if (q && !m.name.toLowerCase().includes(q)) return;
-            const card = document.createElement('div'); card.className = 'card' + (m.name === user ? ' my-border' : ''); card.innerHTML = buildCardHtml(m, m.name === user); grid.appendChild(card); if(m.name===user||state.isAdmin) changePreview(m.id);
+            grid.appendChild(buildPlazaCard(m));
         });
     }
+    function buildPlazaCard(m) {
+        const card = document.createElement('div');
+        card.className = 'plaza-card' + (m.name === user ? ' mine' : '');
+        card.onclick = () => openMemberProfile(m.id);
+        const suit = SUITS[m.suit];
+        const kumiEmoji = KUMI_EMOJI_MAP[m.kumi] || '';
+        card.innerHTML = `
+            <div class="plaza-badges">
+                ${suit ? `<div class="plaza-suit-badge" style="background:${suit.color};">${suit.symbol}</div>` : ''}
+                ${kumiEmoji ? `<div class="plaza-kumi-badge">${kumiEmoji}</div>` : ''}
+            </div>
+            <div class="plaza-icon-wrap">${getIconHtml(m.icon,'100%')}</div>
+            <div class="plaza-name">${m.name}</div>`;
+        return card;
+    }
+    function getYoutubeId(url) {
+        if (!url) return null;
+        const m = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+        return m ? m[1] : null;
+    }
+    function openMemberProfile(id) {
+        currentProfileMemberId = id;
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById('view-member').classList.add('active');
+        renderMemberProfile();
+    }
+    function closeMemberProfile() {
+        currentProfileMemberId = null;
+        switchView('all');
+    }
+    function renderMemberProfile() {
+        const m = state.members.find(x => x.id === currentProfileMemberId);
+        if (!m) { closeMemberProfile(); return; }
+        const isMe = m.name === user;
+        const canEdit = isMe || state.isAdmin;
+        const suit = SUITS[m.suit];
+        const kumiEmoji = KUMI_EMOJI_MAP[m.kumi] || '';
+        document.getElementById('member-profile-badges').innerHTML =
+            (suit ? `<span class="plaza-suit-badge" style="background:${suit.color};">${suit.symbol}</span>` : '') +
+            (kumiEmoji ? `<span class="plaza-kumi-badge">${kumiEmoji}</span>` : '');
+        document.getElementById('member-profile-icon-wrap').innerHTML = getIconHtml(m.icon, '100%');
+        document.getElementById('member-profile-name').innerText = m.name + (isMe ? '（わたし）' : '');
+        const kumiEl = document.getElementById('member-profile-kumi');
+        kumiEl.innerText = m.kumi || '無所属';
+        kumiEl.className = 'kumi-tag ' + getKumiClass(m.kumi);
+
+        const imgWrap = document.getElementById('member-profile-img-wrap');
+        imgWrap.innerHTML = m.profileImg
+            ? `<img src="${m.profileImg}" class="member-profile-photo">`
+            : `<div class="member-profile-photo-empty">まだ画像がありません</div>`;
+        document.getElementById('member-profile-img-edit').style.display = canEdit ? 'block' : 'none';
+
+        const ytWrap = document.getElementById('member-profile-yt-wrap');
+        const vid = getYoutubeId(m.youtubeUrl);
+        ytWrap.innerHTML = vid
+            ? `<a href="${m.youtubeUrl}" target="_blank" class="member-profile-yt-link"><img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" class="member-profile-yt-thumb"><div class="member-profile-yt-play">▶</div></a>`
+            : `<div class="member-profile-photo-empty">まだ動画がありません</div>`;
+        document.getElementById('member-profile-yt-edit').style.display = canEdit ? 'block' : 'none';
+        const ytInput = document.getElementById('member-profile-yt-input');
+        if (ytInput) ytInput.value = m.youtubeUrl || '';
+    }
+    function saveMemberYoutube() {
+        const m = state.members.find(x => x.id === currentProfileMemberId);
+        if (!m) return;
+        m.youtubeUrl = document.getElementById('member-profile-yt-input').value.trim();
+        syncToSheet(m);
+    }
+    document.addEventListener('change', function(e) {
+        if (e.target && e.target.id === 'member-profile-img-input') {
+            const file = e.target.files[0];
+            if (!file) return;
+            const m = state.members.find(x => x.id === currentProfileMemberId);
+            if (!m) return;
+            resizeImageFile(file, 900, 0.85).then(base64 => {
+                document.getElementById('loading').style.display = 'flex';
+                uploadIcon(base64, m.name + '_profile').then(url => {
+                    m.profileImg = url;
+                    syncToSheet(m);
+                }).catch(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    alert("画像のアップロードに失敗しました");
+                });
+            });
+        }
+    });
     function expData() { navigator.clipboard.writeText(JSON.stringify(state)); alert("ローカル設定をコピーしました"); }
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
 
