@@ -1586,10 +1586,15 @@ document.addEventListener('change', function(e) {
         });
 
         if (!run.invincible) {
+            const trackW = document.getElementById('run-track').clientWidth || 300;
+            const charLeftPx = trackW * 0.02;
+            const charWidthPx = trackW * 0.25;
+            const hitboxLeft = charLeftPx + charWidthPx * 0.3;
+            const hitboxRight = charLeftPx + charWidthPx * 0.75;
             for (const o of run.obstacles) {
                 const obsLeft = o.x + 5;
                 const obsRight = obsLeft + 8;
-                if (obsLeft < RUN_CHAR_X + 16 && obsRight > RUN_CHAR_X + 2) {
+                if (obsLeft < hitboxRight && obsRight > hitboxLeft) {
                     if (jumpHeight < 30) {
                         run.lives--;
                         renderLives('run-lives', run.lives);
