@@ -2234,16 +2234,20 @@ document.addEventListener('change', function(e) {
         imgWrap.innerHTML = m.profileImg
             ? `<img src="${m.profileImg}" class="member-profile-photo">`
             : `<div class="member-profile-photo-empty">まだ画像がありません</div>`;
-        document.getElementById('member-profile-img-edit').style.display = canEdit ? 'block' : 'none';
+        document.getElementById('member-profile-img-edit').style.display = (canEdit && memberEditMode) ? 'block' : 'none';
 
         const ytWrap = document.getElementById('member-profile-yt-wrap');
         const vid = getYoutubeId(m.youtubeUrl);
         ytWrap.innerHTML = vid
             ? `<a href="${m.youtubeUrl}" target="_blank" class="member-profile-yt-link"><img src="https://img.youtube.com/vi/${vid}/hqdefault.jpg" class="member-profile-yt-thumb"><div class="member-profile-yt-play">▶</div></a>`
             : `<div class="member-profile-photo-empty">まだ動画がありません</div>`;
-        document.getElementById('member-profile-yt-edit').style.display = canEdit ? 'block' : 'none';
+        document.getElementById('member-profile-yt-edit').style.display = (canEdit && memberEditMode) ? 'block' : 'none';
         const ytInput = document.getElementById('member-profile-yt-input');
         if (ytInput) ytInput.value = m.youtubeUrl || '';
+        const editToggleBtn = document.getElementById('member-edit-toggle-btn');
+        if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerText = memberEditMode ? '✅ 完了' : '✏️ 編集'; }
+        const adminCtrl = document.getElementById('member-profile-admin-ctrl');
+        if (adminCtrl) adminCtrl.style.display = state.isAdmin ? 'flex' : 'none';
     }
       function toggleMemberEditMode() {
         memberEditMode = !memberEditMode;
