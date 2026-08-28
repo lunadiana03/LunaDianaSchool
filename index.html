@@ -312,6 +312,32 @@
             <button id="run-start-btn" class="climb-start-btn" onclick="startRun()">スタート（レッスン1回分消費）</button>
         </div>
     </div>
+    <div id="view-music" class="view-section">
+        <div class="climb-cabinet">
+            <button id="music-exit-btn" class="game-exit-btn" onclick="exitMusicGame()" style="display:none;">🚪 やめる</button>
+            <div class="climb-title">🎹 音感レッスン</div>
+            <div id="music-desc" class="climb-desc"></div>
+            <div style="text-align:center;font-weight:bold;margin-bottom:6px;">ラウンド: <span id="music-round">0</span></div>
+            <div class="piano-wrap" id="piano-keys"></div>
+            <div id="music-countdown" class="climb-countdown"></div>
+            <div id="music-result" class="climb-result"></div>
+            <button id="music-start-btn" class="climb-start-btn" onclick="startMusic()">スタート（レッスン1回分消費）</button>
+        </div>
+    </div>
+    <div id="view-kintore" class="view-section">
+        <div class="run-cabinet">
+            <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;">🚪 やめる</button>
+            <div class="run-title">🏋️ きんとれレッスン</div>
+            <div id="kintore-desc" class="climb-desc"></div>
+            <div class="run-stats">✅ タップ数: <span id="kintore-count">0</span></div>
+            <div class="climb-progress-track"><div id="kintore-progress-fill" class="climb-progress-fill"></div><div id="kintore-progress-dot" class="climb-progress-dot"></div></div>
+            <div class="climb-time-row"><span id="kintore-elapsed">0:00</span><span id="kintore-total">0:30</span></div>
+            <div class="kintore-grid" id="kintore-grid"></div>
+            <div id="kintore-countdown" class="climb-countdown"></div>
+            <div id="kintore-result" class="climb-result"></div>
+            <button id="kintore-start-btn" class="climb-start-btn" onclick="startKintore()">スタート（レッスン1回分消費）</button>
+        </div>
+    </div>
     <div id="view-mascot" class="view-section">
         <div class="mascot-page">
             <div class="mascot-title">︎🌟 マスコットをえらぼう</div>
