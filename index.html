@@ -365,7 +365,7 @@
   <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
     const API_URL = "https://script.google.com/macros/s/AKfycbzsyd-TUHKYJEpDEqvJX8OoRg35yQxhu6PVqm9zBtyV2tP0SbZYhuaUpZBEmueI4EBEQA/exec";
-const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン", "音感レッスン"];
+const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッスン", "女優レッスン"];
     const EMOJIS = { "崖登り":"🧗‍♀️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
     const KUMI_STAT_MAP = { "花の歌組🌸": "vo", "鳥の劇組🕊‎": "pl", "風の舞組🍃": "da", "月の美組🌙": "vi" };
@@ -377,7 +377,9 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
     ];
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
-        'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() }
+        'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() },
+        'music-con': { getArr: () => state.musicTiers, keyProp: 'rounds', keyLabel: '達成音数', sync: () => syncMusicTiers() },
+        'kintore-con': { getArr: () => state.kintoreTiers, keyProp: 'count', keyLabel: 'タップ数', sync: () => syncKintoreTiers() }
     };
     let audioCtx = null;
     const SOUND_FILES = { correct:'correct.mp3', wrong:'wrong.mp3', start:'start.mp3', timeup:'timeup.mp3', count:'count.mp3', jump:'jump.mp3' };
@@ -440,6 +442,36 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         initForm();
         fetchAllData();
     };
+      state.musicTiers = [
+        { rounds: 7, vo: 2, pl: 2, da: 2, vi: 2 },
+        { rounds: 10, vo: 3, pl: 3, da: 3, vi: 3 },
+        { rounds: 14, vo: 5, pl: 5, da: 5, vi: 5 }
+    ];
+      state.musicDesc = "";
+      state.kintoreTiers = [
+        { count: 20, vo: 2, pl: 2, da: 2, vi: 2 },
+        { count: 40, vo: 3, pl: 3, da: 3, vi: 3 },
+        { count: 60, vo: 5, pl: 5, da: 5, vi: 5 }
+    ];
+      state.kintoreDesc = "";
+    const MUSIC_NOTES = [
+        { n: 'C', freq: 261.63, black: false },
+        { n: 'C#', freq: 277.18, black: true },
+        { n: 'D', freq: 293.66, black: false },
+        { n: 'D#', freq: 311.13, black: true },
+        { n: 'E', freq: 329.63, black: false },
+        { n: 'F', freq: 349.23, black: false },
+        { n: 'F#', freq: 369.99, black: true },
+        { n: 'G', freq: 392.00, black: false },
+        { n: 'G#', freq: 415.30, black: true },
+        { n: 'A', freq: 440.00, black: false },
+        { n: 'A#', freq: 466.16, black: true },
+        { n: 'B', freq: 493.88, black: false },
+        { n: 'C(高)', freq: 523.25, black: false }
+    ];
+    let music = { active:false, sequence:[], round:0, awaitingInput:false, playerIdx:0, targetId:null, tempo:700 };
+    let kintore = { active:false, tick:null, timeLeft:30, totalTime:30, current:1, totalTaps:0, targetId:null };
+    const KINTORE_TOTAL_TIME = 30;
 
     window.handleSpreadsheetData = function(data) {
     if(data) {
@@ -466,9 +498,13 @@ const LESSONS = ["筋トレ", "トランポリン", "ダンスレッスン", "�
         if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
         if (data.runTiers) { state.runTiers = data.runTiers; }
         if (data.runDesc !== undefined) { state.runDesc = data.runDesc; const rd = document.getElementById('run-desc'); if (rd) rd.innerText = state.runDesc; const ard = document.getElementById('admin-run-desc'); if (ard) ard.value = state.runDesc; }
+        if (data.musicTiers) { state.musicTiers = data.musicTiers; }
+        if (data.musicDesc !== undefined) { state.musicDesc = data.musicDesc; const md = document.getElementById('music-desc'); if (md) md.innerText = state.musicDesc; const amd = document.getElementById('admin-music-desc'); if (amd) amd.value = state.musicDesc; }
+        if (data.kintoreTiers) { state.kintoreTiers = data.kintoreTiers; }
+        if (data.kintoreDesc !== undefined) { state.kintoreDesc = data.kintoreDesc; const kd = document.getElementById('kintore-desc'); if (kd) kd.innerText = state.kintoreDesc; const akd = document.getElementById('admin-kintore-desc'); if (akd) akd.value = state.kintoreDesc; }
         if (data.live) { state.live = data.live; }
     }
-    checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshRunGateUI(); renderMascotPage(); render();
+  checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshRunGateUI(); refreshMusicGateUI(); refreshKintoreGateUI(); renderMascotPage(); render();
     document.getElementById('loading').style.display = 'none';
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
@@ -575,12 +611,16 @@ document.addEventListener('change', function(e) {
     document.getElementById('tab-climb').classList.toggle('active', view === 'climb');
     document.getElementById('tab-run').classList.toggle('active', view === 'run');
     document.getElementById('tab-mascot').classList.toggle('active', view === 'mascot');
+    document.getElementById('tab-music').classList.toggle('active', view === 'music');
+    document.getElementById('tab-kintore').classList.toggle('active', view === 'kintore');
     document.getElementById('view-my').classList.toggle('active', view === 'my');
     document.getElementById('view-bbs').classList.toggle('active', view === 'bbs');
     document.getElementById('view-all').classList.toggle('active', view === 'all');
     document.getElementById('view-climb').classList.toggle('active', view === 'climb');
     document.getElementById('view-run').classList.toggle('active', view === 'run');
     document.getElementById('view-mascot').classList.toggle('active', view === 'mascot');
+    document.getElementById('view-music').classList.toggle('active', view === 'music');
+    document.getElementById('view-kintore').classList.toggle('active', view === 'kintore');
     document.getElementById('view-live').classList.toggle('active', view === 'live');
     document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
     if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); }
@@ -588,6 +628,11 @@ document.addEventListener('change', function(e) {
     if (view === 'climb') refreshClimbGateUI();
     if (view === 'run') refreshRunGateUI();
     if (view === 'mascot') renderMascotPage();
+    if (view === 'music') refreshMusicGateUI();
+    if (view === 'kintore') refreshKintoreGateUI();
+    render();
+}
+            
     render();
 }
     function toggleMeigen() {
