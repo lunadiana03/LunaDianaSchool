@@ -1299,6 +1299,8 @@ document.addEventListener('change', function(e) {
         renderMeigenAdmin();
         renderTierAdmin('climb-con');
         renderTierAdmin('run-con');
+        renderTierAdmin('music-con');
+        renderTierAdmin('kintore-con');
         renderLivePerformerChecks();
         renderLiveAdminSummary();
     }
@@ -1463,6 +1465,329 @@ document.addEventListener('change', function(e) {
             </div>`;
         document.getElementById('run-start-btn').style.display = 'block';
         syncToSheet(m);
+    }
+      function playTone(freq, duration) {
+        if (!audioCtx) return;
+        try {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration / 1000);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration / 1000);
+        } catch (e) {}
+    }
+    function getPianoLayout() {
+        const whiteWidthPct = 100 / MUSIC_NOTES.filter(n => !n.black).length;
+        const blackWidthPct = whiteWidthPct * 0.6;
+        let whiteCount = 0;
+        return MUSIC_NOTES.map((note, idx) => {
+            if (!note.black) {
+                const left = whiteCount * whiteWidthPct;
+                whiteCount++;
+                return { idx, left, width: whiteWidthPct, black: false };
+            } else {
+                const left = whiteCount * whiteWidthPct - blackWidthPct / 2;
+                return { idx, left, width: blackWidthPct, black: true };
+            }
+        });
+    }
+    function renderPianoKeys() {
+        const wrap = document.getElementById('piano-keys'); if (!wrap) return;
+        const layout = getPianoLayout();
+        let html = '';
+        layout.filter(k => !k.black).forEach(k => {
+            html += `<div class="piano-key piano-white" style="left:${k.left}%; width:${k.width}%;" data-idx="${k.idx}" onclick="musicKeyPress(${k.idx})"></div>`;
+        });
+        layout.filter(k => k.black).forEach(k => {
+            html += `<div class="piano-key piano-black" style="left:${k.left}%; width:${k.width}%;" data-idx="${k.idx}" onclick="musicKeyPress(${k.idx})"></div>`;
+        });
+        wrap.innerHTML = html;
+    }
+    function lightKey(idx) {
+        const el = document.querySelector(`.piano-key[data-idx="${idx}"]`);
+        if (!el) return;
+        el.classList.add('lit');
+        setTimeout(() => el.classList.remove('lit'), music.tempo * 0.6);
+    }
+    function toggleMusicList() {
+        const con = document.getElementById('music-con');
+        const arrow = document.getElementById('music-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }
+    function upMusicDesc() {
+        state.musicDesc = document.getElementById('admin-music-desc').value;
+        document.getElementById('music-desc').innerText = state.musicDesc;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&musicDesc=${encodeURIComponent(state.musicDesc)}&callback=handleMusicDescResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleMusicDescResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="musicDesc="]');
+        s.forEach(x => x.remove());
+    };
+    function syncMusicTiers() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&musicJson=${encodeURIComponent(JSON.stringify(state.musicTiers))}&callback=handleMusicTiersResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleMusicTiersResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="musicJson="]');
+        s.forEach(x => x.remove());
+    };
+    function startMusic() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("音感レッスンを始めますか？")) return;
+        setGameMode(true);
+        document.getElementById('music-exit-btn').style.display = 'block';
+        document.getElementById('music-start-btn').style.display = 'none';
+        document.getElementById('music-result').innerHTML = '';
+        runMusicCountdown(me);
+    }
+    function runMusicCountdown(me) {
+        const cd = document.getElementById('music-countdown');
+        let n = 3; cd.style.display = 'flex'; cd.innerText = n;
+        playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartMusic(me); }
+        }, 1200);
+    }
+    function actuallyStartMusic(me) {
+        playSound('start');
+        music = { active: true, sequence: [], round: 0, awaitingInput: false, playerIdx: 0, targetId: me.id, tempo: 700 };
+        for (let i = 0; i < 5; i++) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
+        document.getElementById('music-round').innerText = '0';
+        playMusicSequence();
+    }
+    function playMusicSequence() {
+        music.awaitingInput = false;
+        music.playerIdx = 0;
+        let delay = 0;
+        music.sequence.forEach((noteIdx) => {
+            setTimeout(() => {
+                lightKey(noteIdx);
+                playTone(MUSIC_NOTES[noteIdx].freq, music.tempo * 0.7);
+            }, delay);
+            delay += music.tempo;
+        });
+        setTimeout(() => { music.awaitingInput = true; }, delay);
+    }
+    function musicKeyPress(idx) {
+        if (!music.active || !music.awaitingInput) return;
+        playTone(MUSIC_NOTES[idx].freq, 300);
+        lightKey(idx);
+        if (music.sequence[music.playerIdx] === idx) {
+            music.playerIdx++;
+            if (music.playerIdx >= music.sequence.length) {
+                music.round++;
+                document.getElementById('music-round').innerText = String(music.round);
+                music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
+                music.tempo = Math.max(300, music.tempo - 30);
+                music.awaitingInput = false;
+                setTimeout(playMusicSequence, 700);
+            }
+        } else {
+            const el = document.querySelector(`.piano-key[data-idx="${idx}"]`);
+            if (el) { el.classList.add('wrong'); setTimeout(() => el.classList.remove('wrong'), 400); }
+            endMusic();
+        }
+    }
+    function endMusic() {
+        music.active = false;
+        playSound('timeup');
+        setGameMode(false);
+        document.getElementById('music-exit-btn').style.display = 'none';
+        const m = state.members.find(x => x.id === music.targetId);
+        if (!m) return;
+        const achieved = 5 + music.round;
+        let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
+        (state.musicTiers || []).forEach(t => { if (achieved >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++;
+        ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        document.getElementById('music-result').innerHTML = `
+            <div class="climb-result-title">🎹 結果！</div>
+            <div class="climb-result-height">${achieved}音</div>
+            <div class="climb-result-stats">
+                <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
+            </div>`;
+        document.getElementById('music-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitMusicGame() {
+        if (!confirm('音感レッスンをやめますか？（記録は保存されません）')) return;
+        music.active = false;
+        setGameMode(false);
+        refreshMusicGateUI();
+    }
+    function refreshMusicGateUI() {
+        renderPianoKeys();
+        if (music.active) return;
+        setGameMode(false);
+        const exitBtn = document.getElementById('music-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const startBtn = document.getElementById('music-start-btn');
+        const resultBox = document.getElementById('music-result');
+        const cd = document.getElementById('music-countdown'); if (cd) cd.style.display = 'none';
+        if (!startBtn) return;
+        resultBox.innerHTML = '';
+        const me = state.members.find(m => m.name === user);
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; }
+    }
+
+    function shuffleArray(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+        return a;
+    }
+    function generateKintoreSheet() {
+        const sheetIndex = Math.floor((kintore.current - 1) / 25);
+        const base = sheetIndex * 25;
+        const nums = shuffleArray([...Array(25)].map((_, i) => base + i + 1));
+        const con = document.getElementById('kintore-grid'); if (!con) return;
+        con.innerHTML = nums.map(n => `<div class="kintore-cell" data-num="${n}" onclick="kintoreCellTap(${n})">${n}</div>`).join('');
+    }
+    function kintoreCellTap(n) {
+        if (!kintore.active) return;
+        if (n === kintore.current) {
+            const el = document.querySelector(`.kintore-cell[data-num="${n}"]`);
+            if (el) el.classList.add('done');
+            kintore.current++;
+            kintore.totalTaps++;
+            document.getElementById('kintore-count').innerText = kintore.totalTaps;
+            if ((kintore.current - 1) % 25 === 0) { generateKintoreSheet(); }
+        } else {
+            const el = document.querySelector(`.kintore-cell[data-num="${n}"]`);
+            if (el) { el.classList.add('wrong'); setTimeout(() => el.classList.remove('wrong'), 300); }
+        }
+    }
+    function toggleKintoreList() {
+        const con = document.getElementById('kintore-con');
+        const arrow = document.getElementById('kintore-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+    }
+    function upKintoreDesc() {
+        state.kintoreDesc = document.getElementById('admin-kintore-desc').value;
+        document.getElementById('kintore-desc').innerText = state.kintoreDesc;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&kintoreDesc=${encodeURIComponent(state.kintoreDesc)}&callback=handleKintoreDescResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleKintoreDescResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="kintoreDesc="]');
+        s.forEach(x => x.remove());
+    };
+    function syncKintoreTiers() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&kintoreJson=${encodeURIComponent(JSON.stringify(state.kintoreTiers))}&callback=handleKintoreTiersResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleKintoreTiersResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="kintoreJson="]');
+        s.forEach(x => x.remove());
+    };
+    function startKintore() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("筋トレレッスンを始めますか？")) return;
+        setGameMode(true);
+        document.getElementById('kintore-exit-btn').style.display = 'block';
+        document.getElementById('kintore-start-btn').style.display = 'none';
+        document.getElementById('kintore-result').innerHTML = '';
+        runKintoreCountdown(me);
+    }
+    function runKintoreCountdown(me) {
+        const cd = document.getElementById('kintore-countdown');
+        let n = 3; cd.style.display = 'flex'; cd.innerText = n;
+        playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartKintore(me); }
+        }, 1200);
+    }
+    function actuallyStartKintore(me) {
+        playSound('start');
+        kintore = { active: true, tick: null, timeLeft: KINTORE_TOTAL_TIME, totalTime: KINTORE_TOTAL_TIME, current: 1, totalTaps: 0, targetId: me.id };
+        document.getElementById('kintore-count').innerText = '0';
+        document.getElementById('kintore-elapsed').innerText = '0:00';
+        document.getElementById('kintore-total').innerText = formatClimbTime(KINTORE_TOTAL_TIME);
+        document.getElementById('kintore-progress-fill').style.width = '0%';
+        document.getElementById('kintore-progress-dot').style.left = '0%';
+        generateKintoreSheet();
+        clearInterval(kintore.tick);
+        kintore.tick = setInterval(kintoreTick, 1000);
+    }
+    function kintoreTick() {
+        kintore.timeLeft--;
+        const elapsed = kintore.totalTime - kintore.timeLeft;
+        const pct = Math.min(100, (elapsed / kintore.totalTime) * 100);
+        document.getElementById('kintore-progress-fill').style.width = pct + '%';
+        document.getElementById('kintore-progress-dot').style.left = pct + '%';
+        document.getElementById('kintore-elapsed').innerText = formatClimbTime(elapsed);
+        if (kintore.timeLeft <= 0) endKintore();
+    }
+    function endKintore() {
+        kintore.active = false;
+        clearInterval(kintore.tick);
+        playSound('timeup');
+        setGameMode(false);
+        document.getElementById('kintore-exit-btn').style.display = 'none';
+        const m = state.members.find(x => x.id === kintore.targetId);
+        if (!m) return;
+        let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
+        (state.kintoreTiers || []).forEach(t => { if (kintore.totalTaps >= t.count) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++;
+        ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        document.getElementById('kintore-result').innerHTML = `
+            <div class="climb-result-title">🏋️ 結果！</div>
+            <div class="climb-result-height">${kintore.totalTaps}個</div>
+            <div class="climb-result-stats">
+                <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
+            </div>`;
+        document.getElementById('kintore-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitKintoreGame() {
+        if (!confirm('筋トレレッスンをやめますか？（記録は保存されません）')) return;
+        kintore.active = false;
+        clearInterval(kintore.tick);
+        setGameMode(false);
+        refreshKintoreGateUI();
+    }
+    function refreshKintoreGateUI() {
+        if (kintore.active) return;
+        setGameMode(false);
+        const exitBtn = document.getElementById('kintore-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const startBtn = document.getElementById('kintore-start-btn');
+        const resultBox = document.getElementById('kintore-result');
+        const cd = document.getElementById('kintore-countdown'); if (cd) cd.style.display = 'none';
+        const grid = document.getElementById('kintore-grid'); if (grid) grid.innerHTML = '';
+        const fill = document.getElementById('kintore-progress-fill'); if (fill) fill.style.width = '0%';
+        const dot = document.getElementById('kintore-progress-dot'); if (dot) dot.style.left = '0%';
+        const countEl = document.getElementById('kintore-count'); if (countEl) countEl.innerText = '0';
+        if (!startBtn) return;
+        resultBox.innerHTML = '';
+        const me = state.members.find(m => m.name === user);
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; }
     }
     function renderMascotPage() {
         const con = document.getElementById('mascot-grid'); if (!con) return;
