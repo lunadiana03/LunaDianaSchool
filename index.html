@@ -545,6 +545,7 @@ const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッ
     }
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1, voters: [], gimmick: null } };
     let user = ""; let currentView = "my";
+      let currentProfileMemberId = null;
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
     const CLIMB_MID_BOTTOM = 45;
@@ -714,10 +715,13 @@ document.addEventListener('change', function(e) {
             action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
             climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
+            suit: m.suit||"", profileImg: m.profileImg||"", youtubeUrl: m.youtubeUrl||"",
             callback: "handleSyncResponse"
         });
-        user = m.name;
-        localStorage.setItem('lesson_user_v21', user);
+        if (!user || user === m.name) {
+            user = m.name;
+            localStorage.setItem('lesson_user_v21', user);
+        }
         currentView = "my";
         const script = document.createElement('script');
         script.src = `${API_URL}?${params.toString()}`;
