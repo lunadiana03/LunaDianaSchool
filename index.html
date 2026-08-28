@@ -553,6 +553,7 @@ const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッ
     let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1, voters: [], gimmick: null } };
     let user = ""; let currentView = "my";
       let currentProfileMemberId = null;
+      let memberEditMode = false;
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
     const CLIMB_MID_BOTTOM = 45;
@@ -2202,12 +2203,15 @@ document.addEventListener('change', function(e) {
     }
     function openMemberProfile(id) {
         currentProfileMemberId = id;
+        memberEditMode = false;
+        setGameMode(true);
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-member').classList.add('active');
         renderMemberProfile();
     }
     function closeMemberProfile() {
         currentProfileMemberId = null;
+        setGameMode(false);
         switchView('all');
     }
     function renderMemberProfile() {
@@ -2240,6 +2244,26 @@ document.addEventListener('change', function(e) {
         document.getElementById('member-profile-yt-edit').style.display = canEdit ? 'block' : 'none';
         const ytInput = document.getElementById('member-profile-yt-input');
         if (ytInput) ytInput.value = m.youtubeUrl || '';
+    }
+      function toggleMemberEditMode() {
+        memberEditMode = !memberEditMode;
+        renderMemberProfile();
+    }
+    function adminEditFromProfile() {
+        editProfile(currentProfileMemberId);
+        renderMemberProfile();
+    }
+    function adminDeleteFromProfile() {
+        const id = currentProfileMemberId;
+        const m = state.members.find(x => x.id === id); if (!m) return;
+        if (!confirm(`【警告】本当にアイドル「 ${m.name} 」さんを学園名簿から削除しますか？`)) return;
+        if (!confirm(`本当に本当によろしいですか？（取り消せません）`)) return;
+        if (m.name === user) { user = ""; localStorage.removeItem('lesson_user_v21'); }
+        document.getElementById('loading').style.display = 'flex';
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=deleteMember&id=${id}&callback=handleDeleteResponse`;
+        document.body.appendChild(script);
+        closeMemberProfile();
     }
     function saveMemberYoutube() {
         const m = state.members.find(x => x.id === currentProfileMemberId);
