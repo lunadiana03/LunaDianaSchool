@@ -429,9 +429,9 @@ const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッ
       const MASCOTS = [
     // musicImg / kintoreImg は未設定なら img（通常画像）が使われます。画像を用意したらファイル名を入れてください。
     { id: 'mascot1', name: 'ツキミィ', img: 'mascot1.png', runFrames: ['mascot1_run1.png','mascot1_run2.png'], climbImg: 'mascot1_climb.png', musicImg: null, kintoreImg: null, available: true },
-    { id: 'mascot2', name: 'ヒナタン', img: 'mascot2.png', runFrames: ['mascot2_run1.png','mascot2_run2.png','mascot2_run3.png'], climbImg: 'mascot2_climb.png', musicImg: null, kintoreImg: null, available: true },
-    { id: 'mascot3', name: 'スターリア', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png','mascot3_run3.png'], climbImg: 'mascot3_climb.png', musicImg: null, kintoreImg: null, available: true },
-    { id: 'mascot4', name: 'キャラ4', img: 'mascot4.png', runFrames: ['mascot4_run1.png','mascot4_run2.png','mascot4_run3.png'], climbImg: 'mascot4_climb.png', musicImg: null, kintoreImg: null, available: false }
+    { id: 'mascot2', name: 'ヒナタン', img: 'mascot2.png', runFrames: ['mascot2_run1.png','mascot2_run2.png',], climbImg: 'mascot2_climb.png', musicImg: null, kintoreImg: null, available: true },
+    { id: 'mascot3', name: 'スターリア', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png'], climbImg: 'mascot3_climb.png', musicImg: null, kintoreImg: null, available: true },
+    { id: 'mascot4', name: 'キャラ4', img: 'mascot4.png', runFrames: ['mascot4_run1.png','mascot4_run2.png'], climbImg: 'mascot4_climb.png', musicImg: null, kintoreImg: null, available: false }
     ];
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
