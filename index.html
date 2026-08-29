@@ -1430,7 +1430,9 @@ document.addEventListener('change', function(e) {
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
+        const climbMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('climb-result').innerHTML = `
+            <img src="${climbMs.happyImg || climbMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
             <div class="climb-result-title">🏆 今日の結果！</div>
             <div class="climb-result-height">${heightM}m</div>
             <div class="climb-result-stats">
@@ -1717,7 +1719,9 @@ document.addEventListener('change', function(e) {
         (state.runTiers || []).forEach(t => { if (run.distance >= t.distance) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('run-result').innerHTML = `
+            <img src="${runMs.happyImg || runMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
             <div class="climb-result-title">🏁 結果！</div>
             <div class="climb-result-height">${run.distance}m</div>
             <div class="climb-result-stats">
@@ -1900,7 +1904,9 @@ document.addEventListener('change', function(e) {
         (state.musicTiers || []).forEach(t => { if (achieved >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('music-result').innerHTML = `
+            <img src="${musicMs.happyImg || musicMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
             <div class="climb-result-title">🎹 結果！</div>
             <div class="climb-result-height">${achieved}音</div>
             <div class="climb-result-stats">
@@ -2057,7 +2063,9 @@ document.addEventListener('change', function(e) {
         (state.kintoreTiers || []).forEach(t => { if (kintore.totalTaps >= t.count) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('kintore-result').innerHTML = `
+            <img src="${kintoreMs.happyImg || kintoreMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
             <div class="climb-result-title">🏋️ 結果！</div>
             <div class="climb-result-height">${kintore.totalTaps}個</div>
             <div class="climb-result-stats">
