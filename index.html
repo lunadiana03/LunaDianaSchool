@@ -465,7 +465,7 @@
                 <div id="member-profile-suit-picker" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
             </div>
             <div id="member-profile-admin-ctrl" style="display:none; gap:6px; margin-top:14px;">
-                <button onclick="adminEditFromProfile()" style="flex:1;background:#1c7ed6;box-shadow:0 3px 0 #145a99;">名/組/スート編集</button>
+                <button onclick="adminEditFromProfile()" style="flex:1;background:#1c7ed6;box-shadow:0 3px 0 #145a99;">名/組/タイプ編集</button>
                 <button onclick="adminDeleteFromProfile()" style="flex:1;background:#f03e3e;box-shadow:0 3px 0 #c92a2a;">除名</button>
             </div>
         </div>
@@ -1489,7 +1489,7 @@ document.addEventListener('change', function(e) {
         const idx = parseInt(kumiInput) - 1;
         if (isNaN(idx) || idx < 0 || idx >= KUMI_LIST.length) { alert("組は変更されませんでした。"); } else { m.kumi = KUMI_LIST[idx]; }
         const suitKeys = Object.keys(SUITS);
-        let suitMsg = `【管理者編集】スート番号を入力してください:\n`; suitKeys.forEach((k, i) => { suitMsg += `${i + 1} : ${SUITS[k].label}${SUITS[k].symbol}\n`; });
+        let suitMsg = `【管理者編集】タイプ番号を入力してください:\n`; suitKeys.forEach((k, i) => { suitMsg += `${i + 1} : ${SUITS[k].label}${SUITS[k].symbol}\n`; });
         const curSuitIdx = suitKeys.indexOf(m.suit) !== -1 ? suitKeys.indexOf(m.suit) + 1 : '';
         const suitInput = prompt(suitMsg, curSuitIdx);
         if (suitInput !== null) {
