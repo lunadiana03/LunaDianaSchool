@@ -2262,6 +2262,9 @@ document.addEventListener('change', function(e) {
         if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerText = memberEditMode ? '✅ 完了' : '✏️ 編集'; }
         const adminCtrl = document.getElementById('member-profile-admin-ctrl');
         if (adminCtrl) adminCtrl.style.display = state.isAdmin ? 'flex' : 'none';
+        const suitSection = document.getElementById('member-profile-suit-section');
+        if (suitSection) suitSection.style.display = (canEdit && memberEditMode) ? 'block' : 'none';
+        renderSuitPicker();
     }
       function toggleMemberEditMode() {
         memberEditMode = !memberEditMode;
