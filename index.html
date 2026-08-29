@@ -789,8 +789,9 @@ document.addEventListener('change', function(e) {
     document.getElementById('view-mascot').classList.toggle('active', view === 'mascot');
     document.getElementById('view-music').classList.toggle('active', view === 'music');
     document.getElementById('view-kintore').classList.toggle('active', view === 'kintore');
+    document.getElementById('view-member').classList.toggle('active', view === 'member');
     document.getElementById('view-live').classList.toggle('active', view === 'live');
-    document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
+            document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
     if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); }
     if (view === 'bbs') updateBbsDisplay();
     if (view === 'climb') refreshClimbGateUI();
