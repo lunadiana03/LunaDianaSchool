@@ -1459,7 +1459,8 @@ document.addEventListener('change', function(e) {
             if (!confirm(`「${n}」(${kumi}) で新しくアイドル登録してもよろしいですか？\n※一度登録すると組は変更できません。`)) return;
             document.getElementById('loading').style.display = 'flex';
             uploadIcon(pendingIconBase64, n).then(url => {
-                m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: url, mascotId: 'mascot1', r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0, suit: "", profileImg: "", youtubeUrl: "" };
+                const suit = document.querySelector('input[name="suit-choice"]:checked').value;
+            m = { id: 'id_'+Date.now()+Math.random().toString(36).substr(2,2), name: n, kumi: kumi, icon: url, mascotId: 'mascot1', r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo:0, pl:0, da:0, vi:0 }, last: "", climbDate: "", climbHeight: 0, suit: suit, profileImg: "", youtubeUrl: "" };
                 syncToSheet(m);
                 pendingIconBase64 = null;
             }).catch(() => {
@@ -2281,6 +2282,21 @@ document.addEventListener('change', function(e) {
         script.src = `${API_URL}?action=deleteMember&id=${id}&callback=handleDeleteResponse`;
         document.body.appendChild(script);
         closeMemberProfile();
+    }
+      function renderSuitPicker() {
+        const wrap = document.getElementById('member-profile-suit-picker'); if (!wrap) return;
+        const m = state.members.find(x => x.id === currentProfileMemberId); if (!m) return;
+        wrap.innerHTML = Object.keys(SUITS).map(key => {
+            const s = SUITS[key];
+            const selected = m.suit === key;
+            return `<button onclick="selectMemberSuit('${key}')" style="background:${selected ? s.color : '#e2dbdd'}; box-shadow:0 3px 0 ${selected ? 'rgba(0,0,0,0.3)' : '#cdc4c6'}; flex:1 1 40%;">${s.symbol} ${s.label}</button>`;
+        }).join('');
+    }
+    function selectMemberSuit(key) {
+        const m = state.members.find(x => x.id === currentProfileMemberId); if (!m) return;
+        m.suit = key;
+        syncToSheet(m);
+        renderMemberProfile();
     }
     function saveMemberYoutube() {
         const m = state.members.find(x => x.id === currentProfileMemberId);
