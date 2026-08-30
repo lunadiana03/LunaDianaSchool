@@ -1892,7 +1892,10 @@ document.addEventListener('change', function(e) {
         music.active = false;
         playSound('timeup');
         setGameMode(false);
-        document.getElementById('music-exit-btn').style.display = 'none';
+        const musicStartBtn = document.getElementById('music-start-btn');
+        musicStartBtn.style.display = 'block';
+        musicStartBtn.innerText = '🔁 もう一度あそぶ';
+        document.getElementById('music-result').scrollIntoView({behavior:'smooth', block:'center'});
         const m = state.members.find(x => x.id === music.targetId);
         if (!m) return;
         const achieved = music.sequence.length;
@@ -2053,7 +2056,10 @@ document.addEventListener('change', function(e) {
         clearInterval(kintore.tick);
         playSound('timeup');
         setGameMode(false);
-        document.getElementById('kintore-exit-btn').style.display = 'none';
+        const kintoreStartBtn = document.getElementById('kintore-start-btn');
+        kintoreStartBtn.style.display = 'block';
+        kintoreStartBtn.innerText = '🔁 もう一度あそぶ';
+        document.getElementById('kintore-result').scrollIntoView({behavior:'smooth', block:'center'});
         const m = state.members.find(x => x.id === kintore.targetId);
         if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
