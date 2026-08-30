@@ -1836,7 +1836,7 @@ document.addEventListener('change', function(e) {
     function actuallyStartMusic(me) {
         playSound('start');
         const initLen = (state.musicStages && state.musicStages[0]) ? state.musicStages[0] : 5;
-        music = { active: true, sequence: [], round: 0, awaitingInput: false, playerIdx: 0, targetId: me.id, tempo: 700, lives: 3 };
+        music = { active: true, sequence: [], round: 0, awaitingInput: false, playerIdx: 0, targetId: me.id, tempo: 700, lives: 3, stageLen: initLen };
         for (let i = 0; i < initLen; i++) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
         document.getElementById('music-round').innerText = '0';
         renderLives('music-lives', music.lives);
@@ -1856,11 +1856,7 @@ document.addEventListener('change', function(e) {
         });
         setTimeout(() => { music.awaitingInput = true; }, delay);
     }
-    function musicKeyPress(idx) {
-        if (!music.active || !music.awaitingInput) return;
-        playPianoNote(idx, 300);
-        lightKey(idx);
-        if (music.sequence[music.playerIdx] === idx) {
+    if (music.sequence[music.playerIdx] === idx) {
             music.playerIdx++;
             if (music.playerIdx >= music.sequence.length) {
                 music.round++;
@@ -1870,6 +1866,7 @@ document.addEventListener('change', function(e) {
                 let targetLen = stages[stageIdx];
                 if (!targetLen || targetLen <= music.sequence.length) targetLen = music.sequence.length + 1;
                 while (music.sequence.length < targetLen) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
+                music.stageLen = music.sequence.length;
                 music.tempo = Math.max(300, music.tempo - 30);
                 music.awaitingInput = false;
                 setTimeout(playMusicSequence, 700);
@@ -1884,14 +1881,13 @@ document.addEventListener('change', function(e) {
             if (music.lives <= 0) {
                 endMusic();
             } else {
-                // 同じ難易度（同じ音数）で再挑戦。テンポは失敗直前のまま維持。
-                const len = music.sequence.length;
+                // その段階の開始時の音数まで戻して、光り方だけ新しくして再挑戦。テンポは失敗直前のまま維持。
+                const len = music.stageLen || music.sequence.length;
                 music.sequence = [];
                 for (let i = 0; i < len; i++) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
                 setTimeout(playMusicSequence, 900);
             }
         }
-    }
     function endMusic() {
         music.active = false;
         playSound('timeup');
@@ -1933,6 +1929,7 @@ document.addEventListener('change', function(e) {
         const livesEl = document.getElementById('music-lives'); if (livesEl) livesEl.classList.remove('show');
         const stage = document.getElementById('music-char-stage'); if (stage) stage.classList.remove('show');
         if (!startBtn) return;
+        startBtn.style.display = 'block';
         resultBox.innerHTML = '';
         const me = state.members.find(m => m.name === user);
         if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
