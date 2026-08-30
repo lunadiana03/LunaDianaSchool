@@ -353,14 +353,16 @@
             <div id="run-title" class="run-title">🏃‍♀️ START DASH !!</div>
             <div class="run-stats">📏 距離: <span id="run-distance">0m</span></div>
             <div id="run-desc" class="climb-desc"></div>
-            <div id="run-lives" class="lives-row"></div>
-            <div class="run-track" id="run-track">
-                <div id="run-char" class="run-char"><img id="run-char-img" src="mascot1.png"></div>
-                <div id="run-obstacles"></div>
-                <div id="run-countdown" class="climb-countdown"></div>
+            <div id="run-play-area">
+                <div id="run-lives" class="lives-row"></div>
+                <div class="run-track" id="run-track">
+                    <div id="run-char" class="run-char"><img id="run-char-img" src="mascot1.png"></div>
+                    <div id="run-obstacles"></div>
+                    <div id="run-countdown" class="climb-countdown"></div>
+                </div>
+                <button id="run-jump-btn" class="run-jump-btn" onclick="runJump()">⬆ ジャンプ</button>
             </div>
-            <div id="run-result" class="climb-result"></div>
-            <button id="run-jump-btn" class="run-jump-btn" onclick="runJump()">⬆ ジャンプ</button>
+            <div id="run-result" class="climb-result" style="display:none;"></div>
             <button id="run-start-btn" class="climb-start-btn" onclick="startRun()">スタート（レッスン1回分消費）</button>
         </div>
     </div>
@@ -369,12 +371,14 @@
             <button id="music-exit-btn" class="game-exit-btn" onclick="exitMusicGame()" style="display:none;">🚪 やめる</button>
             <div id="music-title" class="climb-title">🎹 音感レッスン</div>
             <div id="music-desc" class="climb-desc"></div>
-            <div id="music-char-stage" class="mini-char-stage"><img id="music-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
-            <div style="text-align:center;font-weight:bold;margin-bottom:6px;">ラウンド: <span id="music-round">0</span></div>
-            <div id="music-lives" class="lives-row"></div>
-            <div class="piano-wrap" id="piano-keys"></div>
-            <div id="music-countdown" class="climb-countdown"></div>
-            <div id="music-result" class="climb-result"></div>
+            <div id="music-play-area">
+                <div id="music-char-stage" class="mini-char-stage"><img id="music-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
+                <div style="text-align:center;font-weight:bold;margin-bottom:6px;">ラウンド: <span id="music-round">0</span></div>
+                <div id="music-lives" class="lives-row"></div>
+                <div class="piano-wrap" id="piano-keys"></div>
+                <div id="music-countdown" class="climb-countdown"></div>
+            </div>
+            <div id="music-result" class="climb-result" style="display:none;"></div>
             <button id="music-start-btn" class="climb-start-btn" onclick="startMusic()">スタート（レッスン1回分消費）</button>
         </div>
     </div>
@@ -383,14 +387,16 @@
             <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;">🚪 やめる</button>
             <div id="kintore-title" class="run-title">🏋️ きんとれレッスン</div>
             <div id="kintore-desc" class="climb-desc"></div>
-            <div id="kintore-char-stage" class="mini-char-stage"><img id="kintore-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
-            <div class="run-stats">✅ タップ数: <span id="kintore-count">0</span></div>
-            <div id="kintore-lives" class="lives-row"></div>
-            <div class="climb-progress-track"><div id="kintore-progress-fill" class="climb-progress-fill"></div><div id="kintore-progress-dot" class="climb-progress-dot"></div></div>
-            <div class="climb-time-row"><span id="kintore-elapsed">0:00</span><span id="kintore-total">0:30</span></div>
-            <div class="kintore-grid" id="kintore-grid"></div>
-            <div id="kintore-countdown" class="climb-countdown"></div>
-            <div id="kintore-result" class="climb-result"></div>
+            <div id="kintore-play-area">
+                <div id="kintore-char-stage" class="mini-char-stage"><img id="kintore-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
+                <div class="run-stats">✅ タップ数: <span id="kintore-count">0</span></div>
+                <div id="kintore-lives" class="lives-row"></div>
+                <div class="climb-progress-track"><div id="kintore-progress-fill" class="climb-progress-fill"></div><div id="kintore-progress-dot" class="climb-progress-dot"></div></div>
+                <div class="climb-time-row"><span id="kintore-elapsed">0:00</span><span id="kintore-total">0:30</span></div>
+                <div class="kintore-grid" id="kintore-grid"></div>
+                <div id="kintore-countdown" class="climb-countdown"></div>
+            </div>
+            <div id="kintore-result" class="climb-result" style="display:none;"></div>
             <button id="kintore-start-btn" class="climb-start-btn" onclick="startKintore()">スタート（レッスン1回分消費）</button>
         </div>
     </div>
