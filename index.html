@@ -596,7 +596,47 @@ const LESSONS = ["トランポリン", "ダンスレッスン", "モデルレッ
     const RUN_JUMP_DURATION = 600;
     const RUN_JUMP_HEIGHT = 55;
     const RUN_CHAR_X = 40;
-　　initAudio();
+　　const activeChromaVideos = {};
+    function stopChromaVideo(key) {
+        const v = activeChromaVideos[key];
+        if (v) { cancelAnimationFrame(v.rafId); v.video.pause(); v.video.remove(); delete activeChromaVideos[key]; }
+    }
+    function startChromaVideo(key, canvas, videoSrc) {
+        stopChromaVideo(key);
+        if (!canvas || !videoSrc) return;
+        const video = document.createElement('video');
+        video.src = videoSrc; video.autoplay = true; video.loop = true; video.muted = true; video.playsInline = true; video.style.display = 'none';
+        document.body.appendChild(video);
+        const ctx = canvas.getContext('2d');
+        const st = { video, rafId: null };
+        activeChromaVideos[key] = st;
+        function drawFrame() {
+            if (!activeChromaVideos[key]) return;
+            if (video.readyState >= 2) {
+                if (video.videoWidth && canvas.width !== video.videoWidth) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; }
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                try {
+                    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = frame.data;
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i], g = data[i+1], b = data[i+2];
+                        if (g > 90 && g > r * 1.25 && g > b * 1.25) data[i+3] = 0;
+                    }
+                    ctx.putImageData(frame, 0, 0);
+                } catch(e) {}
+            }
+            st.rafId = requestAnimationFrame(drawFrame);
+        }
+        video.play().catch(()=>{});
+        drawFrame();
+    }
+    function renderResultChar(containerElId, canvasId, ms, key) {
+        const canvas = document.getElementById(canvasId);
+        if (ms.happyVideo && canvas) {
+            startChromaVideo(key, canvas, ms.happyVideo);
+        }
+    }
+      initAudio();
     window.onload = function() {
         const saved = localStorage.getItem('lesson_kumi_v21_local');
         if (saved) { try { const p = JSON.parse(saved); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; } } catch(e) {} }
@@ -1723,7 +1763,9 @@ document.addEventListener('change', function(e) {
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('run-result').innerHTML = `
-            <img src="${runMs.happyImg || runMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
+          stopChromaVideo('run');
+            <canvas id="run-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
+            ${runMs.happyVideo ? '' : `<img src="${runMs.happyImg || runMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
             <div class="climb-result-title">🏁 結果！</div>
             <div class="climb-result-height">${run.distance}m</div>
             <div class="climb-result-stats">
@@ -1733,6 +1775,7 @@ document.addEventListener('change', function(e) {
                 <div>Vi ${earned.vi}↑</div>
             </div>`;
         document.getElementById('run-start-btn').style.display = 'block';
+     renderResultChar('run-result', 'run-result-canvas', runMs, 'run');
         syncToSheet(m);
     }
       function playTone(freq, duration) {
@@ -1905,15 +1948,17 @@ document.addEventListener('change', function(e) {
         (state.musicTiers || []).forEach(t => { if (achieved >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
-        const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('music-result').innerHTML = `
-            <img src="${musicMs.happyImg || musicMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
+           stopChromaVideo('music');
+            <canvas id="music-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
+            ${musicMs.happyVideo ? '' : `<img src="${musicMs.happyImg || musicMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
             <div class="climb-result-title">🎹 結果！</div>
             <div class="climb-result-height">${achieved}音</div>
             <div class="climb-result-stats">
                 <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
             </div>`;
         document.getElementById('music-start-btn').style.display = 'block';
+       renderResultChar('music-result', 'music-result-canvas', musicMs, 'music');
         syncToSheet(m);
     }
     function exitMusicGame() {
@@ -2068,15 +2113,17 @@ document.addEventListener('change', function(e) {
         (state.kintoreTiers || []).forEach(t => { if (kintore.totalTaps >= t.count) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
-        const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         document.getElementById('kintore-result').innerHTML = `
-            <img src="${kintoreMs.happyImg || kintoreMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
+           stopChromaVideo('kintore');
+            <canvas id="kintore-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
+            ${kintoreMs.happyVideo ? '' : `<img src="${kintoreMs.happyImg || kintoreMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
             <div class="climb-result-title">🏋️ 結果！</div>
             <div class="climb-result-height">${kintore.totalTaps}個</div>
             <div class="climb-result-stats">
                 <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
             </div>`;
         document.getElementById('kintore-start-btn').style.display = 'block';
+        renderResultChar('kintore-result', 'kintore-result-canvas', kintoreMs, 'kintore');
         syncToSheet(m);
     }
     function exitKintoreGame() {
