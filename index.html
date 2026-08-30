@@ -400,25 +400,27 @@
             <div id="mascot-grid" class="mascot-grid"></div>
         </div>
     </div>
-    <div id="view-climb" class="view-section">
+   <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
             <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;">🚪 やめる</button>
             <div id="climb-title" class="climb-title">🧗‍♀️ Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
-            <div class="climb-track" id="climb-track">
-                <div class="climb-height-badge">📏 <span id="climb-height">0m</span></div>
-                <div id="climb-char" class="climb-char"><img id="climb-char-img" src="mascot1.png" alt="idol"></div>
-                <div id="climb-countdown" class="climb-countdown"></div>
+            <div id="climb-play-area">
+                <div class="climb-track" id="climb-track">
+                    <div class="climb-height-badge">📏 <span id="climb-height">0m</span></div>
+                    <div id="climb-char" class="climb-char"><img id="climb-char-img" src="mascot1.png" alt="idol"></div>
+                    <div id="climb-countdown" class="climb-countdown"></div>
+                </div>
+                <div class="climb-progress-track"><div id="climb-progress-fill" class="climb-progress-fill"></div><div id="climb-progress-dot" class="climb-progress-dot"></div></div>
+                <div class="climb-time-row"><span id="climb-elapsed">0:00</span><span id="climb-total">0:30</span></div>
+                <div id="climb-prompt" class="climb-prompt">→</div>
+                <div class="climb-btns">
+                    <button class="climb-btn climb-btn-left" onclick="climbPress('left')">←</button>
+                    <button class="climb-btn climb-btn-up" onclick="climbPress('up')">↑</button>
+                    <button class="climb-btn climb-btn-right" onclick="climbPress('right')">→</button>
+                </div>
             </div>
-            <div class="climb-progress-track"><div id="climb-progress-fill" class="climb-progress-fill"></div><div id="climb-progress-dot" class="climb-progress-dot"></div></div>
-            <div class="climb-time-row"><span id="climb-elapsed">0:00</span><span id="climb-total">0:30</span></div>
-            <div id="climb-prompt" class="climb-prompt">→</div>
-            <div class="climb-btns">
-                <button class="climb-btn climb-btn-left" onclick="climbPress('left')">←</button>
-                <button class="climb-btn climb-btn-up" onclick="climbPress('up')">↑</button>
-                <button class="climb-btn climb-btn-right" onclick="climbPress('right')">→</button>
-            </div>
-            <div id="climb-result" class="climb-result"></div>
+            <div id="climb-result" class="climb-result" style="display:none;"></div>
             <button id="climb-start-btn" class="climb-start-btn" onclick="startClimb()">スタート（レッスン3回分消費）</button>
         </div>
     </div>
