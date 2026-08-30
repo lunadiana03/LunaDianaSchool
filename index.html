@@ -1313,10 +1313,12 @@ document.addEventListener('change', function(e) {
         if (!confirm("崖登りチャレンジを始めますか？（レッスン3回分を消費します、1日1回まで）")) return;
         setGameMode(true);
         document.getElementById('climb-exit-btn').style.display = 'block';
+        document.getElementById('climb-play-area').style.display = 'block';
         document.getElementById('climb-track').classList.add('show');
         hideTitleDesc('climb-title','climb-desc');
         document.getElementById('climb-start-btn').style.display = 'none';
-        document.getElementById('climb-result').innerHTML = '';
+        const climbResultBox = document.getElementById('climb-result');
+        climbResultBox.innerHTML = ''; climbResultBox.style.display = 'none';
         runClimbCountdown(me);
     }
     function runClimbCountdown(me) {
@@ -1436,6 +1438,9 @@ document.addEventListener('change', function(e) {
         if (climb.active) return;
           setGameMode(false);
         const exitBtn = document.getElementById('climb-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const playArea = document.getElementById('climb-play-area'); if (playArea) playArea.style.display = 'none';
+        document.getElementById('climb-track').classList.remove('show');
+        stopChromaVideo('climb');
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('climb-start-btn');
         const resultBox = document.getElementById('climb-result');
@@ -1452,16 +1457,17 @@ document.addEventListener('change', function(e) {
           showTitleDesc('climb-title','climb-desc');
         if (climbCharImg2) { const ms2 = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg2.src = ms2.climbImg || ms2.img; }
         document.getElementById('climb-track').style.backgroundPositionY = '0px';
-        if (!me) { startBtn.style.display = 'block'; resultBox.innerHTML = ''; return; }
+        if (!me) { startBtn.style.display = 'block'; resultBox.style.display = 'none'; resultBox.innerHTML = ''; return; }
         const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         if (me.climbDate === todayKey) {
             startBtn.style.display = 'none';
-            resultBox.innerHTML = `
-                <div class="climb-result-title">🏆 今日の結果！</div>
-                <div class="climb-result-height">${me.climbHeight||0}m</div>
-                <div style="font-size:0.85em;opacity:0.85;">また明日挑戦してね！</div>`;
+            const ms2 = MASCOTS.find(x => x.id === me.mascotId) || MASCOTS[0];
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = buildResultHtml('climb-result-canvas', ms2, '🏆 今日の結果！', (me.climbHeight||0) + 'm', {vo:0,pl:0,da:0,vi:0}) + `<div style="font-size:0.85em;opacity:0.85;margin-top:4px;">また明日挑戦してね！</div>`;
+            renderResultChar('climb-result', 'climb-result-canvas', ms2, 'climb');
         } else {
             startBtn.style.display = 'block';
+            resultBox.style.display = 'none';
             resultBox.innerHTML = '';
         }
     }
@@ -1469,9 +1475,10 @@ document.addEventListener('change', function(e) {
         climb.active = false;
         clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
         playSound('timeup');
-        document.getElementById('climb-prompt').innerText = '🏁';
         setGameMode(false);
         document.getElementById('climb-exit-btn').style.display = 'none';
+        document.getElementById('climb-play-area').style.display = 'none';
+        document.getElementById('climb-track').classList.remove('show');
         const m = state.members.find(x => x.id === climb.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
@@ -1482,16 +1489,10 @@ document.addEventListener('change', function(e) {
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
         const climbMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        document.getElementById('climb-result').innerHTML = `
-            <img src="${climbMs.happyImg || climbMs.img}" style="width:72px;height:72px;object-fit:contain;margin-bottom:4px;">
-            <div class="climb-result-title">🏆 今日の結果！</div>
-            <div class="climb-result-height">${heightM}m</div>
-            <div class="climb-result-stats">
-                <div>Vo ${earned.vo}↑</div>
-                <div>Pl ${earned.pl}↑</div>
-                <div>Da ${earned.da}↑</div>
-                <div>Vi ${earned.vi}↑</div>
-            </div>`;
+        const climbResultBox = document.getElementById('climb-result');
+        climbResultBox.style.display = 'block';
+        climbResultBox.innerHTML = buildResultHtml('climb-result-canvas', climbMs, '🏆 今日の結果！', heightM + 'm', earned);
+        renderResultChar('climb-result', 'climb-result-canvas', climbMs, 'climb');
         document.getElementById('climb-start-btn').style.display = 'none';
         syncToSheet(m);
     }
@@ -1638,10 +1639,12 @@ document.addEventListener('change', function(e) {
         if (!confirm("ランニングを始めますか？")) return;
         setGameMode(true);
         document.getElementById('run-exit-btn').style.display = 'block';
+        document.getElementById('run-play-area').style.display = 'block';
         document.getElementById('run-track').classList.add('show');
         hideTitleDesc('run-title','run-desc');
         document.getElementById('run-start-btn').style.display = 'none';
-        document.getElementById('run-result').innerHTML = '';
+        const runResultBox = document.getElementById('run-result');
+        runResultBox.innerHTML = ''; runResultBox.style.display = 'none';
         runCountdown(me);
     }
     function runCountdown(me) {
@@ -1763,6 +1766,9 @@ document.addEventListener('change', function(e) {
         document.getElementById('run-obstacles').innerHTML = '';
         setGameMode(false);
         document.getElementById('run-exit-btn').style.display = 'none';
+        document.getElementById('run-play-area').style.display = 'none';
+        document.getElementById('run-track').classList.remove('show');
+        document.getElementById('run-lives').classList.remove('show');
         playSound('timeup');
         const m = state.members.find(x => x.id === run.targetId);
         if (!m) return;
@@ -1771,20 +1777,11 @@ document.addEventListener('change', function(e) {
         m.r++;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        stopChromaVideo('run');
-        document.getElementById('run-result').innerHTML = `
-            <canvas id="run-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
-            ${runMs.happyVideo ? '' : `<img src="${runMs.happyImg || runMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
-            <div class="climb-result-title">🏁 結果！</div>
-            <div class="climb-result-height">${run.distance}m</div>
-            <div class="climb-result-stats">
-                <div>Vo ${earned.vo}↑</div>
-                <div>Pl ${earned.pl}↑</div>
-                <div>Da ${earned.da}↑</div>
-                <div>Vi ${earned.vi}↑</div>
-            </div>`;
-        document.getElementById('run-start-btn').style.display = 'block';
+        const runResultBox = document.getElementById('run-result');
+        runResultBox.style.display = 'block';
+        runResultBox.innerHTML = buildResultHtml('run-result-canvas', runMs, '🏁 結果！', run.distance + 'm', earned);
         renderResultChar('run-result', 'run-result-canvas', runMs, 'run');
+        document.getElementById('run-start-btn').style.display = 'block';
         syncToSheet(m);
     }
       function playTone(freq, duration) {
