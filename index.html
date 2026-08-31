@@ -2185,12 +2185,22 @@ document.addEventListener('change', function(e) {
         }).join('');
     }
     function selectMascot(id) {
-        const me = state.members.find(m => m.name === user);
-        if (!me) { alert("先にログインしてください"); return; }
-        me.mascotId = id;
-        syncToSheet(me);
-        renderMascotPage();
+    const me = state.members.find(m => m.name === user);
+
+    if (!me) {
+        alert("先にログインしてください");
+        return;
     }
+        
+    me.mascotId = id;
+    state.members = state.members.map(m =>
+        m.name === user ? me : m
+    );
+
+    syncToSheet(me);
+        
+    renderMascotPage();
+}
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
         if (!confirm(`【警告】本当にアイドル「 ${m.name} 」さんを学園名簿から削除しますか？`)) return;
