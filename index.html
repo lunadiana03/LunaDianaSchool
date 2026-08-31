@@ -1609,6 +1609,9 @@ document.addEventListener('change', function(e) {
         if (run.active) return;
           setGameMode(false);
         const runExitBtn = document.getElementById('run-exit-btn'); if (runExitBtn) runExitBtn.style.display = 'none';
+        const runPlayArea = document.getElementById('run-play-area'); if (runPlayArea) runPlayArea.style.display = 'none';
+        const runResultBox = document.getElementById('run-result'); if (runResultBox) { runResultBox.style.display = 'none'; runResultBox.innerHTML = ''; }
+        stopChromaVideo('run');
           const runTrackEl = document.getElementById('run-track'); if (runTrackEl) runTrackEl.classList.remove('show');
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('run-start-btn');
@@ -1738,11 +1741,11 @@ document.addEventListener('change', function(e) {
             const trackW = document.getElementById('run-track').clientWidth || 300;
             const charLeftPx = trackW * 0.02;
             const charWidthPx = trackW * 0.25;
-            const hitboxLeft = charLeftPx + charWidthPx * 0.3;
-            const hitboxRight = charLeftPx + charWidthPx * 0.75;
+            const hitboxLeft = charLeftPx + charWidthPx * 0.4;
+            const hitboxRight = charLeftPx + charWidthPx * 0.6;
             for (const o of run.obstacles) {
-                const obsLeft = o.x + 5;
-                const obsRight = obsLeft + 8;
+                const obsLeft = o.x + 6;
+                const obsRight = obsLeft + 6;
                 if (obsLeft < hitboxRight && obsRight > hitboxLeft) {
                     if (jumpHeight < 30) {
                         run.lives--;
@@ -1866,12 +1869,17 @@ document.addEventListener('change', function(e) {
         if (!confirm("音感レッスンを始めますか？")) return;
         setGameMode(true);
         document.getElementById('music-exit-btn').style.display = 'block';
+        document.getElementById('music-play-area').style.display = 'block';
         hideTitleDesc('music-title','music-desc');
         const stage = document.getElementById('music-char-stage'); if (stage) stage.classList.add('show');
         const charImg = document.getElementById('music-char-img');
         if (charImg) { const ms = MASCOTS.find(x => x.id === me.mascotId) || MASCOTS[0]; charImg.src = ms.musicImg || ms.img; }
         document.getElementById('music-start-btn').style.display = 'none';
-        document.getElementById('music-result').innerHTML = '';
+        const musicResultBox = document.getElementById('music-result');
+        musicResultBox.innerHTML = ''; musicResultBox.style.display = 'none';
+        renderLives('music-lives', 3);
+        document.getElementById('music-lives').classList.add('show');
+        document.getElementById('music-round').innerText = '0';
         runMusicCountdown(me);
     }
     function runMusicCountdown(me) {
@@ -1948,10 +1956,8 @@ document.addEventListener('change', function(e) {
         music.active = false;
         playSound('timeup');
         setGameMode(false);
-        const musicStartBtn = document.getElementById('music-start-btn');
-        musicStartBtn.style.display = 'block';
-        musicStartBtn.innerText = '🔁 もう一度あそぶ';
-        document.getElementById('music-result').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('music-exit-btn').style.display = 'none';
+        document.getElementById('music-play-area').style.display = 'none';
         const m = state.members.find(x => x.id === music.targetId);
         if (!m) return;
         const achieved = music.sequence.length;
@@ -1960,17 +1966,11 @@ document.addEventListener('change', function(e) {
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        stopChromaVideo('music');
-        document.getElementById('music-result').innerHTML = `
-            <canvas id="music-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
-            ${musicMs.happyVideo ? '' : `<img src="${musicMs.happyImg || musicMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
-            <div class="climb-result-title">🎹 結果！</div>
-            <div class="climb-result-height">${achieved}音</div>
-            <div class="climb-result-stats">
-                <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
-            </div>`;
-        document.getElementById('music-start-btn').style.display = 'block';
+        const musicResultBox = document.getElementById('music-result');
+        musicResultBox.style.display = 'block';
+        musicResultBox.innerHTML = buildResultHtml('music-result-canvas', musicMs, '🎹 結果！', achieved + '音', earned);
         renderResultChar('music-result', 'music-result-canvas', musicMs, 'music');
+        document.getElementById('music-start-btn').style.display = 'block';
         syncToSheet(m);
     }
     function exitMusicGame() {
@@ -1984,6 +1984,8 @@ document.addEventListener('change', function(e) {
         if (music.active) return;
         setGameMode(false);
         const exitBtn = document.getElementById('music-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const playArea = document.getElementById('music-play-area'); if (playArea) playArea.style.display = 'none';
+        stopChromaVideo('music');
         const startBtn = document.getElementById('music-start-btn');
         const resultBox = document.getElementById('music-result');
         const cd = document.getElementById('music-countdown'); if (cd) cd.style.display = 'none';
@@ -1992,6 +1994,7 @@ document.addEventListener('change', function(e) {
         const stage = document.getElementById('music-char-stage'); if (stage) stage.classList.remove('show');
         if (!startBtn) return;
         startBtn.style.display = 'block';
+        resultBox.style.display = 'none';
         resultBox.innerHTML = '';
         const me = state.members.find(m => m.name === user);
         if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
@@ -2069,12 +2072,23 @@ document.addEventListener('change', function(e) {
         if (!confirm("筋トレレッスンを始めますか？")) return;
         setGameMode(true);
         document.getElementById('kintore-exit-btn').style.display = 'block';
+        document.getElementById('kintore-play-area').style.display = 'block';
         hideTitleDesc('kintore-title','kintore-desc');
         const stage = document.getElementById('kintore-char-stage'); if (stage) stage.classList.add('show');
         const charImg = document.getElementById('kintore-char-img');
         if (charImg) { const ms = MASCOTS.find(x => x.id === me.mascotId) || MASCOTS[0]; charImg.src = ms.kintoreImg || ms.img; }
         document.getElementById('kintore-start-btn').style.display = 'none';
-        document.getElementById('kintore-result').innerHTML = '';
+        const kintoreResultBox = document.getElementById('kintore-result');
+        kintoreResultBox.innerHTML = ''; kintoreResultBox.style.display = 'none';
+        kintore = { active: false, tick: null, timeLeft: KINTORE_TOTAL_TIME, totalTime: KINTORE_TOTAL_TIME, current: 1, totalTaps: 0, targetId: me.id, lives: 3 };
+        document.getElementById('kintore-count').innerText = '0';
+        document.getElementById('kintore-elapsed').innerText = '0:00';
+        document.getElementById('kintore-total').innerText = formatClimbTime(KINTORE_TOTAL_TIME);
+        document.getElementById('kintore-progress-fill').style.width = '0%';
+        document.getElementById('kintore-progress-dot').style.left = '0%';
+        renderLives('kintore-lives', kintore.lives);
+        document.getElementById('kintore-lives').classList.add('show');
+        generateKintoreSheet();
         runKintoreCountdown(me);
     }
     function runKintoreCountdown(me) {
@@ -2089,15 +2103,7 @@ document.addEventListener('change', function(e) {
     }
     function actuallyStartKintore(me) {
         playSound('start');
-        kintore = { active: true, tick: null, timeLeft: KINTORE_TOTAL_TIME, totalTime: KINTORE_TOTAL_TIME, current: 1, totalTaps: 0, targetId: me.id, lives: 3 };
-        document.getElementById('kintore-count').innerText = '0';
-        document.getElementById('kintore-elapsed').innerText = '0:00';
-        document.getElementById('kintore-total').innerText = formatClimbTime(KINTORE_TOTAL_TIME);
-        document.getElementById('kintore-progress-fill').style.width = '0%';
-        document.getElementById('kintore-progress-dot').style.left = '0%';
-        renderLives('kintore-lives', kintore.lives);
-        document.getElementById('kintore-lives').classList.add('show');
-        generateKintoreSheet();
+        kintore.active = true;
         clearInterval(kintore.tick);
         kintore.tick = setInterval(kintoreTick, 1000);
     }
@@ -2115,10 +2121,8 @@ document.addEventListener('change', function(e) {
         clearInterval(kintore.tick);
         playSound('timeup');
         setGameMode(false);
-        const kintoreStartBtn = document.getElementById('kintore-start-btn');
-        kintoreStartBtn.style.display = 'block';
-        kintoreStartBtn.innerText = '🔁 もう一度あそぶ';
-        document.getElementById('kintore-result').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('kintore-exit-btn').style.display = 'none';
+        document.getElementById('kintore-play-area').style.display = 'none';
         const m = state.members.find(x => x.id === kintore.targetId);
         if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
@@ -2126,17 +2130,11 @@ document.addEventListener('change', function(e) {
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        stopChromaVideo('kintore');
-        document.getElementById('kintore-result').innerHTML = `
-            <canvas id="kintore-result-canvas" width="120" height="120" style="width:96px;height:96px;margin-bottom:4px;"></canvas>
-            ${kintoreMs.happyVideo ? '' : `<img src="${kintoreMs.happyImg || kintoreMs.img}" style="width:96px;height:96px;object-fit:contain;margin-bottom:4px;">`}
-            <div class="climb-result-title">🏋️ 結果！</div>
-            <div class="climb-result-height">${kintore.totalTaps}個</div>
-            <div class="climb-result-stats">
-                <div>Vo ${earned.vo}↑</div><div>Pl ${earned.pl}↑</div><div>Da ${earned.da}↑</div><div>Vi ${earned.vi}↑</div>
-            </div>`;
-        document.getElementById('kintore-start-btn').style.display = 'block';
+        const kintoreResultBox = document.getElementById('kintore-result');
+        kintoreResultBox.style.display = 'block';
+        kintoreResultBox.innerHTML = buildResultHtml('kintore-result-canvas', kintoreMs, '🏋️ 結果！', kintore.totalTaps + '個', earned);
         renderResultChar('kintore-result', 'kintore-result-canvas', kintoreMs, 'kintore');
+        document.getElementById('kintore-start-btn').style.display = 'block';
         syncToSheet(m);
     }
     function exitKintoreGame() {
@@ -2150,6 +2148,8 @@ document.addEventListener('change', function(e) {
         if (kintore.active) return;
         setGameMode(false);
         const exitBtn = document.getElementById('kintore-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const playArea = document.getElementById('kintore-play-area'); if (playArea) playArea.style.display = 'none';
+        stopChromaVideo('kintore');
         const startBtn = document.getElementById('kintore-start-btn');
         const resultBox = document.getElementById('kintore-result');
         const cd = document.getElementById('kintore-countdown'); if (cd) cd.style.display = 'none';
@@ -2161,6 +2161,7 @@ document.addEventListener('change', function(e) {
         const livesEl = document.getElementById('kintore-lives'); if (livesEl) livesEl.classList.remove('show');
         const stage = document.getElementById('kintore-char-stage'); if (stage) stage.classList.remove('show');
         if (!startBtn) return;
+        resultBox.style.display = 'none';
         resultBox.innerHTML = '';
         const me = state.members.find(m => m.name === user);
         if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; return; }
