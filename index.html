@@ -2170,20 +2170,36 @@ document.addEventListener('change', function(e) {
         else { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; }
     }
     function renderMascotPage() {
-        const con = document.getElementById('mascot-grid'); if (!con) return;
-        const me = state.members.find(m => m.name === user);
-        con.innerHTML = MASCOTS.map(ms => {
-            const selected = me && me.mascotId === ms.id;
-            const cls = 'mascot-card' + (selected ? ' selected' : '') + (!ms.available ? ' locked' : '');
-            const onclick = ms.available ? `onclick="selectMascot('${ms.id}')"` : '';
-            return `<div class="${cls}" ${onclick}>
+    const con = document.getElementById('mascot-grid');
+    if (!con) return;
+
+    const me = state.members.find(m => m.name === user);
+    const currentMascotId = me ? me.mascotId : '';
+
+    con.innerHTML = MASCOTS.map(ms => {
+        const selected = currentMascotId === ms.id;
+        const cls =
+            'mascot-card' +
+            (selected ? ' selected' : '') +
+            (!ms.available ? ' locked' : '');
+
+        return `
+            <div class="${cls}" data-mascot-id="${ms.id}">
                 <img src="${ms.img}" onerror="this.style.opacity=0.2">
                 <div class="mascot-name">${ms.name}</div>
                 ${!ms.available ? '<div class="mascot-lock">近日公開</div>' : ''}
                 ${selected ? '<div class="mascot-check">✔ 使用中</div>' : ''}
-            </div>`;
-        }).join('');
-    }
+            </div>
+        `;
+    }).join('');
+
+    con.querySelectorAll('.mascot-card:not(.locked)').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = card.dataset.mascotId;
+            if (id) selectMascot(id);
+        });
+    });
+}
     function selectMascot(id) {
     const me = state.members.find(m => m.name === user);
 
@@ -2191,15 +2207,12 @@ document.addEventListener('change', function(e) {
         alert("先にログインしてください");
         return;
     }
-        
+
     me.mascotId = id;
-    state.members = state.members.map(m =>
-        m.name === user ? me : m
-    );
+
+    renderMascotPage();
 
     syncToSheet(me);
-        
-    renderMascotPage();
 }
     function adminDeleteMember(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
