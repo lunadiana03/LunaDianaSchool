@@ -15,7 +15,15 @@
 .run-cabinet { position:relative; }
 #climb-play-area, #run-play-area, #music-play-area, #kintore-play-area { position:relative; }
         :root { --p: #ffb7c5; --bg: #fff2f4; --c: rgba(255, 255, 255, 0.96); }
-        body { font-family: sans-serif; margin: 0; padding: 10px; background: var(--bg); color: #5a4b4e; font-size: 14px; }
+        body { font-family: sans-serif; margin: 0; padding: 10px 10px 90px; color: #5a4b4e; font-size: 14px; background: linear-gradient(160deg, #ffd6ec 0%, #dcb8f5 50%, #c9a6f7 100%); background-attachment: fixed; position: relative; }
+        body::before { content:''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image:
+            radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px),
+            radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px);
+            background-size: 60px 60px, 34px 34px; background-position: 0 0, 17px 17px;
+            animation: sparkle-drift 9s linear infinite; opacity: 0.8; }
+        @keyframes sparkle-drift { from { background-position: 0 0, 17px 17px; } to { background-position: 60px 60px, 77px 77px; } }
+        .kira-text { background: linear-gradient(90deg, #ff9ecb, #c86ee0, #8a6ff0, #c86ee0, #ff9ecb); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: kira-shimmer 3s linear infinite; font-weight: bold; }
+        @keyframes kira-shimmer { to { background-position: 200% center; } }
         .box { max-width: 500px; margin: 0 auto; }
         header { text-align: center; padding: 10px; background: var(--c); border-radius: 15px; margin-bottom: 10px; border: 2px dashed #ffcbd5; position: relative; }
         h1 { margin: 0 0 5px 0; color: #ff758f; font-size: 1.2em; }
@@ -23,6 +31,19 @@
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
         button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
        .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+        .tabs { display: none !important; }
+        .bottom-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 900; display: flex; justify-content: space-around; padding: 8px 6px calc(8px + env(safe-area-inset-bottom)); background: rgba(255,255,255,0.85); backdrop-filter: blur(6px); border-top: 2px solid #ffcbf0; box-shadow: 0 -4px 12px rgba(200,110,224,0.25); }
+        .bn-item { display: flex; flex-direction: column; align-items: center; gap: 2px; background: none; box-shadow: none; padding: 0; }
+        .bn-icon { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 0 rgba(0,0,0,0.15); transition: transform 0.15s; }
+        .bn-item:active .bn-icon { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+        .bn-icon svg { width: 24px; height: 24px; fill: #fff; }
+        .bn-label { font-size: 0.68em; font-weight: bold; }
+        .bn-home .bn-icon { background: linear-gradient(145deg,#ff9ecb,#e6008a); }
+        .bn-lesson .bn-icon { background: linear-gradient(145deg,#ffd36e,#f5a800); }
+        .bn-zukan .bn-icon { background: linear-gradient(145deg,#8bd7ff,#1c9be0); }
+        .bn-chara .bn-icon { background: linear-gradient(145deg,#c9a0ff,#8a4fe0); }
+        .bn-bbs .bn-icon { background: linear-gradient(145deg,#8bf0a4,#2b8a3e); }
+        .bn-item.active .bn-icon { box-shadow: 0 0 0 3px #fff, 0 3px 8px rgba(200,110,224,0.6); }
 .tab-btn { flex: 1 1 30%; }
         .tabs.has-live { grid-template-columns: repeat(5, 1fr); }
 .live-cabinet { background:#fff; border:2px dashed #ff9aa9; border-radius:15px; padding:14px; text-align:center; }
@@ -122,6 +143,10 @@
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
 .climb-result-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.85em; }
 .climb-result-stats div { background:rgba(255,255,255,0.5); border-radius:8px; padding:4px 0; }
+        .lesson-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .lesson-menu-item { background: rgba(255,255,255,0.9); border-radius: 18px; padding: 16px 8px; text-align: center; box-shadow: 0 4px 0 rgba(200,110,224,0.3); }
+        .lesson-menu-item .lm-icon { font-size: 2.2em; margin-bottom: 4px; }
+        .lesson-menu-item .lm-label { font-weight: bold; color: #7a4fb0; }
         .tier-table { background:#fff; border-radius:8px; padding:4px; margin-bottom:6px; }
 .tier-row { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 26px; gap:3px; align-items:center; padding:3px 0; border-bottom:1px solid #ffe3e7; }
 .tier-row:last-child { border-bottom:none; }
