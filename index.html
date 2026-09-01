@@ -102,7 +102,7 @@
         .bbs-body { font-size: 0.9em; line-height: 1.4; color: #6d585c; white-space: pre-wrap; }
         .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
         .climb-cabinet, .run-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-size: 34px 34px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #7a4fb0; text-align:center; box-shadow: 0 6px 0 #d9a6f0, 0 0 20px rgba(200,110,224,0.35); position:relative; overflow:hidden; }
-        .climb-title { font-size:1.1em; margin-bottom:10px; color:#2b5a8a; letter-spacing:1px; position:relative; z-index:1; }
+        .climb-title { font-size:1.1em; margin-bottom:10px; letter-spacing:1px; position:relative; z-index:1; }
    .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }   
     .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; aspect-ratio:1/1; height:auto; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; display:none; }
 .climb-track.show { display:block; }    
@@ -153,8 +153,8 @@
 .tier-row:last-child { border-bottom:none; }
 .tier-head { font-weight:bold; font-size:0.7em; color:#ff758f; border-bottom:2px solid #ffd3db; }
 .tier-row input { margin:0; padding:3px; font-size:0.8em; text-align:center; }
-.run-title { font-size:1.1em; margin-bottom:8px; }
-.run-stats { font-weight:bold; margin-bottom:8px; }
+.run-title { font-size:1.1em; margin-bottom:8px; position:relative; z-index:1; }
+        .run-stats { font-weight:bold; margin-bottom:8px; }
 .run-track { background: linear-gradient(180deg, #8ec9ff 0%, #bfe6ff 45%, #6fae63 45%, #4d8f47 100%); border-radius:16px; aspect-ratio:1/1; height:auto; position:relative; overflow:hidden; border:3px solid #fff; margin-bottom:10px; display:none; }
 .run-track.show { display:block; }
 .run-track::before { content:''; position:absolute; left:0; right:0; top:20%; height:25%; background-image: radial-gradient(circle, rgba(255,255,255,0.5) 8px, transparent 9px); background-size:60px 40px; opacity:0.6; }
