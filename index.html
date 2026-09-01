@@ -163,8 +163,8 @@
 .run-char.hit { opacity:0.35; }
 .run-obstacle { position:absolute; bottom:0; width:18px; height:30px; background:#5a3a1e; border-radius:4px 4px 0 0; }
 .run-jump-btn { width:100%; margin-bottom:8px; background:linear-gradient(145deg,#ff9fd6,#e6008a); font-size:1.1em; padding:14px; border-radius:16px; }
-.mascot-page { background:#fff; border:2px dashed #ffcbd5; border-radius:15px; padding:14px; }
-.mascot-title { font-weight:bold; color:#ff758f; text-align:center; margin-bottom:10px; }
+.mascot-page { background: rgba(255,255,255,0.9); border: 2px dashed #e0a6f5; border-radius:20px; padding:16px; box-shadow: 0 4px 0 rgba(200,110,224,0.3); }
+        .mascot-title { font-weight:bold; color:#ff758f; text-align:center; margin-bottom:10px; }
 .mascot-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
 .mascot-card { position:relative; background:#fff9fa; border:2px solid #ffe3e7; border-radius:14px; padding:10px; text-align:center; }
 .mascot-card img { width:100%; max-width:100px; height:100px; object-fit:contain; }
@@ -317,21 +317,21 @@
         <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
         <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
         <div id="cfg-con"></div>
-        <h3 onclick="toggleMeigenList()" style="cursor:pointer;">🎴 格言リスト管理 <span id="meigen-list-arrow">▶</span></h3>
+        <h3 onclick="toggleMeigenList()" style="cursor:pointer;"> 格言リスト管理 <span id="meigen-list-arrow">▶</span></h3>
         <div id="meigen-con" style="display:none;"></div>
         <button onclick="addMeigen()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ 格言を追加</button>
-       <h3 onclick="toggleClimbList()" style="cursor:pointer;">🧗 崖登りポイント設定 <span id="climb-list-arrow">▶</span></h3>
+       <h3 onclick="toggleClimbList()" style="cursor:pointer;"> 崖登りポイント設定 <span id="climb-list-arrow">▶</span></h3>
         <div id="climb-con" style="display:none;"></div>
         <textarea id="admin-climb-desc" rows="3" placeholder="崖登りの説明文を入力してね" onchange="upClimbDesc()"></textarea>
-        <h3 onclick="toggleRunList()" style="cursor:pointer;">🏃‍♀️ START DASH !! ポイント設定 <span id="run-list-arrow">▶</span></h3>
+        <h3 onclick="toggleRunList()" style="cursor:pointer;"> START DASH !! ポイント設定 <span id="run-list-arrow">▶</span></h3>
         <div id="run-con" style="display:none;"></div>
         <textarea id="admin-run-desc" rows="3" placeholder="ランニングの説明文を入力してね" onchange="upRunDesc()"></textarea>
-        <h3 onclick="toggleMusicList()" style="cursor:pointer;">🎹 音感レッスン ポイント設定 <span id="music-list-arrow">▶</span></h3>
+        <h3 onclick="toggleMusicList()" style="cursor:pointer;"> 音感レッスン ポイント設定 <span id="music-list-arrow">▶</span></h3>
         <div id="music-con" style="display:none;"></div>
         <h3 onclick="toggleMusicStagesList()" style="cursor:pointer;">🎹 音感 光る数（段階）設定 <span id="music-stages-arrow">▶</span></h3>
         <div id="music-stages-con" style="display:none;"></div>
         <textarea id="admin-music-desc" rows="3" placeholder="音感レッスンの説明文を入力してね" onchange="upMusicDesc()"></textarea>
-        <h3 onclick="toggleKintoreList()" style="cursor:pointer;">🏋️ 筋トレレッスン ポイント設定 <span id="kintore-list-arrow">▶</span></h3>
+        <h3 onclick="toggleKintoreList()" style="cursor:pointer;"> 筋トレレッスン ポイント設定 <span id="kintore-list-arrow">▶</span></h3>
         <div id="kintore-con" style="display:none;"></div>
         <textarea id="admin-kintore-desc" rows="3" placeholder="筋トレレッスンの説明文を入力してね" onchange="upKintoreDesc()"></textarea>
         <h3>💾 バックアップ（手動）</h3>
@@ -365,7 +365,7 @@
     <div id="view-run" class="view-section">
         <div class="run-cabinet">
            <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;">🚪 やめる</button>
-            <div id="run-title" class="run-title">🏃‍♀️ START DASH !!</div>
+           <div id="run-title" class="run-title kira-text"> START DASH !!</div>
             <div class="run-stats">📏 距離: <span id="run-distance">0m</span></div>
             <div id="run-desc" class="climb-desc"></div>
             <div id="run-play-area">
@@ -384,7 +384,7 @@
     <div id="view-music" class="view-section">
         <div class="climb-cabinet">
             <button id="music-exit-btn" class="game-exit-btn" onclick="exitMusicGame()" style="display:none;">🚪 やめる</button>
-            <div id="music-title" class="climb-title">🎹 音感レッスン</div>
+            <div id="music-title" class="climb-title kira-text"> 音感レッスン</div>
             <div id="music-desc" class="climb-desc"></div>
             <div id="music-play-area">
                 <div id="music-char-stage" class="mini-char-stage"><img id="music-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
@@ -400,7 +400,7 @@
     <div id="view-kintore" class="view-section">
         <div class="run-cabinet">
             <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;">🚪 やめる</button>
-            <div id="kintore-title" class="run-title">🏋️ きんとれレッスン</div>
+            <div id="kintore-title" class="run-title kira-text"> きんとれレッスン</div>
             <div id="kintore-desc" class="climb-desc"></div>
             <div id="kintore-play-area">
                 <div id="kintore-char-stage" class="mini-char-stage"><img id="kintore-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
@@ -433,7 +433,7 @@
    <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
             <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;">🚪 やめる</button>
-            <div id="climb-title" class="climb-title">🧗‍♀️ Let's Climbing!!</div>
+            <div id="climb-title" class="climb-title kira-text"> Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
             <div id="climb-play-area">
                 <div class="climb-track" id="climb-track">
