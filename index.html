@@ -874,14 +874,6 @@ document.addEventListener('change', function(e) {
     }
         function switchView(view) {
     currentView = view;
-    document.getElementById('tab-my').classList.toggle('active', view === 'my');
-    document.getElementById('tab-bbs').classList.toggle('active', view === 'bbs');
-    document.getElementById('tab-all').classList.toggle('active', view === 'all');
-    document.getElementById('tab-climb').classList.toggle('active', view === 'climb');
-    document.getElementById('tab-run').classList.toggle('active', view === 'run');
-    document.getElementById('tab-mascot').classList.toggle('active', view === 'mascot');
-    document.getElementById('tab-music').classList.toggle('active', view === 'music');
-    document.getElementById('tab-kintore').classList.toggle('active', view === 'kintore');
     document.getElementById('view-my').classList.toggle('active', view === 'my');
     document.getElementById('view-bbs').classList.toggle('active', view === 'bbs');
     document.getElementById('view-all').classList.toggle('active', view === 'all');
