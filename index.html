@@ -1923,7 +1923,11 @@ document.addEventListener('change', function(e) {
         });
         setTimeout(() => { music.awaitingInput = true; }, delay);
     }
-    if (music.sequence[music.playerIdx] === idx) {
+    function musicKeyPress(idx) {
+        if (!music.active || !music.awaitingInput) return;
+        lightKey(idx);
+        playPianoNote(idx, 250);
+        if (music.sequence[music.playerIdx] === idx) {
             music.playerIdx++;
             if (music.playerIdx >= music.sequence.length) {
                 music.round++;
@@ -1948,13 +1952,15 @@ document.addEventListener('change', function(e) {
             if (music.lives <= 0) {
                 endMusic();
             } else {
-                // 覚える音の数は毎回最初の初期値まで戻す。光り方は新しく、テンポは失敗直前のまま維持。
                 const len = music.initLen || 5;
                 music.sequence = [];
                 for (let i = 0; i < len; i++) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
+                music.round = 0;
+                document.getElementById('music-round').innerText = '0';
                 setTimeout(playMusicSequence, 900);
             }
         }
+    }
     function endMusic() {
         music.active = false;
         playSound('timeup');
