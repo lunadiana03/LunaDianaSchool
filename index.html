@@ -101,9 +101,8 @@
         .bbs-title { font-weight: bold; color: #ff758f; margin-bottom: 5px; font-size: 1.05em; display: flex; justify-content: space-between; align-items: center; }
         .bbs-body { font-size: 0.9em; line-height: 1.4; color: #6d585c; white-space: pre-wrap; }
         .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
-        .climb-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg,#ff9ecb,#c86ee0 45%, #6a4cd1); background-size: 36px 36px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #fff; text-align:center; box-shadow: 0 6px 0 #4a3399, 0 0 20px rgba(255,158,203,0.6); }
-.climb-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg, #8ec9ff 0%, #cdeaff 55%, #eaf7ff 100%); border-radius: 24px; padding: 16px; color: #2b3a55; text-align:center; box-shadow: 0 6px 0 #5a9bd8, 0 0 20px rgba(142,201,255,0.6); position:relative; overflow:hidden; }
-.climb-title { font-size:1.1em; margin-bottom:10px; color:#2b5a8a; letter-spacing:1px; position:relative; z-index:1; }
+        .climb-cabinet, .run-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-size: 34px 34px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #7a4fb0; text-align:center; box-shadow: 0 6px 0 #d9a6f0, 0 0 20px rgba(200,110,224,0.35); position:relative; overflow:hidden; }
+        .climb-title { font-size:1.1em; margin-bottom:10px; color:#2b5a8a; letter-spacing:1px; position:relative; z-index:1; }
    .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }   
     .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; aspect-ratio:1/1; height:auto; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; display:none; }
 .climb-track.show { display:block; }    
@@ -148,13 +147,12 @@
         .lesson-menu-item .lm-icon { font-size: 2.2em; margin-bottom: 4px; }
         .lesson-menu-item .lm-label { font-weight: bold; color: #7a4fb0; }
         .scene-transition-overlay { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; pointer-events: none; }
-        .scene-transition-overlay canvas { width: 100%; height: 100%; object-fit: contain; }
+      .scene-transition-overlay canvas { width: 100%; height: 100%; object-fit: cover; }
         .tier-table { background:#fff; border-radius:8px; padding:4px; margin-bottom:6px; }
 .tier-row { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 26px; gap:3px; align-items:center; padding:3px 0; border-bottom:1px solid #ffe3e7; }
 .tier-row:last-child { border-bottom:none; }
 .tier-head { font-weight:bold; font-size:0.7em; color:#ff758f; border-bottom:2px solid #ffd3db; }
 .tier-row input { margin:0; padding:3px; font-size:0.8em; text-align:center; }
-.run-cabinet { font-family:'Mochiy Pop One', sans-serif; background: linear-gradient(180deg,#ffe89e,#ffb26b); border-radius:24px; padding:16px; color:#5a3a1e; text-align:center; box-shadow:0 6px 0 #d98a3d; }
 .run-title { font-size:1.1em; margin-bottom:8px; }
 .run-stats { font-weight:bold; margin-bottom:8px; }
 .run-track { background: linear-gradient(180deg, #8ec9ff 0%, #bfe6ff 45%, #6fae63 45%, #4d8f47 100%); border-radius:16px; aspect-ratio:1/1; height:auto; position:relative; overflow:hidden; border:3px solid #fff; margin-bottom:10px; display:none; }
@@ -273,16 +271,6 @@
         <h1>🌸 レッスン手帳</h1>
         <div id="badge" class="badge">✨ みんなの広場</div>
     </header>
-    <div class="tabs">
-        <button id="tab-my" class="tab-btn active" onclick="switchView('my')">📋 マイページ</button>
-        <button id="tab-bbs" class="tab-btn" onclick="switchView('bbs')">📢 掲示板</button>
-        <button id="tab-all" class="tab-btn" onclick="switchView('all')">🏡 みんなの広場</button>
-        <button id="tab-climb" class="tab-btn" onclick="switchView('climb')">🧗‍♀️ 崖登り!!</button>
-        <button id="tab-run" class="tab-btn" onclick="switchView('run')">🏃‍♀️ ランニング</button>
-        <button id="tab-mascot" class="tab-btn" onclick="switchView('mascot')">︎🌟 マスコット</button>
-        <button id="tab-music" class="tab-btn" onclick="switchView('music')">🎹 音感</button>
-        <button id="tab-kintore" class="tab-btn" onclick="switchView('kintore')">💪🏻 筋トレ</button>
-    </div>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
         <div id="kumi-box-container" style="width:100%;">
