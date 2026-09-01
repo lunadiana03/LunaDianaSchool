@@ -433,6 +433,15 @@
             <div id="mascot-grid" class="mascot-grid"></div>
         </div>
     </div>
+    <div id="view-lesson-menu" class="view-section">
+        <div class="lesson-menu-grid">
+            <div class="lesson-menu-item" onclick="switchViewWithTransition('my')"><div class="lm-icon">📝</div><div class="lm-label kira-text">通常レッスン</div></div>
+            <div class="lesson-menu-item" onclick="switchViewWithTransition('climb')"><div class="lm-icon">🧗</div><div class="lm-label kira-text">崖登り</div></div>
+            <div class="lesson-menu-item" onclick="switchViewWithTransition('run')"><div class="lm-icon">🏃</div><div class="lm-label kira-text">ランニング</div></div>
+            <div class="lesson-menu-item" onclick="switchViewWithTransition('music')"><div class="lm-icon">🎹</div><div class="lm-label kira-text">音感</div></div>
+            <div class="lesson-menu-item" onclick="switchViewWithTransition('kintore')"><div class="lm-icon">💪</div><div class="lm-label kira-text">筋トレ</div></div>
+        </div>
+    </div>
    <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
             <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;">🚪 やめる</button>
@@ -465,6 +474,7 @@
         </div>
     </div>
     <div id="view-all" class="view-section">
+        <div class="kira-text" style="font-size:1.2em; font-weight:bold; text-align:center; margin-bottom:8px;">📖 アイドル図鑑！</div>
         <div style="margin-bottom:8px;">
             <label style="font-size:0.85em; font-weight:bold;">🔍 組でしぼりこむ:</label>
             <select id="filter-kumi" onchange="render()"><option value="all">🌟 すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
@@ -857,6 +867,23 @@ document.addEventListener('change', function(e) {
     const idx = Math.abs(dayCount) % state.meigen.length;
     return state.meigen[idx];
 }
+      const TRANSITION_VIDEO = 'transition.mp4';
+    function switchViewWithTransition(view) {
+        const overlay = document.getElementById('scene-transition-overlay');
+        const canvas = document.getElementById('scene-transition-canvas');
+        overlay.style.display = 'flex';
+        let didSwitch = false;
+        function doSwitch() { if (didSwitch) return; didSwitch = true; switchView(view); }
+        const midTimer = setTimeout(doSwitch, 220);
+        startChromaVideo('scene-transition', canvas, TRANSITION_VIDEO, function() {
+            clearTimeout(midTimer); doSwitch(); overlay.style.display = 'none';
+        });
+        setTimeout(() => {
+            clearTimeout(midTimer); doSwitch();
+            stopChromaVideo('scene-transition');
+            overlay.style.display = 'none';
+        }, 900);
+    }
         function switchView(view) {
     currentView = view;
     document.getElementById('tab-my').classList.toggle('active', view === 'my');
@@ -886,7 +913,8 @@ document.addEventListener('change', function(e) {
     if (view === 'music') refreshMusicGateUI();
     if (view === 'kintore') refreshKintoreGateUI();
     render();
-}
+document.getElementById('view-lesson-menu').classList.toggle('active', view === 'lesson-menu'); document.querySelectorAll('.bn-item').forEach(el => el.classList.remove('active')); const bnMap = { my:'bn-my', bbs:'bn-bbs', all:'bn-all', mascot:'bn-mascot', climb:'bn-lesson', run:'bn-lesson', music:'bn-lesson', kintore:'bn-lesson', 'lesson-menu':'bn-lesson' }; const bnId = bnMap[view]; if (bnId) { const bnEl = document.getElementById(bnId); if (bnEl) bnEl.classList.add('active'); }
+        }
     function toggleMeigen() {
         const body = document.getElementById('meigen-body');
         const arrow = document.getElementById('meigen-arrow');
