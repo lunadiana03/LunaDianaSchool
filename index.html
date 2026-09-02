@@ -870,16 +870,17 @@ document.addEventListener('change', function(e) {
         const overlay = document.getElementById('scene-transition-overlay');
         const canvas = document.getElementById('scene-transition-canvas');
         overlay.style.display = 'flex';
+        overlay.classList.add('show');
+        playSound('start');
         let didSwitch = false;
         function doSwitch() { if (didSwitch) return; didSwitch = true; switchView(view); }
-        const midTimer = setTimeout(doSwitch, 220);
-        startChromaVideo('scene-transition', canvas, TRANSITION_VIDEO, function() {
-            clearTimeout(midTimer); doSwitch(); overlay.style.display = 'none';
-        });
+        const switchTimer = setTimeout(doSwitch, 350);
+        startChromaVideo('scene-transition', canvas, TRANSITION_VIDEO, function() {});
         setTimeout(() => {
-            clearTimeout(midTimer); doSwitch();
+            clearTimeout(switchTimer); doSwitch();
             stopChromaVideo('scene-transition');
-            overlay.style.display = 'none';
+            overlay.classList.remove('show');
+            setTimeout(() => { overlay.style.display = 'none'; }, 300);
         }, 900);
     }
         function switchView(view) {
