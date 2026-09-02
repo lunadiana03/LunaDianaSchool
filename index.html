@@ -1363,8 +1363,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         checkReset();
         const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         if (me.climbDate === todayKey) { alert("本日の崖登りチャレンジはもう挑戦済みです。また明日挑戦してね！"); return; }
-        if (me.r + 3 > state.limit) { alert("残りのレッスン回数が足りません（3回分必要です）"); return; }
-        if (!confirm("崖登りチャレンジを始めますか？（レッスン3回分を消費します、1日1回まで）")) return;
+        if (!confirm("崖登りチャレンジを始めますか？（1日1回まで）")) return;
         setGameMode(true);
         document.getElementById('climb-exit-btn').style.display = 'block';
         document.getElementById('climb-play-area').style.display = 'block';
@@ -1538,7 +1537,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo:0, pl:0, da:0, vi:0 };
         const heightM = climb.height * 5;
         (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
-        m.r += 3;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
@@ -2335,7 +2333,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const iconBtn = (isMe || state.isAdmin) ? `<button class="edit-btn" onclick="editIcon('${m.id}')" style="margin-right:4px;">🖼</button>` : '';
         const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminResetClimb('${m.id}')" style="margin-right:4px; color:#2b8a3e; border-color:#8bf0a4;">崖リセット</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const lblClass = getLblClass(m.last);
-        return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div><div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div><div style="font-size:0.85em;margin-bottom:4px;">今日: <b>${m.r}/${state.limit||2} 回</b></div><div class="ctrl" style="display:${(isMe||state.isAdmin)?'block':'none'};"><label style="font-size:0.8em; font-weight:bold; color:#ff758f;">👇 レッスンを選択</label><select id="sel-${m.id}" onchange="changePreview('${m.id}')">${opts}</select><div id="pre-box-${m.id}"></div><button onclick="roll('${m.id}')" ${m.r>=state.limit?'disabled':''} style="width:100%;">${m.r>=state.limit?'終了':'受講する'}</button></div><div class="res ${lblClass}">${m.last ? '🎯 結果：' + m.last : 'お休み中'}</div><div class="history">${hHtml||'履歴なし'}</div>`;
+        return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div><div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div><div style="font-size:0.85em;margin-bottom:4px;">今日: <b>${m.r}/${state.limit||2} 回</b></div>
     }
     function render() {
         const mySpace = document.getElementById('my-card-space'); const grid = document.getElementById('grid'); mySpace.innerHTML = ''; grid.innerHTML = '';
