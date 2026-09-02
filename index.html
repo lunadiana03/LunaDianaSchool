@@ -1654,7 +1654,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(m => m.id === id); if(!m) return;
         if (!confirm(`「${m.name}」の崖登りを再挑戦できるようにリセットしますか？\n（本日分の挑戦済み記録と、レッスン回数消費もリセットされます）`)) return;
         m.climbDate = "";
-        m.r = Math.max(0, m.r - 3);
         syncToSheet(m);
     }
       function refreshRunGateUI() {
