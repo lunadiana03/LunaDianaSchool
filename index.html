@@ -146,8 +146,19 @@
         .lesson-menu-item { background: rgba(255,255,255,0.9); border-radius: 18px; padding: 16px 8px; text-align: center; box-shadow: 0 4px 0 rgba(200,110,224,0.3); }
         .lesson-menu-item .lm-icon { font-size: 2.2em; margin-bottom: 4px; }
         .lesson-menu-item .lm-label { font-weight: bold; color: #7a4fb0; }
-        .scene-transition-overlay { display: none; position: fixed; inset: 0; z-index: 99999; align-items: center; justify-content: center; pointer-events: none; }
-      .scene-transition-overlay canvas { width: 100%; height: 100%; object-fit: cover; }
+        .lm-icon-circle { width:56px; height:56px; border-radius:16px; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 rgba(0,0,0,0.15); }
+.lm-icon-circle svg { width:28px; height:28px; fill:#fff; }
+.lm-note .lm-icon-circle { background: linear-gradient(145deg,#ff9ecb,#e6008a); }
+.lm-climb .lm-icon-circle { background: linear-gradient(145deg,#8bd7ff,#1c9be0); }
+.lm-run .lm-icon-circle { background: linear-gradient(145deg,#ffd36e,#f5a800); }
+.lm-music .lm-icon-circle { background: linear-gradient(145deg,#c9a0ff,#8a4fe0); }
+.lm-kintore .lm-icon-circle { background: linear-gradient(145deg,#8bf0a4,#2b8a3e); }
+        .scene-transition-overlay { display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity 0.25s ease; overflow:hidden; background: radial-gradient(circle at 20% 100%, #fff6c9, transparent 60%), linear-gradient(135deg, #ffd6ec, #c9a6f7); }
+.scene-transition-overlay.show { opacity:1; }
+.scene-transition-overlay canvas { width:100%; height:100%; object-fit:cover; }
+.scene-transition-star { position:absolute; left:-10%; bottom:-10%; font-size:3em; opacity:0; filter: drop-shadow(0 0 10px #fff176); }
+.scene-transition-overlay.show .scene-transition-star { animation: shoot-star 0.7s ease-out forwards; }
+@keyframes shoot-star { 0% { left:-10%; bottom:-10%; opacity:0; transform: rotate(0deg) scale(0.5); } 15% { opacity:1; } 100% { left:105%; bottom:105%; opacity:0; transform: rotate(320deg) scale(1.3); } }
         .tier-table { background:#fff; border-radius:8px; padding:4px; margin-bottom:6px; }
 .tier-row { display:grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr 26px; gap:3px; align-items:center; padding:3px 0; border-bottom:1px solid #ffe3e7; }
 .tier-row:last-child { border-bottom:none; }
@@ -422,12 +433,11 @@
         </div>
     </div>
     <div id="view-lesson-menu" class="view-section">
-        <div class="lesson-menu-grid">
-            <div class="lesson-menu-item" onclick="switchViewWithTransition('my')"><div class="lm-icon">📝</div><div class="lm-label kira-text">通常レッスン</div></div>
-            <div class="lesson-menu-item" onclick="switchViewWithTransition('climb')"><div class="lm-icon">🧗</div><div class="lm-label kira-text">崖登り</div></div>
-            <div class="lesson-menu-item" onclick="switchViewWithTransition('run')"><div class="lm-icon">🏃</div><div class="lm-label kira-text">ランニング</div></div>
-            <div class="lesson-menu-item" onclick="switchViewWithTransition('music')"><div class="lm-icon">🎹</div><div class="lm-label kira-text">音感</div></div>
-            <div class="lesson-menu-item" onclick="switchViewWithTransition('kintore')"><div class="lm-icon">💪</div><div class="lm-label kira-text">筋トレ</div></div>
+        <div class="lesson-menu-item lm-note" onclick="switchViewWithTransition('my')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M4 4h13l3 3v13H4zM14 5v3h3zM7 9h9v1.5H7zm0 3h9V13H7zm0 3h6v1.5H7z"/></svg></div><div class="lm-label kira-text">通常レッスン</div></div>
+            <div class="lesson-menu-item lm-climb" onclick="switchViewWithTransition('climb')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M3 19h18L14 6l-3 5-2-2z"/></svg></div><div class="lm-label kira-text">崖登り</div></div>
+            <div class="lesson-menu-item lm-run" onclick="switchViewWithTransition('run')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M4 6l6 6-6 6V6zm8 0l6 6-6 6V6z"/></svg></div><div class="lm-label kira-text">ランニング</div></div>
+            <div class="lesson-menu-item lm-music" onclick="switchViewWithTransition('music')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M9 3v10.55A4 4 0 1 0 11 17V7h6V3z"/></svg></div><div class="lm-label kira-text">音感</div></div>
+            <div class="lesson-menu-item lm-kintore" onclick="switchViewWithTransition('kintore')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M2 9h2v6H2zm3 1h2v4H5zm3-3h8v10H8zm11 2h2v6h-2zm-3-1h2v4h-2z"/></svg></div><div class="lm-label kira-text">筋トレ</div></div>
         </div>
     </div>
    <div id="view-climb" class="view-section">
@@ -2611,7 +2621,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <span class="bn-label kira-text">掲示板</span>
         </button>
     </div>
-    <div id="scene-transition-overlay" class="scene-transition-overlay">
+   <div id="scene-transition-overlay" class="scene-transition-overlay">
+        <div class="scene-transition-star">🌟</div>
         <canvas id="scene-transition-canvas"></canvas>
     </div>
 </body>
