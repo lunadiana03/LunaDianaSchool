@@ -2582,10 +2582,12 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.body.appendChild(script);
     }
     window.handleAddEventResponse = function(r) {
-        const s = document.querySelectorAll('script[src*="action=addEvent"]');
-        s.forEach(x => x.remove());
-        fetchCalendarEvents();
-    };
+    const s = document.querySelectorAll('script[src*="action=addEvent"]');
+    s.forEach(x => x.remove());
+    const input = document.getElementById('cal-new-text');
+    if (input) { input.disabled = false; input.value = ''; }
+    fetchCalendarEvents();
+};
 
     function deleteCalEvent(id) {
         if (!confirm('この予定を削除しますか？')) return;
