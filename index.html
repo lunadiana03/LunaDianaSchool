@@ -2335,13 +2335,26 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     tempInput.click();
 }
     function buildCardHtml(m, isMe) {
-        let opts = LESSONS.map(l => `<option value="${l}">${state.emojis[l]} ${l}</option>`).join('');
         let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
         const iconBtn = (isMe || state.isAdmin) ? `<button class="edit-btn" onclick="editIcon('${m.id}')" style="margin-right:4px;">🖼</button>` : '';
-        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminResetClimb('${m.id}')" style="margin-right:4px; color:#2b8a3e; border-color:#8bf0a4;">崖リセット</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
-        const lblClass = getLblClass(m.last);
-        return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div><div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div><div style="font-size:0.85em;margin-bottom:4px;">今日: <b>${m.r}/${state.limit||2} 回</b></div>
+        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
+        const remain = Math.max(0, (state.limit||2) - (m.r||0));
+        const unit = (state.units||[]).find(u => (u.memberIds||[]).includes(m.id));
+        let unitHtml = '<div style="opacity:0.5;">まだいません</div>';
+        if (unit) {
+            const partners = state.members.filter(x => (unit.memberIds||[]).includes(x.id) && x.id !== m.id);
+            unitHtml = `<div>${unit.name||'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => `<img onclick="openMemberProfile('${p.id}')" src="${(p.icon&&/\.(png|jpg|jpeg|gif|webp)$/i.test(p.icon))?p.icon:'mascot1.png'}" title="${p.name}">`).join('') + `</div>`;
+        }
+        return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div>
+        <div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div>
+        <div class="home-grid">
+            <div class="home-cell"><b>ポイント合計</b><br>${m.p.vo+m.p.pl+m.p.da+m.p.vi}</div>
+            <div class="home-cell home-cal" onclick="openCalendar()"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2zm-2 8h14v10H5z"/></svg>カレンダー</div>
+            <div class="home-cell home-stamina">💪 体力<br><b>${remain}/${state.limit||2}</b></div>
+            <div class="home-cell home-unit">👯 ユニット<br>${unitHtml}</div>
+        </div>
+        <div class="history">${hHtml||'履歴なし'}</div>`;
     }
     function render() {
         const mySpace = document.getElementById('my-card-space'); const grid = document.getElementById('grid'); mySpace.innerHTML = ''; grid.innerHTML = '';
