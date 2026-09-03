@@ -364,7 +364,6 @@
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
-    <button id="lock-btn" class="lock" onclick="goAdmin()" style="position:static; display:inline-block; margin-bottom:8px;">🔒 ひみつ</button>
     <div id="view-bbs" class="view-section">
         <div id="live-banner" class="live-banner" onclick="switchView('live')" style="display:none;">🎤✨ ただいまライブ開催中！タップして参加 ✨🎤</div>
       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
@@ -2370,7 +2369,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         syncToSheet(m);
     }
     function changePreview(id) {
-        const l = document.getElementById(`sel-${id}`).value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
+        const selEl = document.getElementById(`sel-${id}`); if (!selEl) return;
+        const l = selEl.value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
         const outcomes = state.probs[l];
         let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>確率</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
         outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
