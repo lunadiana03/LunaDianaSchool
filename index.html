@@ -27,7 +27,7 @@
         .box { max-width: 500px; margin: 0 auto; }
         header { text-align: center; padding: 18px 10px; background: linear-gradient(160deg, #fff0f8, #f7e6ff); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(160deg, #fff0f8, #f7e6ff); background-size: 26px 26px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 22px; margin-bottom: 10px; border: 3px solid #f0c6ff; box-shadow: 0 0 20px rgba(200,110,224,0.4), inset 0 0 20px rgba(255,255,255,0.6); position: relative; }
         header h1 { font-size: 1.6em !important; margin: 0 !important; }
-        h1 { margin: 0 0 5px 0; color: #ff758f; font-size: 1.2em; }
+        h1 { margin: 0; font-size: 1.2em; }
         button { background: var(--p); color: #fff; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9em; box-shadow: 0 3px 0 #ff9aa9; }
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
         button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
@@ -71,14 +71,20 @@
         .lbl-none { background: #fff8f9; color: #ff758f; border: 1px solid #ffe3e7; }
         .pts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; text-align: center; margin-bottom: 6px; }
         .pt { font-size: 0.75em; padding: 3px 1px; border-radius: 6px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .home-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.home-cell { background: rgba(255,255,255,0.7); border-radius: 14px; padding: 10px; text-align: center; }
+.home-cal { cursor:pointer; font-size: 0.85em; font-weight: bold; color: #4c6ef5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+.home-cal svg { width: 26px; height: 26px; fill: #4c6ef5; }
+.home-stamina { font-size: 0.85em; font-weight: bold; }
+.home-unit { font-size: 0.75em; font-weight: bold; color: #7a4fb0; }
+.home-unit-icons { display:flex; justify-content:center; gap: 10px; margin-top: 4px; }
+.home-unit-icons img, .home-unit-icons span.emoji-fallback { width: 40px; height: 40px; border-radius: 50%; cursor: pointer; object-fit: cover; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .vo { background: #ffebeb; color: #ff5c5c; } .pl { background: #e7f5ff; color: #1c7ed6; } .da { background: #fff9db; color: #f0b400; } .vi { background: #f3f0ff; color: #845ef7; }
         .edit-btn { background: #fff; color: #baabb0; font-size: 0.8em; padding: 0 4px; border: 1px solid #ffd3db; border-radius: 4px; box-shadow: none; font-weight: normal; margin-top: 2px; }
         .history { font-size: 0.75em; color: #8a787b; max-height: 60px; overflow-y: auto; background: rgba(255, 245, 246, 0.5); padding: 4px; border-radius: 8px; }
         .admin { display: none !important; }
         .is-admin .admin { display: block !important; }
         .is-admin button.admin { display: inline-block !important; }
-        .lock { position: absolute; top: 8px; right: 8px; background: #8a787b; font-size: 0.75em; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 0 #6d585c; }
-        .badge { background: #fff0f2; padding: 4px 10px; border-radius: 15px; font-size: 0.75em; font-weight: bold; display: inline-block; margin-bottom: 5px; color: #ff758f; border: 1px solid #ffe3e7; }
         .login { background: var(--c); border-radius: 15px; padding: 10px; border: 1px dashed #ff9aa9; display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
         .my-tag { background: #ff758f; color: white; font-size: 0.7em; padding: 1px 4px; border-radius: 6px; font-weight: bold; }
         .cfg-blk { background: #fff9fa; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px dashed #ffd3db; font-size: 0.8em; }
@@ -143,10 +149,10 @@
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
 .climb-result-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.85em; }
 .climb-result-stats div { background:rgba(255,255,255,0.5); border-radius:8px; padding:4px 0; }
-        .lesson-menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .lesson-menu-item { background: rgba(255,255,255,0.9); border-radius: 18px; padding: 16px 8px; text-align: center; box-shadow: 0 4px 0 rgba(200,110,224,0.3); }
-        .lesson-menu-item .lm-icon { font-size: 2.2em; margin-bottom: 4px; }
-        .lesson-menu-item .lm-label { font-weight: bold; color: #7a4fb0; }
+        .lesson-menu-item { position:relative; background: linear-gradient(160deg,#fdfdff,#eef0f5); border-radius: 18px; padding: 18px 8px; text-align: center; border: 3px solid #c9ccd6; box-shadow: 0 4px 0 #9aa0b0, inset 0 0 10px rgba(255,255,255,0.8); }
+.lesson-menu-item::before { content:''; position:absolute; inset:3px; border-radius:14px; border:1px solid rgba(255,255,255,0.7); pointer-events:none; }
+.lesson-menu-item .lm-icon { font-size: 2.2em; margin-bottom: 4px; }
+.lesson-menu-item .lm-label { font-weight: bold; color: #5a5f6e; }
         .lm-icon-circle { width:56px; height:56px; border-radius:16px; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 rgba(0,0,0,0.15); }
 .lm-icon-circle svg { width:28px; height:28px; fill:#fff; }
 .lm-note .lm-icon-circle { background: linear-gradient(145deg,#ff9ecb,#e6008a); }
@@ -212,7 +218,6 @@
         .box.stage-mode header, .box.stage-mode .tabs, .box.stage-mode .login, .box.stage-mode .admin { display:none !important; }
 .live-exit-btn { background:#4c6ef5; color:#fff; font-size:0.8em; padding:6px 12px; border-radius:10px; box-shadow:0 2px 0 #364fc7; margin-bottom:10px; }
 @keyframes live-flash-anim { from { opacity:1; } to { opacity:0; } }
-        .cal-btn { position: absolute; top: 8px; left: 8px; background: #4c6ef5; font-size: 0.75em; padding: 4px 8px; border-radius: 10px; box-shadow: 0 2px 0 #364fc7; color:#fff; }
         .calendar-overlay { display:none; position: fixed; inset: 0; background: rgba(90,75,78,0.55); z-index: 5000; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; }
         .calendar-overlay.open { display: flex; }
         .calendar-panel { background: var(--c); border-radius: 18px; border: 2px dashed #ffcbd5; width: 100%; max-width: 460px; max-height: 92vh; overflow-y: auto; padding: 12px; box-sizing: border-box; }
@@ -278,10 +283,7 @@
 <div id="loading" class="loading-mask">📖 アイカツシステムと通信中...</div>
 <div class="box">
     <header>
-        <button id="cal-open-btn" class="cal-btn" onclick="openCalendar()">📅 予定</button>
-        <button id="lock-btn" class="lock" onclick="goAdmin()">🔒 ひみつ</button>
-        <h1>🌸 レッスン手帳</h1>
-        <div id="badge" class="badge">✨ みんなの広場</div>
+        <h1 class="kira-text">❀ レッスン手帳</h1>
     </header>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
@@ -346,6 +348,9 @@
         <h3 onclick="toggleKintoreList()" style="cursor:pointer;"> 筋トレレッスン ポイント設定 <span id="kintore-list-arrow">▶</span></h3>
         <div id="kintore-con" style="display:none;"></div>
         <textarea id="admin-kintore-desc" rows="3" placeholder="筋トレレッスンの説明文を入力してね" onchange="upKintoreDesc()"></textarea>
+        <h3 onclick="toggleUnitList()" style="cursor:pointer;">👯 ユニット設定 <span id="unit-list-arrow">▶</span></h3>
+        <div id="unit-con" style="display:none;"></div>
+        <button onclick="addUnit()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ ユニットを追加</button>
         <h3>💾 バックアップ（手動）</h3>
         <h3 onclick="toggleLiveList()" style="cursor:pointer;">🎤 ライブ設定 <span id="live-list-arrow">▶</span></h3>
         <div id="live-con" style="display:none;">
@@ -359,6 +364,7 @@
         <button onclick="importData()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">読み込み</button>
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
+    <button id="lock-btn" class="lock" onclick="goAdmin()" style="position:static; display:inline-block; margin-bottom:8px;">🔒 ひみつ</button>
     <div id="view-bbs" class="view-section">
         <div id="live-banner" class="live-banner" onclick="switchView('live')" style="display:none;">🎤✨ ただいまライブ開催中！タップして参加 ✨🎤</div>
       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
@@ -374,6 +380,7 @@
             <div id="bbs-body-text" class="bbs-body"></div>
         </div>
     </div>
+ </div>
     <div id="view-run" class="view-section">
         <div class="run-cabinet">
            <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;">🚪 やめる</button>
