@@ -852,6 +852,25 @@ document.addEventListener('change', function(e) {
         };
         document.body.appendChild(script);
     }
+    function syncToSheet(m) {
+        document.getElementById('loading').style.display = 'flex';
+        let hStr = ""; for (let [k, v] of Object.entries(m.h)) { hStr += `${k}:${v},`; }
+        const params = new URLSearchParams({
+            action: "syncMember", id: m.id, name: m.name, kumi: m.kumi, r: m.r, d: m.d,
+            vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
+            climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
+            suit: m.suit||"", profileImg: m.profileImg||"", youtubeUrl: m.youtubeUrl||"", unitId: m.unitId||"",
+            callback: "handleSyncResponse"
+        });
+        if (!user || user === m.name) {
+            user = m.name;
+            localStorage.setItem('lesson_user_v21', user);
+        }
+        currentView = "my";
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params.toString()}`;
+        document.body.appendChild(script);
+    }
     window.handleSyncResponse = function(response) {
         fetchAllData();
         const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
@@ -2484,7 +2503,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('member-profile-yt-edit').style.display = (canEdit && memberEditMode) ? 'block' : 'none';
         const ytInput = document.getElementById('member-profile-yt-input');
         if (ytInput) ytInput.value = m.youtubeUrl || '';
-        unitId: m.unitId||"",
         const editToggleBtn = document.getElementById('member-edit-toggle-btn');
         if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerText = memberEditMode ? '✅ 完了' : '✏️ 編集'; }
         const adminCtrl = document.getElementById('member-profile-admin-ctrl');
@@ -2635,9 +2653,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             });
         }
         html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
-        }
         panel.innerHTML = html;
-    }
+      }
 
     function addCalEvent() {
         const input = document.getElementById('cal-new-text');
