@@ -990,6 +990,59 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         con.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▼' : '▶';
     }
+      function toggleUnitList() {
+        const con = document.getElementById('unit-con');
+        const arrow = document.getElementById('unit-list-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+        if (isHidden) renderUnitAdmin();
+    }
+    function syncUnits() {
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&unitsJson=${encodeURIComponent(JSON.stringify(state.units))}&callback=handleUnitsResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleUnitsResponse = function(r) {
+        const s = document.querySelectorAll('script[src*="unitsJson="]');
+        s.forEach(x => x.remove());
+    };
+    function addUnit() {
+        if (!state.units) state.units = [];
+        state.units.push({ id: 'unit_'+Date.now(), name: '新ユニット', memberIds: [] });
+        syncUnits(); renderUnitAdmin();
+    }
+    function delUnit(idx) {
+        if (!confirm('このユニットを削除しますか？')) return;
+        state.units.splice(idx, 1);
+        syncUnits(); renderUnitAdmin(); render();
+    }
+    function renameUnit(idx, name) {
+        state.units[idx].name = name || 'ユニット';
+        syncUnits();
+    }
+    function toggleUnitMember(idx, memberId) {
+        const u = state.units[idx];
+        const pos = u.memberIds.indexOf(memberId);
+        if (pos === -1) {
+            if (u.memberIds.length >= 3) { alert('ユニットは最大3人までです'); renderUnitAdmin(); return; }
+            u.memberIds.push(memberId);
+        } else {
+            u.memberIds.splice(pos, 1);
+        }
+        syncUnits(); renderUnitAdmin(); render();
+    }
+    function renderUnitAdmin() {
+        const con = document.getElementById('unit-con'); if (!con) return;
+        con.innerHTML = (state.units||[]).map((u, idx) => {
+            const memberChecks = state.members.map(m => `<label style="display:inline-flex;align-items:center;gap:3px;background:#fff;padding:2px 6px;border-radius:8px;margin:2px;font-size:0.75em;"><input type="checkbox" ${u.memberIds.includes(m.id)?'checked':''} onchange="toggleUnitMember(${idx},'${m.id}')">${m.name}</label>`).join('');
+            return `<div style="background:#fff;border-radius:10px;padding:8px;margin-bottom:8px;">
+                <input type="text" value="${u.name}" onchange="renameUnit(${idx},this.value)" style="width:70%;">
+                <button class="edit-btn" onclick="delUnit(${idx})" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>
+                <div style="margin-top:6px;">${memberChecks}</div>
+            </div>`;
+        }).join('') || '<div style="opacity:0.7;">まだユニットがありません</div>';
+    }
       function toggleLiveList() {
         const con = document.getElementById('live-con');
         const arrow = document.getElementById('live-list-arrow');
