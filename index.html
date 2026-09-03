@@ -767,6 +767,7 @@
         if (data.climbTiers) { state.climbTiers = data.climbTiers; }
         if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
         if (data.runTiers) { state.runTiers = data.runTiers; }
+        if (data.units) { state.units = data.units; }
         if (data.runDesc !== undefined) { state.runDesc = data.runDesc; const rd = document.getElementById('run-desc'); if (rd) rd.innerText = state.runDesc; const ard = document.getElementById('admin-run-desc'); if (ard) ard.value = state.runDesc; }
         if (data.musicTiers) { state.musicTiers = data.musicTiers; }
         if (data.musicStages) { state.musicStages = data.musicStages; }
