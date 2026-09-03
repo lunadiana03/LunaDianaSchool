@@ -1591,9 +1591,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function logout() { user = ""; localStorage.removeItem('lesson_user_v21'); document.getElementById('login-in').value = ""; updateLoginBoxUI(); render(); }
     function goAdmin() { if (state.isAdmin) { state.isAdmin = false; } else { if (prompt("暗証番号:") === state.password) state.isAdmin = true; } updateUI(); render(); }
     function updateUI() {
-        const b = document.body; const badge = document.getElementById('badge');
-        if (state.isAdmin) { b.classList.add('is-admin'); badge.innerText = "⚙️ 管理者モード"; document.getElementById('lock-btn').innerText = "🔓 ロック"; } 
-        else { b.classList.remove('is-admin'); document.getElementById('menu').style.display = 'none'; badge.innerText = "✨ みんなの広場"; document.getElementById('lock-btn').innerText = "🔒 ひみつ"; }
+        const b = document.body;
+        if (state.isAdmin) { b.classList.add('is-admin'); const lb = document.getElementById('lock-btn'); if (lb) lb.innerText = "🔓 ロック"; }
+        else { b.classList.remove('is-admin'); const menuEl = document.getElementById('menu'); if (menuEl) menuEl.style.display = 'none'; const lb = document.getElementById('lock-btn'); if (lb) lb.innerText = "🔒 ひみつ"; }
     }
     function editProfile(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
