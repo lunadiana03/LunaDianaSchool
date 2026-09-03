@@ -2484,6 +2484,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('member-profile-yt-edit').style.display = (canEdit && memberEditMode) ? 'block' : 'none';
         const ytInput = document.getElementById('member-profile-yt-input');
         if (ytInput) ytInput.value = m.youtubeUrl || '';
+        unitId: m.unitId||"",
         const editToggleBtn = document.getElementById('member-edit-toggle-btn');
         if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerText = memberEditMode ? '✅ 完了' : '✏️ 編集'; }
         const adminCtrl = document.getElementById('member-profile-admin-ctrl');
