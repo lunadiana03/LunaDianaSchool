@@ -2557,8 +2557,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 html += `<div class="cal-event-item"><span class="txt">${ev.text}</span>${delBtn}</div>`;
             });
         }
-        if (state.isAdmin) {
-            html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
+        html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
         }
         panel.innerHTML = html;
     }
