@@ -277,6 +277,121 @@
 .member-profile-yt-link { position:relative; display:block; }
 .member-profile-yt-thumb { width:100%; border-radius:12px; display:block; }
 .member-profile-yt-play { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:52px; height:52px; background:rgba(0,0,0,0.6); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4em; }
+html, body {
+    min-height: 100%;
+}
+
+body {
+    padding: 10px 10px calc(76px + env(safe-area-inset-bottom));
+}
+
+.box {
+    max-width: 680px;
+    min-height: calc(100dvh - 86px);
+}
+
+.card {
+    padding: 18px;
+}
+
+.my-border .head .name {
+    font-size: 1.18em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.my-border .head .name > img,
+.my-border .head .name > span:first-child {
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 2.4em !important;
+}
+
+.my-border .kumi-tag {
+    font-size: 1em;
+    padding: 5px 9px;
+}
+
+.my-border .head .edit-btn {
+    font-size: 1em;
+    padding: 6px 8px;
+}
+
+.home-grid {
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.home-cell {
+    padding: 16px 10px;
+    font-size: 1.08em;
+    min-height: 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.home-stamina b,
+.home-cell b {
+    font-size: 1.45em;
+}
+
+.home-unit-icons img,
+.home-unit-icons span.emoji-fallback {
+    width: 58px;
+    height: 58px;
+}
+
+.pts {
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.pt {
+    font-size: 1em;
+    padding: 8px 2px;
+}
+
+.history {
+    font-size: .9em;
+    max-height: 100px;
+    padding: 8px;
+}
+
+.mascot-page {
+    min-height: calc(100dvh - 150px);
+    padding: 22px 16px 30px;
+}
+
+.mascot-title {
+    font-size: 1.35em;
+    margin-bottom: 18px;
+}
+
+.mascot-card {
+    padding: 16px 10px;
+}
+
+.mascot-card img {
+    max-width: 140px;
+    height: 140px;
+}
+
+.climb-result {
+    padding: 14px 8px;
+    font-size: 1.05em;
+}
+
+.climb-result-height {
+    font-size: 2.7em;
+}
+
+.climb-result-stats {
+    font-size: 1em;
+    gap: 7px;
+}
+
     </style>
 </head>
 <body>
@@ -369,14 +484,14 @@
       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
             <div class="bbs-title">🎴 今日のアイカツ格言</div>
             <div id="meigen-body" class="bbs-body" style="font-weight:bold; text-align:center; font-size:1.1em;"></div>
-          <button id="lock-btn" class="lock" onclick="goAdmin()" style="width:100%; margin-top:10px;">🔒 管理画面</button>
-        </div>
+      </div>
         <div class="bbs-card">
             <div class="bbs-title">🔮 今日のいいこと占い</div>
             <div id="fortune-body" class="bbs-body"></div>
         </div>
         <div class="bbs-card">
             <div class="bbs-title">📝 学園からのお知らせ</div>
+            <button id="lock-btn" class="lock" onclick="goAdmin()" style="width:100%; margin-top:4px;">🔒 ひみつ</button>
             <div id="bbs-body-text" class="bbs-body"></div>
         </div>
     </div>
@@ -441,7 +556,6 @@
         </div>
     </div>
     <div id="view-lesson-menu" class="view-section">
-        <div class="lesson-menu-item lm-note" onclick="switchViewWithTransition('my')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M4 4h13l3 3v13H4zM14 5v3h3zM7 9h9v1.5H7zm0 3h9V13H7zm0 3h6v1.5H7z"/></svg></div><div class="lm-label kira-text">通常レッスン</div></div>
             <div class="lesson-menu-item lm-climb" onclick="switchViewWithTransition('climb')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M3 19h18L14 6l-3 5-2-2z"/></svg></div><div class="lm-label kira-text">崖登り</div></div>
             <div class="lesson-menu-item lm-run" onclick="switchViewWithTransition('run')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M4 6l6 6-6 6V6zm8 0l6 6-6 6V6z"/></svg></div><div class="lm-label kira-text">ランニング</div></div>
             <div class="lesson-menu-item lm-music" onclick="switchViewWithTransition('music')"><div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M9 3v10.55A4 4 0 1 0 11 17V7h6V3z"/></svg></div><div class="lm-label kira-text">音感</div></div>
@@ -485,6 +599,17 @@
             <label style="font-size:0.85em; font-weight:bold;">🔍 組でしぼりこむ:</label>
             <select id="filter-kumi" onchange="render()"><option value="all">🌟 すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
         </div>
+        <div style="margin-bottom:8px;">
+    <label style="font-size:0.85em; font-weight:bold;">💎 タイプでしぼりこむ:</label>
+    <select id="filter-suit" onchange="render()">
+        <option value="all">🌟 すべてのタイプを表示</option>
+        <option value="cute">キュート ♡</option>
+        <option value="cool">クール ♢</option>
+        <option value="sexy">セクシー ♤</option>
+        <option value="pop">ポップ ♧</option>
+    </select>
+</div>
+
         <input type="text" id="search" placeholder="🔍 なまえ検索..." oninput="render()">
        <div id="grid" class="plaza-grid"></div>
     </div>
@@ -782,6 +907,21 @@
     scripts.forEach(s => s.remove());
 };       
       let pendingIconBase64 = null;
+      function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key) {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+
+    box.innerHTML = buildResultHtml(canvasId, ms, mainLabel, mainValue, earned);
+    box.hidden = false;
+    box.style.display = 'block';
+
+    renderResultChar(boxId, canvasId, ms, key);
+
+    requestAnimationFrame(() => {
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+}
+
       function buildResultHtml(canvasId, ms, mainLabel, mainValue, earned) {
         const hasVideo = !!ms.happyVideo;
         const fallbackSrc = ms.happyGif || ms.happyImg || ms.img;
@@ -1624,9 +1764,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         m.climbHeight = heightM;
         const climbMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const climbResultBox = document.getElementById('climb-result');
-        climbResultBox.style.display = 'block';
-        climbResultBox.innerHTML = buildResultHtml('climb-result-canvas', climbMs, '🏆 今日の結果！', heightM + 'm', earned);
-        renderResultChar('climb-result', 'climb-result-canvas', climbMs, 'climb');
+        showLessonResult(
+    'climb-result',
+    'climb-result-canvas',
+    climbMs,
+    ' 今日の結果！',
+    heightM + 'm',
+    earned,
+    'climb'
+);
+
         document.getElementById('climb-start-btn').style.display = 'none';
         syncToSheet(m);
     }
@@ -1914,9 +2061,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const runResultBox = document.getElementById('run-result');
-        runResultBox.style.display = 'block';
-        runResultBox.innerHTML = buildResultHtml('run-result-canvas', runMs, '🏁 結果！', run.distance + 'm', earned);
-        renderResultChar('run-result', 'run-result-canvas', runMs, 'run');
+        showLessonResult(
+    'run-result',
+    'run-result-canvas',
+    runMs,
+    ' 結果！',
+    run.distance + 'm',
+    earned,
+    'run'
+);
+
         document.getElementById('run-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -2101,9 +2255,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const musicResultBox = document.getElementById('music-result');
-        musicResultBox.style.display = 'block';
-        musicResultBox.innerHTML = buildResultHtml('music-result-canvas', musicMs, '🎹 結果！', achieved + '音', earned);
-        renderResultChar('music-result', 'music-result-canvas', musicMs, 'music');
+        showLessonResult(
+    'music-result',
+    'music-result-canvas',
+    musicMs,
+    ' 結果！',
+    achieved + '音',
+    earned,
+    'music'
+);
+
         document.getElementById('music-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -2265,9 +2426,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const kintoreResultBox = document.getElementById('kintore-result');
-        kintoreResultBox.style.display = 'block';
-        kintoreResultBox.innerHTML = buildResultHtml('kintore-result-canvas', kintoreMs, '🏋️ 結果！', kintore.totalTaps + '個', earned);
-        renderResultChar('kintore-result', 'kintore-result-canvas', kintoreMs, 'kintore');
+        showLessonResult(
+    'kintore-result',
+    'kintore-result-canvas',
+    kintoreMs,
+    ' 結果！',
+    kintore.totalTaps + '個',
+    earned,
+    'kintore'
+);
+
         document.getElementById('kintore-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -2418,7 +2586,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let unitHtml = '<div style="opacity:0.5;">まだいません</div>';
         if (unit) {
             const partners = state.members.filter(x => (unit.memberIds||[]).includes(x.id) && x.id !== m.id);
-            unitHtml = `<div>${unit.name||'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => `<img onclick="openMemberProfile('${p.id}')" src="${(p.icon&&/\.(png|jpg|jpeg|gif|webp)$/i.test(p.icon))?p.icon:'mascot1.png'}" title="${p.name}">`).join('') + `</div>`;
+            unitHtml = `<div>${unit.name || 'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => {
+    const selectedMascot = MASCOTS.find(ms => ms.id === p.mascotId) || MASCOTS[0];
+    const iconSrc = (p.icon && /\.(png|jpg|jpeg|gif|webp)$/i.test(p.icon))
+        ? p.icon
+        : (selectedMascot.img || 'mascot1.png');
+
+    return `<img onclick="openMemberProfile('${p.id}')" src="${iconSrc}" title="${p.name}">`;
+}).join('') + `</div>`;
+
         }
         return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div>
         <div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div>
