@@ -922,6 +922,20 @@ body {
         box.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
 }
+function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key) {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+
+    box.innerHTML = buildResultHtml(canvasId, ms, mainLabel, mainValue, earned);
+    box.hidden = false;
+    box.style.display = 'block';
+
+    renderResultChar(boxId, canvasId, ms, key);
+
+    requestAnimationFrame(() => {
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+}
 
       function buildResultHtml(canvasId, ms, mainLabel, mainValue, earned) {
         const hasVideo = !!ms.happyVideo;
@@ -1013,10 +1027,13 @@ document.addEventListener('change', function(e) {
         document.body.appendChild(script);
     }
     window.handleSyncResponse = function(response) {
-        fetchAllData();
-        const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
-        scripts.forEach(s => s.remove());
-    };
+    document.getElementById('loading').style.display = 'none';
+    render();
+
+    const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
+    scripts.forEach(s => s.remove());
+};
+
     function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
     function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
     function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); const show = !(user && isRegistered); box.style.display = show ? 'flex' : 'none'; const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = show ? 'none' : 'flex'; }
