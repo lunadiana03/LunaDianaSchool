@@ -281,7 +281,17 @@ html, body {
     min-height: 100%;
 }
 
-body {
+
+}
+
+.home-cell {
+    padding: 16px 10px;
+    font-size: 0.87em;
+    min-height: 68px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}body {
     padding: 10px 10px calc(76px + env(safe-area-inset-bottom));
 }
 
@@ -321,16 +331,6 @@ body {
 .home-grid {
     gap: 12px;
     margin-top: 14px;
-}
-
-.home-cell {
-    padding: 16px 10px;
-    font-size: 0.87em;
-    min-height: 68px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
 
 .home-stamina b,
 .home-cell b {
@@ -363,34 +363,118 @@ body {
     min-height: calc(100dvh - 150px);
     padding: 22px 16px 30px;
 }
-
-.mascot-title {
-    font-size: 1.35em;
-    margin-bottom: 18px;
+/* ホームカードの最終レイアウト調整 */
+.home-card-head {
+    align-items: flex-start !important;
+    gap: 8px;
 }
 
-.mascot-card {
-    padding: 16px 10px;
+.home-member-main {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex: 1;
 }
 
-.mascot-card img {
-    max-width: 140px;
-    height: 140px;
+.home-member-icon {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.climb-result {
-    padding: 14px 8px;
-    font-size: 1.05em;
+.home-member-icon img {
+    width: 64px !important;
+    height: 64px !important;
+    object-fit: cover;
+    border-radius: 50%;
 }
 
-.climb-result-height {
-    font-size: 2.7em;
+.home-member-name {
+    min-width: 0;
+    font-size: 1.08em;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 
-.climb-result-stats {
-    font-size: 1em;
-    gap: 7px;
+.home-member-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
 }
+
+.home-member-side .kumi-tag {
+    font-size: .82em !important;
+    padding: 4px 7px !important;
+}
+
+.home-admin-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.home-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.icon-change-btn {
+    background: linear-gradient(145deg, #ffd6ec, #e99bea);
+    color: #9a4c9c;
+    border: 2px solid #fff;
+    border-radius: 14px;
+    padding: 7px 11px;
+    font-size: .82em;
+    box-shadow: 0 3px 0 #c77acb;
+}
+
+.card {
+    padding: 14px !important;
+}
+
+.pts {
+    gap: 6px !important;
+    margin: 10px 0 !important;
+}
+
+.pt {
+    font-size: .86em !important;
+    padding: 6px 2px !important;
+}
+
+.home-grid {
+    gap: 8px !important;
+    margin-top: 10px !important;
+}
+
+.home-cell {
+    min-height: 52px !important;
+    padding: 10px 8px !important;
+    font-size: .9em !important;
+}
+
+.home-stamina b,
+.home-cell b {
+    font-size: 1.15em !important;
+}
+
+.history {
+    font-size: .84em !important;
+    max-height: 74px !important;
+    padding: 6px !important;
+}
+    .my-border .head .name {
+    font-size: 1.18em;
+}
+
+
 
     </style>
 </head>
@@ -2597,7 +2681,10 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function buildCardHtml(m, isMe) {
         let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
-        const iconBtn = (isMe || state.isAdmin) ? `<button class="edit-btn" onclick="editIcon('${m.id}')" style="margin-right:4px;">🖼</button>` : '';
+        const iconBtn = (isMe || state.isAdmin)
+    ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">🎀 アイコン変更</button>`
+    : '';
+
         const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const remain = Math.max(0, (state.limit||2) - (m.r||0));
         const unit = (state.units||[]).find(u => (u.memberIds||[]).includes(m.id));
@@ -2614,7 +2701,23 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
 }).join('') + `</div>`;
 
         }
-        return `<div class="head"><span class="name">${getIconHtml(m.icon,'2.4em')} ${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</span><div>${iconBtn}${adminProfileBtns}<span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span></div></div>
+        return `
+<div class="head home-card-head">
+    <div class="home-member-main">
+        <div class="home-member-icon">
+            ${getIconHtml(m.icon, '64px')}
+        </div>
+        <span class="home-member-name">${m.name}</span>
+    </div>
+    <div class="home-member-side">
+        <span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi || '無所属'}</span>
+        <div class="home-admin-actions">
+            ${adminProfileBtns}
+        </div>
+    </div>
+</div>
+` +
+
         <div class="pts"><div class="pt vo">Vo:${m.p.vo}${edit('vo')}</div><div class="pt pl">Pl:${m.p.pl}${edit('pl')}</div><div class="pt da">Da:${m.p.da}${edit('da')}</div><div class="pt vi">Vi:${m.p.vi}${edit('vi')}</div></div>
         <div class="home-grid">
             <div class="home-cell"><b>ポイント合計</b><br>${m.p.vo+m.p.pl+m.p.da+m.p.vi}</div>
@@ -2622,7 +2725,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <div class="home-cell home-stamina"> 体力<br><b>${remain}/${state.limit||2}</b></div>
             <div class="home-cell home-unit"> ユニット<br>${unitHtml}</div>
         </div>
-        <div class="history">${hHtml||'履歴なし'}</div>`;
+        <div class="history">${hHtml || '履歴なし'}</div>
+<div class="home-card-footer">${iconBtn}</div>`;
+
     }
     function render() {
         const mySpace = document.getElementById('my-card-space'); const grid = document.getElementById('grid'); mySpace.innerHTML = ''; grid.innerHTML = '';
