@@ -2505,14 +2505,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (unit) {
             const partners = state.members.filter(x => (unit.memberIds||[]).includes(x.id) && x.id !== m.id);
             unitHtml = `<div>${unit.name||'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => `<span onclick="openMemberProfile('${p.id}')" style="cursor:pointer;display:inline-block;" title="${p.name}">${getIconHtml(p.icon,'40px')}</span>`).join('') + `</div>`;
-                const selectedMascot = MASCOTS.find(ms => ms.id === p.mascotId) || MASCOTS[0];
-    const iconSrc = (p.icon && /\.(png|jpg|jpeg|gif|webp)$/i.test(p.icon))
-        ? p.icon
-        : (selectedMascot.img || 'mascot1.png');
-
-    return `<img onclick="openMemberProfile('${p.id}')" src="${iconSrc}" title="${p.name}">`;
-}).join('') + `</div>`;
-
         }
         const suitTag = (m.suit && SUITS[m.suit]) ? `<span class="suit-tag" style="color:${SUITS[m.suit].color};">${SUITS[m.suit].symbol} ${SUITS[m.suit].label}</span>` : '';
         return `<div class="head-big">
