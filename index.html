@@ -983,8 +983,8 @@ html, body {
         if (data.kintoreDesc !== undefined) { state.kintoreDesc = data.kintoreDesc; const kd = document.getElementById('kintore-desc'); if (kd) kd.innerText = state.kintoreDesc; const akd = document.getElementById('admin-kintore-desc'); if (akd) akd.value = state.kintoreDesc; }
         if (data.live) { state.live = data.live; }
     }
-  checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshRunGateUI(); refreshMusicGateUI(); refreshKintoreGateUI(); renderMascotPage(); render();
-    document.getElementById('loading').style.display = 'none';
+  checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshClimbGateUI(); refreshRunGateUI(); refreshMusicGateUI(); refreshKintoreGateUI(); renderMascotPage(); render();
+        document.getElementById('loading').style.display = 'none';
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
 };       
@@ -1109,8 +1109,8 @@ document.addEventListener('change', function(e) {
     }
     window.handleSyncResponse = function(response) {
     document.getElementById('loading').style.display = 'none';
+    stopChromaVideo('climb'); stopChromaVideo('run'); stopChromaVideo('music'); stopChromaVideo('kintore');
     render();
-
     const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
     scripts.forEach(s => s.remove());
 };
@@ -1135,22 +1135,24 @@ document.addEventListener('change', function(e) {
 }
       const TRANSITION_VIDEO = 'transition.mp4';
     function switchViewWithTransition(view) {
-        const overlay = document.getElementById('scene-transition-overlay');
-        const canvas = document.getElementById('scene-transition-canvas');
-        overlay.style.display = 'flex';
-        overlay.classList.add('show');
-        playSound('start');
-        let didSwitch = false;
-        function doSwitch() { if (didSwitch) return; didSwitch = true; switchView(view); }
-        const switchTimer = setTimeout(doSwitch, 350);
-        startChromaVideo('scene-transition', canvas, TRANSITION_VIDEO, function() {});
-        setTimeout(() => {
-            clearTimeout(switchTimer); doSwitch();
-            stopChromaVideo('scene-transition');
-            overlay.classList.remove('show');
-            setTimeout(() => { overlay.style.display = 'none'; }, 300);
-        }, 900);
-    }
+    const overlay = document.getElementById('scene-transition-overlay');
+    const canvas = document.getElementById('scene-transition-canvas');
+    overlay.style.display = 'flex';
+    overlay.classList.add('show');
+    playSound('start');
+    let didSwitch = false;
+    function doSwitch() { if (didSwitch) return; didSwitch = true; switchView(view); }
+    const switchTimer = setTimeout(doSwitch, 350);
+    // 動画の読み込みに失敗した場合は即座に切り替え
+    function onTransitionError() { clearTimeout(switchTimer); doSwitch(); }
+    startChromaVideo('scene-transition', canvas, TRANSITION_VIDEO, onTransitionError);
+    setTimeout(() => {
+        clearTimeout(switchTimer); doSwitch();
+        stopChromaVideo('scene-transition');
+        overlay.classList.remove('show');
+        setTimeout(() => { overlay.style.display = 'none'; }, 300);
+    }, 900);
+}
         function switchView(view) {
     currentView = view;
     document.getElementById('view-my').classList.toggle('active', view === 'my');
