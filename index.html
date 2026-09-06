@@ -951,6 +951,7 @@ html, body {
     const KINTORE_TOTAL_TIME = 30;
 
     window.handleSpreadsheetData = function(data) {
+        try {
     if(data) {
         state.bbsText = data.bbsText;
         state.limit = data.limit;
@@ -984,25 +985,12 @@ html, body {
         if (data.live) { state.live = data.live; }
     }
   checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshClimbGateUI(); refreshRunGateUI(); refreshMusicGateUI(); refreshKintoreGateUI(); renderMascotPage(); render();
+            } catch(e) { console.error(e); document.getElementById('loading').style.display = 'none'; alert('データの読み込みでエラーが発生しました。'); }
         document.getElementById('loading').style.display = 'none';
     const scripts = document.querySelectorAll('script[src*="callback=handleSpreadsheetData"]');
     scripts.forEach(s => s.remove());
 };       
       let pendingIconBase64 = null;
-      function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key) {
-    const box = document.getElementById(boxId);
-    if (!box) return;
-
-    box.innerHTML = buildResultHtml(canvasId, ms, mainLabel, mainValue, earned);
-    box.hidden = false;
-    box.style.display = 'block';
-
-    renderResultChar(boxId, canvasId, ms, key);
-
-    requestAnimationFrame(() => {
-        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-}
 function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key) {
     const box = document.getElementById(boxId);
     if (!box) return;
@@ -1104,8 +1092,13 @@ document.addEventListener('change', function(e) {
         }
         currentView = "my";
         const script = document.createElement('script');
-        script.src = `${API_URL}?${params.toString()}`;
-        document.body.appendChild(script);
+script.src = `${API_URL}?${params.toString()}`;
+script.onerror = function() {
+    document.getElementById('loading').style.display = 'none';
+    alert('通信に失敗しちゃった！もう一回試してみてね。');
+    script.remove();
+};
+document.body.appendChild(script);
     }
     window.handleSyncResponse = function(response) {
     document.getElementById('loading').style.display = 'none';
@@ -2370,11 +2363,12 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         syncToSheet(m);
     }
     function exitMusicGame() {
-        if (!confirm('音感レッスンをやめますか？（記録は保存されません）')) return;
-        music.active = false;
-        setGameMode(false);
-        refreshMusicGateUI();
-    }
+    if (!confirm('音感レッスンをやめますか？（記録は保存されません）')) return;
+    music.active = false;
+    music.awaitingInput = false;
+    setGameMode(false);
+    refreshMusicGateUI();
+}
     function refreshMusicGateUI() {
         renderPianoKeys();
         if (music.active) return;
