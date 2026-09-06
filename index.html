@@ -2496,7 +2496,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
         const iconBtn = (isMe || state.isAdmin)
     ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">🎀 アイコン変更</button>`
-    : '';
+            }
 
         const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const remain = Math.max(0, (state.limit||2) - (m.r||0));
