@@ -2689,8 +2689,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let unitHtml = '<div style="opacity:0.5;">まだいません</div>';
         if (unit) {
             const partners = state.members.filter(x => (unit.memberIds||[]).includes(x.id) && x.id !== m.id);
-            unitHtml = `<div>${unit.name || 'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => {
-    const selectedMascot = MASCOTS.find(ms => ms.id === p.mascotId) || MASCOTS[0];
+            unitHtml = `<div>${unit.name||'ユニット'}</div><div class="home-unit-icons">` + partners.map(p => `<span onclick="openMemberProfile('${p.id}')" style="cursor:pointer;display:inline-block;" title="${p.name}">${getIconHtml(p.icon,'40px')}</span>`).join('') + `</div>`;
+                const selectedMascot = MASCOTS.find(ms => ms.id === p.mascotId) || MASCOTS[0];
     const iconSrc = (p.icon && /\.(png|jpg|jpeg|gif|webp)$/i.test(p.icon))
         ? p.icon
         : (selectedMascot.img || 'mascot1.png');
