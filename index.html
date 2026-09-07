@@ -2492,7 +2492,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     tempInput.click();
 }
     function buildCardHtml(m, isMe) {
-    function buildCardHtml(m, isMe) {
         let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
         const iconBtn = (isMe || state.isAdmin) ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">🎀 アイコン変更</button>` : '';
