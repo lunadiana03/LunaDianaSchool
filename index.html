@@ -156,16 +156,27 @@
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
 .climb-result-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; font-size:0.85em; }
 .climb-result-stats div { background:rgba(255,255,255,0.5); border-radius:8px; padding:4px 0; }
-        .lesson-menu-grid { display: flex; flex-direction: column; gap: 14px; }
-.lesson-menu-item { position:relative; background: linear-gradient(160deg,#fdfdff,#eef0f5); border-radius: 18px; padding: 20px 12px; display:flex; align-items:center; gap:14px; border: 4px solid #cfd3de; box-shadow: 0 4px 0 #9aa0b0, inset 0 0 10px rgba(255,255,255,0.9); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' width='40' height='40'%3E%3Cpath d='M2 2h6M2 2v6M38 2h-6M38 2v6M2 38h6M2 38v-6M38 38h-6M38 38v-6' stroke='%23c9ccd6' stroke-width='2' fill='none'/%3E%3C/svg%3E"), linear-gradient(160deg,#fdfdff,#eef0f5); background-repeat: no-repeat, no-repeat; background-position: top left, top left; background-size: 40px 40px, 100% 100%; }
-.lesson-menu-item::before { content:''; position:absolute; inset:4px; border-radius:14px; border:1px solid rgba(255,255,255,0.8); pointer-events:none; }
-.lesson-menu-item .lm-icon-circle { width: 60px; height: 60px; border-radius: 16px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow: 0 3px 0 rgba(0,0,0,0.15); }
+        .lesson-menu-grid { display: flex; flex-direction: column; gap: 18px; }
+.lesson-menu-item {
+    position: relative;
+    background-image: url('lesson-frame.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-color: #fffafd;
+    border-radius: 8px;
+    padding: 30px 40px;
+    display: grid;
+    grid-template-columns: 68px 1fr;
+    align-items: center;
+    column-gap: 18px;
+}
+.lesson-menu-item .lm-icon-circle { width: 60px; height: 60px; border-radius: 16px; display:flex; align-items:center; justify-content:center; box-shadow: 0 3px 0 rgba(0,0,0,0.15); justify-self: start; }
 .lesson-menu-item.lm-climb .lm-icon-circle { background: linear-gradient(145deg,#8bd7ff,#1c9be0); }
 .lesson-menu-item.lm-run .lm-icon-circle { background: linear-gradient(145deg,#ffd36e,#f5a800); }
 .lesson-menu-item.lm-music .lm-icon-circle { background: linear-gradient(145deg,#c9a0ff,#8a4fe0); }
 .lesson-menu-item.lm-kintore .lm-icon-circle { background: linear-gradient(145deg,#8bf0a4,#2b8a3e); }
 .lesson-menu-item .lm-icon-circle svg { width: 30px; height: 30px; fill: #fff; }
-.lesson-menu-item .lm-label { font-weight: bold; color: #5a5f6e; font-size: 1.15em; }
+.lesson-menu-item .lm-label { font-weight: bold; color: #5a5f6e; font-size: 1.15em; text-align: left; }
         .lm-icon-circle { width:56px; height:56px; border-radius:16px; margin:0 auto 8px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 rgba(0,0,0,0.15); }
 .lm-icon-circle svg { width:28px; height:28px; fill:#fff; }
 .lm-note .lm-icon-circle { background: linear-gradient(145deg,#ff9ecb,#e6008a); }
