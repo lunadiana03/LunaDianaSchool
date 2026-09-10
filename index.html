@@ -935,7 +935,10 @@ script.onerror = function() {
     script.remove();
 };
 document.body.appendChild(script);
-    }
+setTimeout(() => {
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl && loadingEl.style.display !== 'none') { loadingEl.style.display = 'none'; }
+}, 8000);
     window.handleSyncResponse = function(response) {
     document.getElementById('loading').style.display = 'none';
     render();
