@@ -938,7 +938,6 @@ document.body.appendChild(script);
     }
     window.handleSyncResponse = function(response) {
     document.getElementById('loading').style.display = 'none';
-    stopChromaVideo('climb'); stopChromaVideo('run'); stopChromaVideo('music'); stopChromaVideo('kintore');
     render();
     const scripts = document.querySelectorAll('script[src*="action=syncMember"]');
     scripts.forEach(s => s.remove());
