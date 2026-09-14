@@ -725,7 +725,7 @@ html, body {
     
   <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbxF9e5ksOYecFc3_htfucFoUVoRTjDTGe45iAmz0B0PD2NOBCTi4VAPdUNbLXTenxBr4w/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxc9nF6L1BlsS0z-q2F9iF16hOOrhszuf1TiAPyH712u9BiKxf73Fz5D-Gt9MjhsvlrDA/exec";
 　　const LESSONS = [];
     const EMOJIS = { "崖登り":"🧗‍♀️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
@@ -1158,6 +1158,7 @@ setTimeout(() => {
     document.getElementById('view-kintore').classList.toggle('active', view === 'kintore');
     document.getElementById('view-member').classList.toggle('active', view === 'member');
     document.getElementById('view-live').classList.toggle('active', view === 'live');
+           document.getElementById('view-trampoline').classList.toggle('active', view === 'trampoline'); document.getElementById('view-dance').classList.toggle('active', view === 'dance'); document.getElementById('view-model').classList.toggle('active', view === 'model'); document.getElementById('view-actress').classList.toggle('active', view === 'actress'); if (view === 'trampoline') refreshTrampolineGateUI(); if (view === 'dance') refreshDanceGateUI(); if (view === 'model') refreshModelGateUI(); if (view === 'actress') refreshActressGateUI(); 
             document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
     if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); }
     if (view === 'bbs') updateBbsDisplay();
