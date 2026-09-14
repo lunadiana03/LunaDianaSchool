@@ -2681,6 +2681,456 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         </div>
         <div class="history">${hHtml||'履歴なし'}</div>`;
     }
+      const ACTRESS_EMOTIONS = [
+        {key:'smile', label:'😊 嬉しい顔'}, {key:'cry', label:'😢 泣き顔'}, {key:'angry', label:'😠 怒った顔'},
+        {key:'surprise', label:'😲 驚いた顔'}, {key:'wink', label:'😉 ウインク顔'}, {key:'shy', label:'😳 照れ顔'},
+        {key:'sleepy', label:'😴 眠い顔'}, {key:'excited', label:'🤩 興奮した顔'}, {key:'confused', label:'😕 困った顔'}, {key:'cool', label:'😎 クールな顔'}
+    ];
+    const TRAMPOLINE_SWEET_WIDTHS = [30, 24, 18];
+    let trampoline = { active:false, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:null, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
+    let dance = { active:false, hits:0, timeLeft:30, totalTime:30, notes:[], targetId:null, spawnTimer:0, tick:null, _timeAcc:0 };
+    const DANCE_TARGET_X = 24;
+    const DANCE_HIT_TOLERANCE = 24;
+    let model = { active:false, pos:50, vel:0, holding:null, seconds:0, targetId:null, tick:null };
+    let actress = { active:false, round:0, current:null, timeLimit:6000, timer:null, targetId:null, ms:null };
+
+    // ===== トランポリン =====
+    function startTrampoline() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("トランポリンを始めますか？")) return;
+        document.getElementById('trampoline-desc').style.display = 'none';
+        document.getElementById('trampoline-start-btn').style.display = 'none';
+        document.getElementById('trampoline-result').innerHTML = '';
+        trampolineCountdown(me);
+    }
+    function trampolineCountdown(me) {
+        const cd = document.getElementById('trampoline-countdown');
+        let n = 3; cd.style.display = 'flex'; cd.innerText = n; playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartTrampoline(me); }
+        }, 1200);
+    }
+    function actuallyStartTrampoline(me) {
+        playSound('start');
+        setGameMode(true);
+        document.getElementById('trampoline-exit-btn').style.display = 'block';
+        document.getElementById('trampoline-track').classList.add('show');
+        trampoline = { active:true, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:me.id, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
+        document.getElementById('trampoline-char').style.bottom = '0px';
+        document.getElementById('trampoline-track').style.backgroundPositionY = '0px';
+        document.getElementById('trampoline-height').innerText = '0m';
+        document.getElementById('trampoline-tap-btn').style.display = 'block';
+        trampolineStartJump();
+    }
+    function trampolineStartJump() {
+        document.getElementById('trampoline-jump-num').innerText = (trampoline.jumpIndex + 1);
+        trampoline.sweetWidth = TRAMPOLINE_SWEET_WIDTHS[trampoline.jumpIndex] || 18;
+        trampoline.sweetStart = Math.random() * (100 - trampoline.sweetWidth);
+        trampoline.barPos = 0; trampoline.barDir = 1;
+        trampoline.barSpeed = 2.2 + trampoline.jumpIndex * 0.6;
+        const sweetEl = document.getElementById('trampoline-sweet');
+        sweetEl.style.left = trampoline.sweetStart + '%';
+        sweetEl.style.width = trampoline.sweetWidth + '%';
+        clearInterval(trampoline.tick);
+        trampoline.tick = setInterval(trampolineBarLoop, 20);
+    }
+    function trampolineBarLoop() {
+        if (!trampoline.active) return;
+        trampoline.barPos += trampoline.barSpeed * trampoline.barDir;
+        if (trampoline.barPos >= 100) { trampoline.barPos = 100; trampoline.barDir = -1; }
+        if (trampoline.barPos <= 0) { trampoline.barPos = 0; trampoline.barDir = 1; }
+        const marker = document.getElementById('trampoline-marker');
+        if (marker) marker.style.left = trampoline.barPos + '%';
+    }
+    function trampolineTap() {
+        if (!trampoline.active) return;
+        clearInterval(trampoline.tick);
+        const center = trampoline.sweetStart + trampoline.sweetWidth / 2;
+        const dist = Math.abs(trampoline.barPos - center);
+        let accuracy = Math.max(0, 100 - (dist / 50) * 100);
+        accuracy = Math.round(accuracy);
+        const heightGain = Math.round(accuracy / 100 * 30);
+        trampoline.heights[trampoline.jumpIndex] = heightGain;
+        trampoline.totalHeight += heightGain;
+        playSound(accuracy >= 70 ? 'correct' : 'wrong');
+        updateTrampolineVisual();
+        trampoline.jumpIndex++;
+        if (trampoline.jumpIndex >= 3) { setTimeout(endTrampoline, 700); }
+        else { setTimeout(trampolineStartJump, 700); }
+    }
+    function updateTrampolineVisual() {
+        const char = document.getElementById('trampoline-char');
+        const track = document.getElementById('trampoline-track');
+        const trackH = track.clientHeight || 300;
+        const midBottom = trackH * 0.75;
+        const cap = 45;
+        if (trampoline.totalHeight <= cap) {
+            char.style.bottom = (trampoline.totalHeight / cap * midBottom) + 'px';
+            track.style.backgroundPositionY = '0px';
+        } else {
+            char.style.bottom = midBottom + 'px';
+            track.style.backgroundPositionY = '-' + ((trampoline.totalHeight - cap) * 4) + 'px';
+        }
+        document.getElementById('trampoline-height').innerText = trampoline.totalHeight + 'm';
+    }
+    function triggerTrampolinePose() {
+        const char = document.getElementById('trampoline-char');
+        char.classList.add('trampoline-pose');
+        const layer = document.getElementById('trampoline-sparkle-layer');
+        layer.innerHTML = ''; layer.classList.add('show');
+        const emojis = ['✨','⭐','💫','🌟'];
+        for (let i = 0; i < 8; i++) {
+            const s = document.createElement('div');
+            s.className = 'trampoline-sparkle'; s.innerText = emojis[i % emojis.length];
+            s.style.left = (30 + Math.random()*40) + '%'; s.style.top = (30 + Math.random()*30) + '%';
+            s.style.animationDelay = (i*0.05) + 's';
+            layer.appendChild(s);
+        }
+        setTimeout(() => { layer.classList.remove('show'); char.classList.remove('trampoline-pose'); }, 900);
+    }
+    function endTrampoline() {
+        trampoline.active = false; clearInterval(trampoline.tick);
+        setGameMode(false);
+        document.getElementById('trampoline-exit-btn').style.display = 'none';
+        document.getElementById('trampoline-tap-btn').style.display = 'none';
+        triggerTrampolinePose(); playSound('timeup');
+        const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.trampolineTiers || []).forEach(t => { if (trampoline.totalHeight >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
+        showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, '🤸 結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
+        document.getElementById('trampoline-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitTrampolineGame() {
+        if (!confirm('トランポリンをやめますか？（記録は保存されません）')) return;
+        trampoline.active = false; clearInterval(trampoline.tick); setGameMode(false);
+        refreshTrampolineGateUI();
+    }
+    function refreshTrampolineGateUI() {
+        if (trampoline.active) return; setGameMode(false);
+        const exitBtn = document.getElementById('trampoline-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const tapBtn = document.getElementById('trampoline-tap-btn'); if (tapBtn) tapBtn.style.display = 'none';
+        const trackEl = document.getElementById('trampoline-track'); if (trackEl) trackEl.classList.remove('show');
+        const descEl = document.getElementById('trampoline-desc'); if (descEl) descEl.style.display = 'block';
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('trampoline-start-btn');
+        const charImg = document.getElementById('trampoline-char-img');
+        const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        if (charImg) charImg.src = ms.img;
+        if (!startBtn) return;
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; }
+    }
+
+    // ===== ダンス =====
+    function startDance() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("ダンスレッスンを始めますか？")) return;
+        document.getElementById('dance-desc').style.display = 'none';
+        document.getElementById('dance-start-btn').style.display = 'none';
+        document.getElementById('dance-result').innerHTML = '';
+        danceCountdown(me);
+    }
+    function danceCountdown(me) {
+        const cd = document.getElementById('dance-countdown');
+        let n = 3; cd.style.display = 'flex'; cd.innerText = n; playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartDance(me); }
+        }, 1200);
+    }
+    function actuallyStartDance(me) {
+        playSound('start'); setGameMode(true);
+        document.getElementById('dance-exit-btn').style.display = 'block';
+        document.getElementById('dance-tap-btn').style.display = 'block';
+        dance = { active:true, hits:0, timeLeft:30, totalTime:30, notes:[], targetId:me.id, spawnTimer:0, tick:null, _timeAcc:0 };
+        document.getElementById('dance-hits').innerText = '0';
+        document.getElementById('dance-time').innerText = '30';
+        document.getElementById('dance-track').querySelectorAll('.dance-note').forEach(n => n.remove());
+        clearInterval(dance.tick);
+        dance.tick = setInterval(danceLoop, 30);
+    }
+    function danceLoop() {
+        if (!dance.active) return;
+        dance.spawnTimer -= 30;
+        if (dance.spawnTimer <= 0) { danceSpawnNote(); dance.spawnTimer = 900; }
+        const track = document.getElementById('dance-track');
+        const trackW = track.clientWidth || 300;
+        dance.notes.forEach(n => { n.x -= (trackW / 2.2) * (30/1000); n.el.style.left = n.x + 'px'; });
+        dance.notes = dance.notes.filter(n => { if (n.x < -40) { n.el.remove(); return false; } return true; });
+        dance._timeAcc += 30;
+        if (dance._timeAcc >= 1000) {
+            dance._timeAcc -= 1000; dance.timeLeft--;
+            document.getElementById('dance-time').innerText = dance.timeLeft;
+            if (dance.timeLeft <= 0) { endDance(); return; }
+        }
+    }
+    function danceSpawnNote() {
+        const track = document.getElementById('dance-track');
+        const el = document.createElement('div'); el.className = 'dance-note';
+        track.appendChild(el);
+        const x = track.clientWidth; el.style.left = x + 'px';
+        dance.notes.push({ x: x, el: el, judged:false });
+    }
+    function danceTap() {
+        if (!dance.active) return;
+        let best = null; let bestDist = 999;
+        dance.notes.forEach(n => { if (n.judged) return; const dist = Math.abs(n.x - DANCE_TARGET_X); if (dist < bestDist) { bestDist = dist; best = n; } });
+        if (best && bestDist <= DANCE_HIT_TOLERANCE) {
+            best.judged = true; best.el.classList.add('judged-perfect');
+            dance.hits++; document.getElementById('dance-hits').innerText = dance.hits;
+            playSound('correct'); setTimeout(() => { best.el.remove(); }, 150);
+        } else { playSound('wrong'); }
+    }
+    function endDance() {
+        dance.active = false; clearInterval(dance.tick); setGameMode(false);
+        document.getElementById('dance-exit-btn').style.display = 'none';
+        document.getElementById('dance-tap-btn').style.display = 'none';
+        document.getElementById('dance-track').querySelectorAll('.dance-note').forEach(n => n.remove());
+        playSound('timeup');
+        const m = state.members.find(x => x.id === dance.targetId); if (!m) return;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.danceTiers || []).forEach(t => { if (dance.hits >= t.hits) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
+        showLessonResult('dance-result', 'dance-result-canvas', ms, '💃 結果！', dance.hits + 'ヒット', earned, 'dance');
+        document.getElementById('dance-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitDanceGame() {
+        if (!confirm('ダンスをやめますか？（記録は保存されません）')) return;
+        dance.active = false; clearInterval(dance.tick); setGameMode(false);
+        document.getElementById('dance-track').querySelectorAll('.dance-note').forEach(n => n.remove());
+        refreshDanceGateUI();
+    }
+    function refreshDanceGateUI() {
+        if (dance.active) return; setGameMode(false);
+        const exitBtn = document.getElementById('dance-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const tapBtn = document.getElementById('dance-tap-btn'); if (tapBtn) tapBtn.style.display = 'none';
+        const descEl = document.getElementById('dance-desc'); if (descEl) descEl.style.display = 'block';
+        document.getElementById('dance-hits').innerText = '0';
+        document.getElementById('dance-time').innerText = '--';
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('dance-start-btn');
+        if (!startBtn) return;
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; }
+    }
+
+    // ===== モデル =====
+    function startModel() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("モデルレッスンを始めますか？")) return;
+        document.getElementById('model-desc').style.display = 'none';
+        document.getElementById('model-start-btn').style.display = 'none';
+        document.getElementById('model-result').innerHTML = '';
+        modelCountdown(me);
+    }
+    function modelCountdown(me) {
+        const cd = document.getElementById('model-countdown');
+        let n = 3; cd.style.display = 'flex'; cd.innerText = n; playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartModel(me); }
+        }, 1200);
+    }
+    function actuallyStartModel(me) {
+        playSound('start'); setGameMode(true);
+        document.getElementById('model-exit-btn').style.display = 'block';
+        document.getElementById('model-btns').style.display = 'grid';
+        model = { active:true, pos:50, vel:0, holding:null, seconds:0, targetId:me.id, tick:null };
+        document.getElementById('model-seconds').innerText = '0.0';
+        document.getElementById('model-needle').style.left = '50%';
+        clearInterval(model.tick);
+        model.tick = setInterval(modelLoop, 50);
+    }
+    function modelLoop() {
+        if (!model.active) return;
+        const push = (Math.random() - 0.5) * 1.6;
+        let force = 0;
+        if (model.holding === 'left') force = -1.4;
+        if (model.holding === 'right') force = 1.4;
+        model.vel = model.vel * 0.85 + push + force;
+        model.pos += model.vel * 0.3;
+        if (model.pos <= 2 || model.pos >= 98) {
+            model.pos = Math.max(0, Math.min(100, model.pos));
+            document.getElementById('model-needle').style.left = model.pos + '%';
+            endModel(); return;
+        }
+        document.getElementById('model-needle').style.left = model.pos + '%';
+        model.seconds += 0.05;
+        document.getElementById('model-seconds').innerText = model.seconds.toFixed(1);
+        if (model.seconds >= 30) { endModel(); return; }
+    }
+    function modelPress(dir) { if (model.active) model.holding = dir; }
+    function modelRelease() { model.holding = null; }
+    function endModel() {
+        model.active = false; clearInterval(model.tick); setGameMode(false);
+        document.getElementById('model-exit-btn').style.display = 'none';
+        document.getElementById('model-btns').style.display = 'none';
+        playSound('timeup');
+        const m = state.members.find(x => x.id === model.targetId); if (!m) return;
+        const seconds = Math.round(model.seconds * 10) / 10;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.modelTiers || []).forEach(t => { if (seconds >= t.seconds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
+        showLessonResult('model-result', 'model-result-canvas', ms, '👠 結果！', seconds + '秒', earned, 'model');
+        document.getElementById('model-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitModelGame() {
+        if (!confirm('モデルレッスンをやめますか？（記録は保存されません）')) return;
+        model.active = false; clearInterval(model.tick); setGameMode(false);
+        refreshModelGateUI();
+    }
+    function refreshModelGateUI() {
+        if (model.active) return; setGameMode(false);
+        const exitBtn = document.getElementById('model-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const btns = document.getElementById('model-btns'); if (btns) btns.style.display = 'none';
+        const descEl = document.getElementById('model-desc'); if (descEl) descEl.style.display = 'block';
+        document.getElementById('model-seconds').innerText = '0.0';
+        const needle = document.getElementById('model-needle'); if (needle) needle.style.left = '50%';
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('model-start-btn');
+        if (!startBtn) return;
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; }
+    }
+
+    // ===== 女優 =====
+    function startActress() {
+        const me = state.members.find(m => m.name === user);
+        if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
+        checkReset();
+        if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
+        if (!confirm("女優レッスンを始めますか？")) return;
+        document.getElementById('actress-desc').style.display = 'none';
+        document.getElementById('actress-start-btn').style.display = 'none';
+        document.getElementById('actress-result').innerHTML = '';
+        actressCountdown(me);
+    }
+    function actressCountdown(me) {
+        const cd = document.getElementById('actress-countdown');
+        cd.style.display = 'flex'; let n = 3; cd.innerText = n; playSound('count');
+        const iv = setInterval(() => {
+            n--;
+            if (n > 0) { cd.innerText = n; playSound('count'); }
+            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartActress(me); }
+        }, 1200);
+    }
+    function actuallyStartActress(me) {
+        playSound('start'); setGameMode(true);
+        document.getElementById('actress-exit-btn').style.display = 'block';
+        const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        actress = { active:true, round:0, current:null, timeLimit:6000, timer:null, targetId:me.id, ms:ms };
+        document.getElementById('actress-round').innerText = '0';
+        actressNextRound();
+    }
+    function actressPickEmotions() { return [...ACTRESS_EMOTIONS].sort(() => Math.random()-0.5).slice(0,4); }
+    function actressNextRound() {
+        if (!actress.active) return;
+        clearTimeout(actress.timer);
+        const choices = actressPickEmotions();
+        const correct = choices[Math.floor(Math.random()*4)];
+        actress.current = correct.key;
+        document.getElementById('actress-prompt').innerText = `お題: ${correct.label}`;
+        const box = document.getElementById('actress-choices');
+        box.innerHTML = choices.map(c => `<div class="actress-choice" onclick="actressPick('${c.key}', this)"><img src="${actress.ms.id}_face_${c.key}.png" onerror="this.src='${actress.ms.img}'"></div>`).join('');
+        actress.timer = setTimeout(() => actressFail(), actress.timeLimit);
+    }
+    function actressPick(key, el) {
+        if (!actress.active) return;
+        clearTimeout(actress.timer);
+        if (key === actress.current) {
+            el.classList.add('correct'); playSound('correct');
+            actress.round++; document.getElementById('actress-round').innerText = actress.round;
+            actress.timeLimit = Math.max(2000, actress.timeLimit - 350);
+            setTimeout(actressNextRound, 500);
+        } else { el.classList.add('wrong'); actressFail(); }
+    }
+    function actressFail() { playSound('wrong'); setTimeout(endActress, 600); }
+    function endActress() {
+        actress.active = false; setGameMode(false);
+        document.getElementById('actress-exit-btn').style.display = 'none';
+        document.getElementById('actress-choices').innerHTML = '';
+        document.getElementById('actress-prompt').innerText = '';
+        playSound('timeup');
+        const m = state.members.find(x => x.id === actress.targetId); if (!m) return;
+        let earned = { vo:0, pl:0, da:0, vi:0 };
+        (state.actressTiers || []).forEach(t => { if (actress.round >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
+        showLessonResult('actress-result', 'actress-result-canvas', ms, '🎬 結果！', actress.round + '問正解', earned, 'actress');
+        document.getElementById('actress-start-btn').style.display = 'block';
+        syncToSheet(m);
+    }
+    function exitActressGame() {
+        if (!confirm('女優レッスンをやめますか？（記録は保存されません）')) return;
+        actress.active = false; clearTimeout(actress.timer); setGameMode(false);
+        document.getElementById('actress-choices').innerHTML = '';
+        document.getElementById('actress-prompt').innerText = '';
+        refreshActressGateUI();
+    }
+    function refreshActressGateUI() {
+        if (actress.active) return; setGameMode(false);
+        const exitBtn = document.getElementById('actress-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
+        const descEl = document.getElementById('actress-desc'); if (descEl) descEl.style.display = 'block';
+        document.getElementById('actress-round').innerText = '0';
+        const me = state.members.find(m => m.name === user);
+        const startBtn = document.getElementById('actress-start-btn');
+        if (!startBtn) return;
+        if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; return; }
+        checkReset();
+        if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
+        else { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; }
+    }
+
+    // ===== 管理設定(段階ポイント表+説明文)共通処理 =====
+    function toggleTrampolineList() { const con=document.getElementById('trampoline-con'); const arrow=document.getElementById('trampoline-list-arrow'); const isHidden=con.style.display==='none'; con.style.display=isHidden?'block':'none'; arrow.innerText=isHidden?'▼':'▶'; if(isHidden) renderTierAdmin('trampoline-con'); }
+    function toggleDanceList() { const con=document.getElementById('dance-con'); const arrow=document.getElementById('dance-list-arrow'); const isHidden=con.style.display==='none'; con.style.display=isHidden?'block':'none'; arrow.innerText=isHidden?'▼':'▶'; if(isHidden) renderTierAdmin('dance-con'); }
+    function toggleModelList() { const con=document.getElementById('model-con'); const arrow=document.getElementById('model-list-arrow'); const isHidden=con.style.display==='none'; con.style.display=isHidden?'block':'none'; arrow.innerText=isHidden?'▼':'▶'; if(isHidden) renderTierAdmin('model-con'); }
+    function toggleActressList() { const con=document.getElementById('actress-con'); const arrow=document.getElementById('actress-list-arrow'); const isHidden=con.style.display==='none'; con.style.display=isHidden?'block':'none'; arrow.innerText=isHidden?'▼':'▶'; if(isHidden) renderTierAdmin('actress-con'); }
+
+    function syncTrampolineTiers() { const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&trampolineJson=${encodeURIComponent(JSON.stringify(state.trampolineTiers))}&callback=handleTrampolineTiersResponse`; document.body.appendChild(s); }
+    window.handleTrampolineTiersResponse = function(r) { document.querySelectorAll('script[src*="trampolineJson="]').forEach(x=>x.remove()); };
+    function syncDanceTiers() { const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&danceJson=${encodeURIComponent(JSON.stringify(state.danceTiers))}&callback=handleDanceTiersResponse`; document.body.appendChild(s); }
+    window.handleDanceTiersResponse = function(r) { document.querySelectorAll('script[src*="danceJson="]').forEach(x=>x.remove()); };
+    function syncModelTiers() { const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&modelJson=${encodeURIComponent(JSON.stringify(state.modelTiers))}&callback=handleModelTiersResponse`; document.body.appendChild(s); }
+    window.handleModelTiersResponse = function(r) { document.querySelectorAll('script[src*="modelJson="]').forEach(x=>x.remove()); };
+    function syncActressTiers() { const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&actressJson=${encodeURIComponent(JSON.stringify(state.actressTiers))}&callback=handleActressTiersResponse`; document.body.appendChild(s); }
+    window.handleActressTiersResponse = function(r) { document.querySelectorAll('script[src*="actressJson="]').forEach(x=>x.remove()); };
+
+    function upTrampolineDesc() { state.trampolineDesc = document.getElementById('admin-trampoline-desc').value; const d=document.getElementById('trampoline-desc'); if(d) d.innerText=state.trampolineDesc; const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&trampolineDesc=${encodeURIComponent(state.trampolineDesc)}&callback=handleTrampolineDescResponse`; document.body.appendChild(s); }
+    window.handleTrampolineDescResponse = function(r) { document.querySelectorAll('script[src*="trampolineDesc="]').forEach(x=>x.remove()); };
+    function upDanceDesc() { state.danceDesc = document.getElementById('admin-dance-desc').value; const d=document.getElementById('dance-desc'); if(d) d.innerText=state.danceDesc; const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&danceDesc=${encodeURIComponent(state.danceDesc)}&callback=handleDanceDescResponse`; document.body.appendChild(s); }
+    window.handleDanceDescResponse = function(r) { document.querySelectorAll('script[src*="danceDesc="]').forEach(x=>x.remove()); };
+    function upModelDesc() { state.modelDesc = document.getElementById('admin-model-desc').value; const d=document.getElementById('model-desc'); if(d) d.innerText=state.modelDesc; const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&modelDesc=${encodeURIComponent(state.modelDesc)}&callback=handleModelDescResponse`; document.body.appendChild(s); }
+    window.handleModelDescResponse = function(r) { document.querySelectorAll('script[src*="modelDesc="]').forEach(x=>x.remove()); };
+    function upActressDesc() { state.actressDesc = document.getElementById('admin-actress-desc').value; const d=document.getElementById('actress-desc'); if(d) d.innerText=state.actressDesc; const s=document.createElement('script'); s.src=`${API_URL}?action=updateSettings&actressDesc=${encodeURIComponent(state.actressDesc)}&callback=handleActressDescResponse`; document.body.appendChild(s); }
+    window.handleActressDescResponse = function(r) { document.querySelectorAll('script[src*="actressDesc="]').forEach(x=>x.remove()); };
+      
     function render() {
         const mySpace = document.getElementById('my-card-space'); const grid = document.getElementById('grid'); mySpace.innerHTML = ''; grid.innerHTML = '';
         const me = state.members.find(m => m.name === user);
