@@ -965,6 +965,14 @@ html, body {
         if (data.climbDesc !== undefined) { state.climbDesc = data.climbDesc; document.getElementById('climb-desc').innerText = state.climbDesc; document.getElementById('admin-climb-desc').value = state.climbDesc; }
         if (data.runTiers) { state.runTiers = data.runTiers; }
         if (data.units) { state.units = data.units; }
+        if (data.trampolineTiers) { state.trampolineTiers = data.trampolineTiers; }
+        if (data.trampolineDesc !== undefined) { state.trampolineDesc = data.trampolineDesc; const d1=document.getElementById('trampoline-desc'); if(d1) d1.innerText=state.trampolineDesc; const a1=document.getElementById('admin-trampoline-desc'); if(a1) a1.value=state.trampolineDesc; }
+        if (data.danceTiers) { state.danceTiers = data.danceTiers; }
+        if (data.danceDesc !== undefined) { state.danceDesc = data.danceDesc; const d2=document.getElementById('dance-desc'); if(d2) d2.innerText=state.danceDesc; const a2=document.getElementById('admin-dance-desc'); if(a2) a2.value=state.danceDesc; }
+        if (data.modelTiers) { state.modelTiers = data.modelTiers; }
+        if (data.modelDesc !== undefined) { state.modelDesc = data.modelDesc; const d3=document.getElementById('model-desc'); if(d3) d3.innerText=state.modelDesc; const a3=document.getElementById('admin-model-desc'); if(a3) a3.value=state.modelDesc; }
+        if (data.actressTiers) { state.actressTiers = data.actressTiers; }
+        if (data.actressDesc !== undefined) { state.actressDesc = data.actressDesc; const d4=document.getElementById('actress-desc'); if(d4) d4.innerText=state.actressDesc; const a4=document.getElementById('admin-actress-desc'); if(a4) a4.value=state.actressDesc; }
         if (data.runDesc !== undefined) { state.runDesc = data.runDesc; const rd = document.getElementById('run-desc'); if (rd) rd.innerText = state.runDesc; const ard = document.getElementById('admin-run-desc'); if (ard) ard.value = state.runDesc; }
         if (data.musicTiers) { state.musicTiers = data.musicTiers; }
         if (data.musicStages) { state.musicStages = data.musicStages; }
