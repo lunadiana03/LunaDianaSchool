@@ -518,6 +518,64 @@ html, body {
             <button id="climb-start-btn" class="climb-start-btn" onclick="startClimb()">スタート（レッスン3回分消費）</button>
         </div>
     </div>
+    <div id="view-trampoline" class="view-section">
+        <div class="climb-cabinet">
+            <button id="trampoline-exit-btn" class="game-exit-btn" onclick="exitTrampolineGame()" style="display:none;">🚪 やめる</button>
+            <div id="trampoline-title" class="climb-title kira-text">🤸 トランポリンチャレンジ</div>
+            <div id="trampoline-desc" class="climb-desc"></div>
+            <div class="climb-track" id="trampoline-track">
+                <div class="climb-height-badge">📏 <span id="trampoline-height">0m</span></div>
+                <div id="trampoline-char" class="climb-char"><img id="trampoline-char-img" src="mascot1.png"></div>
+                <div id="trampoline-countdown" class="climb-countdown"></div>
+                <div id="trampoline-sparkle-layer" class="trampoline-sparkle-layer"></div>
+            </div>
+            <div class="trampoline-jump-label">ジャンプ <span id="trampoline-jump-num">1</span>/3</div>
+            <div class="trampoline-bar-wrap"><div class="trampoline-bar-track"><div id="trampoline-sweet" class="trampoline-sweet"></div><div id="trampoline-marker" class="trampoline-marker"></div></div></div>
+            <button id="trampoline-tap-btn" class="run-jump-btn" onclick="trampolineTap()" style="display:none;">🤸 ジャンプ！</button>
+            <div id="trampoline-result" class="climb-result" style="display:none;"></div>
+            <button id="trampoline-start-btn" class="climb-start-btn" onclick="startTrampoline()">スタート（体力-1）</button>
+        </div>
+    </div>
+    <div id="view-dance" class="view-section">
+        <div class="climb-cabinet">
+            <button id="dance-exit-btn" class="game-exit-btn" onclick="exitDanceGame()" style="display:none;">🚪 やめる</button>
+            <div id="dance-title" class="climb-title kira-text">💃 ダンスレッスン</div>
+            <div id="dance-desc" class="climb-desc"></div>
+            <div class="dance-stats">⏱️ 残り: <span id="dance-time">--</span>秒　🎯 ヒット: <span id="dance-hits">0</span></div>
+            <div class="dance-track" id="dance-track"><div class="dance-target"></div><div id="dance-countdown" class="climb-countdown"></div></div>
+            <button id="dance-tap-btn" class="run-jump-btn" onclick="danceTap()" style="display:none;">💃 タップ！</button>
+            <div id="dance-result" class="climb-result" style="display:none;"></div>
+            <button id="dance-start-btn" class="climb-start-btn" onclick="startDance()">スタート（体力-1）</button>
+        </div>
+    </div>
+    <div id="view-model" class="view-section">
+        <div class="climb-cabinet">
+            <button id="model-exit-btn" class="game-exit-btn" onclick="exitModelGame()" style="display:none;">🚪 やめる</button>
+            <div id="model-title" class="climb-title kira-text">👠 モデルレッスン</div>
+            <div id="model-desc" class="climb-desc"></div>
+            <div class="model-stats">⏱️ キープ時間: <span id="model-seconds">0.0</span>秒</div>
+            <div class="model-track" id="model-track"><div class="model-safe-zone"></div><div id="model-needle" class="model-needle"></div><div id="model-countdown" class="climb-countdown"></div></div>
+            <div class="model-btns" id="model-btns" style="display:none;">
+                <button class="climb-btn climb-btn-left" onmousedown="modelPress('left')" ontouchstart="modelPress('left')" onmouseup="modelRelease()" ontouchend="modelRelease()">←</button>
+                <button class="climb-btn climb-btn-right" onmousedown="modelPress('right')" ontouchstart="modelPress('right')" onmouseup="modelRelease()" ontouchend="modelRelease()">→</button>
+            </div>
+            <div id="model-result" class="climb-result" style="display:none;"></div>
+            <button id="model-start-btn" class="climb-start-btn" onclick="startModel()">スタート（体力-1）</button>
+        </div>
+    </div>
+    <div id="view-actress" class="view-section">
+        <div class="climb-cabinet">
+            <button id="actress-exit-btn" class="game-exit-btn" onclick="exitActressGame()" style="display:none;">🚪 やめる</button>
+            <div id="actress-title" class="climb-title kira-text">🎬 女優レッスン</div>
+            <div id="actress-desc" class="climb-desc"></div>
+            <div class="actress-round">ラウンド: <span id="actress-round">0</span></div>
+            <div id="actress-prompt" class="actress-prompt"></div>
+            <div id="actress-choices" class="actress-choices"></div>
+            <div id="actress-countdown" class="climb-countdown" style="position:static; display:none;"></div>
+            <div id="actress-result" class="climb-result" style="display:none;"></div>
+            <button id="actress-start-btn" class="climb-start-btn" onclick="startActress()">スタート（体力-1）</button>
+        </div>
+    </div>
     <div id="view-live" class="view-section">
         <button class="live-exit-btn" onclick="exitLiveView()">🚪 退出する</button>
         <div class="live-cabinet">
