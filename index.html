@@ -2723,61 +2723,112 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     let actress = { active:false, round:0, current:null, timeLimit:6000, timer:null, targetId:null, ms:null };
 
     // ===== トランポリン =====
+    
+    const TRAMPOLINE_SWEET_WIDTHS = [20, 14, 9];
     function startTrampoline() {
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
         if (me.r >= state.limit) { alert("本日のレッスン回数が上限に達しています"); return; }
         if (!confirm("トランポリンを始めますか？")) return;
+        setGameMode(true);
+        document.getElementById('trampoline-exit-btn').style.display = 'block';
+        document.getElementById('trampoline-track').classList.add('show');
         document.getElementById('trampoline-desc').style.display = 'none';
         document.getElementById('trampoline-start-btn').style.display = 'none';
         document.getElementById('trampoline-result').innerHTML = '';
+        document.getElementById('trampoline-result').style.display = 'none';
         trampolineCountdown(me);
     }
     function trampolineCountdown(me) {
         const cd = document.getElementById('trampoline-countdown');
-        let n = 3; cd.style.display = 'flex'; cd.innerText = n; playSound('count');
+        const canvas = document.getElementById('trampoline-countdown-canvas');
+        const txt = document.getElementById('trampoline-countdown-text');
+        let n = 3;
+        cd.style.display = 'flex';
+        function showN() {
+            txt.style.display = 'none'; canvas.style.display = 'block';
+            playSound('count');
+            startChromaVideo('trampoline-count', canvas, 'count' + n + '.mp4', function () {
+                canvas.style.display = 'none'; txt.style.display = 'block'; txt.innerText = n;
+            });
+        }
+        showN();
         const iv = setInterval(() => {
             n--;
-            if (n > 0) { cd.innerText = n; playSound('count'); }
-            else { clearInterval(iv); cd.style.display = 'none'; actuallyStartTrampoline(me); }
+            if (n > 0) { showN(); }
+            else {
+                clearInterval(iv); stopChromaVideo('trampoline-count');
+                cd.style.display = 'none'; actuallyStartTrampoline(me);
+            }
         }, 1200);
     }
     function actuallyStartTrampoline(me) {
         playSound('start');
-        setGameMode(true);
-        document.getElementById('trampoline-exit-btn').style.display = 'block';
-        document.getElementById('trampoline-track').classList.add('show');
-        trampoline = { active:true, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:me.id, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
-        document.getElementById('trampoline-char').style.bottom = '0px';
-        document.getElementById('trampoline-track').style.backgroundPositionY = '0px';
-        document.getElementById('trampoline-height').innerText = '0m';
-        document.getElementById('trampoline-tap-btn').style.display = 'block';
+        const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        trampoline = { active: true, jumpIndex: 0, heights: [0, 0, 0], totalHeight: 0, targetId: me.id, barPos: 0, barDir: 1, barSpeed: 3, sweetStart: 0, sweetWidth: 20, tick: null, phase: 'idle', ms: ms, approachTimer: null, bounceTimer: null, ascendTimer: null, spinInterval: null, poseInterval: null };
+        const char = document.getElementById('trampoline-char');
+        const track = document.getElementById('trampoline-track');
+        char.style.transition = 'none'; char.style.bottom = '0px';
+        track.style.transition = 'none'; track.style.backgroundPositionY = '0px';
+        document.getElementById('trampoline-char-img').src = ms.img;
         trampolineStartJump();
     }
     function trampolineStartJump() {
+        trampoline.phase = 'approach';
         document.getElementById('trampoline-jump-num').innerText = (trampoline.jumpIndex + 1);
-        trampoline.sweetWidth = TRAMPOLINE_SWEET_WIDTHS[trampoline.jumpIndex] || 18;
-        trampoline.sweetStart = Math.random() * (100 - trampoline.sweetWidth);
-        trampoline.barPos = 0; trampoline.barDir = 1;
-        trampoline.barSpeed = 2.2 + trampoline.jumpIndex * 0.6;
-        const sweetEl = document.getElementById('trampoline-sweet');
-        sweetEl.style.left = trampoline.sweetStart + '%';
-        sweetEl.style.width = trampoline.sweetWidth + '%';
-        clearInterval(trampoline.tick);
-        trampoline.tick = setInterval(trampolineBarLoop, 20);
+        document.getElementById('trampoline-bar-wrap').style.display = 'none';
+        document.getElementById('trampoline-tap-btn').style.display = 'none';
+        const char = document.getElementById('trampoline-char');
+        char.style.transition = 'bottom 0.4s ease';
+        char.style.bottom = '0px';
+        clearTimeout(trampoline.approachTimer);
+        trampoline.approachTimer = setTimeout(() => {
+            if (!trampoline.active) return;
+            trampoline.phase = 'timing';
+            trampoline.sweetWidth = TRAMPOLINE_SWEET_WIDTHS[trampoline.jumpIndex] || 9;
+            trampoline.sweetStart = Math.random() * (100 - trampoline.sweetWidth);
+            trampoline.barPos = 0; trampoline.barDir = 1;
+            trampoline.barSpeed = 3 + trampoline.jumpIndex * 1.3;
+            const sweetEl = document.getElementById('trampoline-sweet');
+            sweetEl.style.left = trampoline.sweetStart + '%';
+            sweetEl.style.width = trampoline.sweetWidth + '%';
+            document.getElementById('trampoline-bar-wrap').style.display = 'block';
+            document.getElementById('trampoline-tap-btn').style.display = 'block';
+            clearInterval(trampoline.tick);
+            trampoline.tick = setInterval(trampolineBarLoop, 20);
+        }, 500);
     }
     function trampolineBarLoop() {
-        if (!trampoline.active) return;
+        if (!trampoline.active || trampoline.phase !== 'timing') return;
         trampoline.barPos += trampoline.barSpeed * trampoline.barDir;
         if (trampoline.barPos >= 100) { trampoline.barPos = 100; trampoline.barDir = -1; }
         if (trampoline.barPos <= 0) { trampoline.barPos = 0; trampoline.barDir = 1; }
         const marker = document.getElementById('trampoline-marker');
         if (marker) marker.style.left = trampoline.barPos + '%';
     }
+    function updateTrampolineVisualPosition() {
+        const char = document.getElementById('trampoline-char');
+        const track = document.getElementById('trampoline-track');
+        const trackH = track.clientHeight || 300;
+        const midBottom = trackH * 0.7;
+        const cap = 45;
+        char.style.transition = 'bottom 0.5s ease-out';
+        track.style.transition = 'background-position-y 0.5s ease-out';
+        if (trampoline.totalHeight <= cap) {
+            char.style.bottom = (trampoline.totalHeight / cap * midBottom) + 'px';
+            track.style.backgroundPositionY = '0px';
+        } else {
+            char.style.bottom = midBottom + 'px';
+            track.style.backgroundPositionY = '-' + ((trampoline.totalHeight - cap) * 4) + 'px';
+        }
+    }
     function trampolineTap() {
-        if (!trampoline.active) return;
+        if (!trampoline.active || trampoline.phase !== 'timing') return;
         clearInterval(trampoline.tick);
+        trampoline.phase = 'bouncing';
+        document.getElementById('trampoline-bar-wrap').style.display = 'none';
+        document.getElementById('trampoline-tap-btn').style.display = 'none';
         const center = trampoline.sweetStart + trampoline.sweetWidth / 2;
         const dist = Math.abs(trampoline.barPos - center);
         let accuracy = Math.max(0, 100 - (dist / 50) * 100);
@@ -2786,51 +2837,76 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         trampoline.heights[trampoline.jumpIndex] = heightGain;
         trampoline.totalHeight += heightGain;
         playSound(accuracy >= 70 ? 'correct' : 'wrong');
-        updateTrampolineVisual();
-        trampoline.jumpIndex++;
-        if (trampoline.jumpIndex >= 3) { setTimeout(endTrampoline, 700); }
-        else { setTimeout(trampolineStartJump, 700); }
+        updateTrampolineVisualPosition();
+        clearTimeout(trampoline.bounceTimer);
+        trampoline.bounceTimer = setTimeout(() => {
+            trampoline.jumpIndex++;
+            if (trampoline.jumpIndex >= 3) { trampolineFinalAscend(); }
+            else { trampolineStartJump(); }
+        }, 550);
     }
-    function updateTrampolineVisual() {
+    function trampolineFinalAscend() {
+        trampoline.phase = 'ascend';
+        const charImg = document.getElementById('trampoline-char-img');
+        const ms = trampoline.ms;
+        const frames = [ms.id + '_trampoline_left.png', ms.id + '_trampoline_back.png', ms.id + '_trampoline_right.png'];
+        let idx = 0;
+        clearInterval(trampoline.spinInterval);
+        trampoline.spinInterval = setInterval(() => {
+            const img = frames[idx % frames.length];
+            charImg.onerror = function () { this.onerror = null; this.src = ms.img; };
+            charImg.src = img;
+            idx++;
+        }, 180);
         const char = document.getElementById('trampoline-char');
         const track = document.getElementById('trampoline-track');
+        char.style.transition = 'bottom 3s ease-in-out';
+        track.style.transition = 'background-position-y 3s linear';
         const trackH = track.clientHeight || 300;
-        const midBottom = trackH * 0.75;
-        const cap = 45;
-        if (trampoline.totalHeight <= cap) {
-            char.style.bottom = (trampoline.totalHeight / cap * midBottom) + 'px';
-            track.style.backgroundPositionY = '0px';
-        } else {
-            char.style.bottom = midBottom + 'px';
-            track.style.backgroundPositionY = '-' + ((trampoline.totalHeight - cap) * 4) + 'px';
-        }
-        document.getElementById('trampoline-height').innerText = trampoline.totalHeight + 'm';
+        char.style.bottom = (trackH * 0.85) + 'px';
+        track.style.backgroundPositionY = '-' + (trampoline.totalHeight * 6 + 200) + 'px';
+        clearTimeout(trampoline.ascendTimer);
+        trampoline.ascendTimer = setTimeout(() => {
+            clearInterval(trampoline.spinInterval);
+            charImg.onerror = null; charImg.src = ms.img;
+            triggerTrampolinePose();
+            let bursts = 0;
+            clearInterval(trampoline.poseInterval);
+            trampoline.poseInterval = setInterval(() => { triggerTrampolineSparkles(); bursts++; if (bursts >= 3) clearInterval(trampoline.poseInterval); }, 1200);
+            setTimeout(endTrampoline, 4000);
+        }, 3000);
     }
-    function triggerTrampolinePose() {
-        const char = document.getElementById('trampoline-char');
-        char.classList.add('trampoline-pose');
+    function triggerTrampolineSparkles() {
         const layer = document.getElementById('trampoline-sparkle-layer');
         layer.innerHTML = ''; layer.classList.add('show');
-        const emojis = ['✨','⭐','💫','🌟'];
+        const emojis = ['✨', '⭐', '💫', '🌟'];
         for (let i = 0; i < 8; i++) {
             const s = document.createElement('div');
             s.className = 'trampoline-sparkle'; s.innerText = emojis[i % emojis.length];
-            s.style.left = (30 + Math.random()*40) + '%'; s.style.top = (30 + Math.random()*30) + '%';
-            s.style.animationDelay = (i*0.05) + 's';
+            s.style.left = (30 + Math.random() * 40) + '%'; s.style.top = (30 + Math.random() * 30) + '%';
+            s.style.animationDelay = (i * 0.05) + 's';
             layer.appendChild(s);
         }
-        setTimeout(() => { layer.classList.remove('show'); char.classList.remove('trampoline-pose'); }, 900);
+        setTimeout(() => { layer.classList.remove('show'); }, 900);
+    }
+    function triggerTrampolinePose() {
+        const char = document.getElementById('trampoline-char');
+        char.classList.remove('trampoline-pose'); void char.offsetWidth; char.classList.add('trampoline-pose');
+        triggerTrampolineSparkles();
     }
     function endTrampoline() {
-        trampoline.active = false; clearInterval(trampoline.tick);
+        trampoline.active = false;
+        clearInterval(trampoline.tick); clearInterval(trampoline.spinInterval); clearInterval(trampoline.poseInterval);
+        clearTimeout(trampoline.approachTimer); clearTimeout(trampoline.bounceTimer); clearTimeout(trampoline.ascendTimer);
         setGameMode(false);
         document.getElementById('trampoline-exit-btn').style.display = 'none';
         document.getElementById('trampoline-tap-btn').style.display = 'none';
-        triggerTrampolinePose(); playSound('timeup');
+        document.getElementById('trampoline-bar-wrap').style.display = 'none';
+        playSound('timeup');
         const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
-        let earned = { vo:0, pl:0, da:0, vi:0 };
+        let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         (state.trampolineTiers || []).forEach(t => { if (trampoline.totalHeight >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
-        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        m.r++; ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, '🤸 結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
         document.getElementById('trampoline-start-btn').style.display = 'block';
@@ -2838,26 +2914,36 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitTrampolineGame() {
         if (!confirm('トランポリンをやめますか？（記録は保存されません）')) return;
-        trampoline.active = false; clearInterval(trampoline.tick); setGameMode(false);
+        trampoline.active = false;
+        clearInterval(trampoline.tick); clearInterval(trampoline.spinInterval); clearInterval(trampoline.poseInterval);
+        clearTimeout(trampoline.approachTimer); clearTimeout(trampoline.bounceTimer); clearTimeout(trampoline.ascendTimer);
+        stopChromaVideo('trampoline-count');
+        setGameMode(false);
         refreshTrampolineGateUI();
     }
     function refreshTrampolineGateUI() {
-        if (trampoline.active) return; setGameMode(false);
+        if (trampoline.active) return;
+        setGameMode(false);
         const exitBtn = document.getElementById('trampoline-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
         const tapBtn = document.getElementById('trampoline-tap-btn'); if (tapBtn) tapBtn.style.display = 'none';
-        const trackEl = document.getElementById('trampoline-track'); if (trackEl) trackEl.classList.remove('show');
+        const barWrap = document.getElementById('trampoline-bar-wrap'); if (barWrap) barWrap.style.display = 'none';
+        const trackEl = document.getElementById('trampoline-track'); if (trackEl) { trackEl.classList.remove('show'); trackEl.style.transition = 'none'; trackEl.style.backgroundPositionY = '0px'; }
         const descEl = document.getElementById('trampoline-desc'); if (descEl) descEl.style.display = 'block';
+        const cd = document.getElementById('trampoline-countdown'); if (cd) cd.style.display = 'none';
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('trampoline-start-btn');
         const charImg = document.getElementById('trampoline-char-img');
+        const char = document.getElementById('trampoline-char');
         const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
-        if (charImg) charImg.src = ms.img;
+        if (charImg) { charImg.onerror = null; charImg.src = ms.img; }
+        if (char) { char.style.transition = 'none'; char.style.bottom = '0px'; char.classList.remove('trampoline-pose'); }
         if (!startBtn) return;
         if (!me) { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; return; }
         checkReset();
         if (me.r >= state.limit) { startBtn.disabled = true; startBtn.innerText = '本日のレッスン回数は終了しました'; }
         else { startBtn.disabled = false; startBtn.innerText = 'スタート（体力-1）'; }
     }
+    
 
     // ===== ダンス =====
     function startDance() {
