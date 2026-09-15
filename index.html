@@ -587,14 +587,17 @@ html, body {
             <button id="trampoline-exit-btn" class="game-exit-btn" onclick="exitTrampolineGame()" style="display:none;">🚪 やめる</button>
             <div id="trampoline-title" class="climb-title kira-text">🤸 トランポリンチャレンジ</div>
             <div id="trampoline-desc" class="climb-desc"></div>
-            <div class="climb-track" id="trampoline-track">
-                <div class="climb-height-badge">📏 <span id="trampoline-height">0m</span></div>
+            <div class="climb-track trampoline-track-bg" id="trampoline-track">
+                <img id="trampoline-mat-img" class="trampoline-mat" src="trampoline-mat.png" onerror="this.style.display='none'">
                 <div id="trampoline-char" class="climb-char"><img id="trampoline-char-img" src="mascot1.png"></div>
-                <div id="trampoline-countdown" class="climb-countdown"></div>
+                <div id="trampoline-countdown" class="climb-countdown">
+                    <canvas id="trampoline-countdown-canvas" width="200" height="200" style="width:140px;height:140px;"></canvas>
+                    <div id="trampoline-countdown-text" style="display:none;font-size:3.5em;font-weight:900;color:#fff;"></div>
+                </div>
                 <div id="trampoline-sparkle-layer" class="trampoline-sparkle-layer"></div>
             </div>
             <div class="trampoline-jump-label">ジャンプ <span id="trampoline-jump-num">1</span>/3</div>
-            <div class="trampoline-bar-wrap"><div class="trampoline-bar-track"><div id="trampoline-sweet" class="trampoline-sweet"></div><div id="trampoline-marker" class="trampoline-marker"></div></div></div>
+            <div class="trampoline-bar-wrap" id="trampoline-bar-wrap" style="display:none;"><div class="trampoline-bar-track"><div id="trampoline-sweet" class="trampoline-sweet"></div><div id="trampoline-marker" class="trampoline-marker"></div></div></div>
             <button id="trampoline-tap-btn" class="run-jump-btn" onclick="trampolineTap()" style="display:none;">🤸 ジャンプ！</button>
             <div id="trampoline-result" class="climb-result" style="display:none;"></div>
             <button id="trampoline-start-btn" class="climb-start-btn" onclick="startTrampoline()">スタート（体力-1）</button>
