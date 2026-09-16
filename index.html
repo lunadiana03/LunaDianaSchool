@@ -2714,7 +2714,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         {key:'surprise', label:'😲 驚いた顔'}, {key:'wink', label:'😉 ウインク顔'}, {key:'shy', label:'😳 照れ顔'},
         {key:'sleepy', label:'😴 眠い顔'}, {key:'excited', label:'🤩 興奮した顔'}, {key:'confused', label:'😕 困った顔'}, {key:'cool', label:'😎 クールな顔'}
     ];
-    const TRAMPOLINE_SWEET_WIDTHS = [30, 24, 18];
     let trampoline = { active:false, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:null, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
     let dance = { active:false, hits:0, timeLeft:30, totalTime:30, notes:[], targetId:null, spawnTimer:0, tick:null, _timeAcc:0 };
     const DANCE_TARGET_X = 24;
