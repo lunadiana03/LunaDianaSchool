@@ -2712,6 +2712,46 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         </div>
         <div class="history">${hHtml||'履歴なし'}</div>`;
     }
+      const LESSON_LIST = [
+        { key:'climb', label:'🧗 崖登り' }, { key:'run', label:'🏃 ランニング' },
+        { key:'music', label:'🎹 音感' }, { key:'kintore', label:'💪 筋トレ' },
+        { key:'trampoline', label:'🤸 トランポリン' }, { key:'dance', label:'💃 ダンス' },
+        { key:'model', label:'👠 モデル' }, { key:'actress', label:'🎬 女優' }
+    ];
+    function toggleLessonVisList() {
+        const con = document.getElementById('lesson-vis-con');
+        const arrow = document.getElementById('lesson-vis-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none';
+        arrow.innerText = isHidden ? '▼' : '▶';
+        if (isHidden) renderLessonVisAdmin();
+    }
+    function renderLessonVisAdmin() {
+        const con = document.getElementById('lesson-vis-con'); if (!con) return;
+        if (!state.lessonVisibility) state.lessonVisibility = {};
+        con.innerHTML = LESSON_LIST.map(l => {
+            const on = state.lessonVisibility[l.key] !== false;
+            return `<label style="display:flex;align-items:center;gap:8px;background:#fff;padding:6px 10px;border-radius:10px;margin-bottom:4px;"><input type="checkbox" ${on ? 'checked' : ''} onchange="toggleLessonVisibility('${l.key}', this.checked)">${l.label}</label>`;
+        }).join('');
+    }
+    function toggleLessonVisibility(key, on) {
+        if (!state.lessonVisibility) state.lessonVisibility = {};
+        state.lessonVisibility[key] = on;
+        applyLessonVisibility();
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&lessonVisJson=${encodeURIComponent(JSON.stringify(state.lessonVisibility))}&callback=handleLessonVisResponse`;
+        document.body.appendChild(script);
+    }
+    window.handleLessonVisResponse = function(r) {
+        document.querySelectorAll('script[src*="lessonVisJson="]').forEach(x => x.remove());
+    };
+    function applyLessonVisibility() {
+        if (!state.lessonVisibility) return;
+        LESSON_LIST.forEach(l => {
+            const el = document.getElementById('lm-item-' + l.key);
+            if (el) el.classList.toggle('lm-hidden', state.lessonVisibility[l.key] === false);
+        });
+    }
       const ACTRESS_EMOTIONS = [
         {key:'smile', label:'😊 嬉しい顔'}, {key:'cry', label:'😢 泣き顔'}, {key:'angry', label:'😠 怒った顔'},
         {key:'surprise', label:'😲 驚いた顔'}, {key:'wink', label:'😉 ウインク顔'}, {key:'shy', label:'😳 照れ顔'},
