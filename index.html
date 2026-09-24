@@ -1168,6 +1168,12 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     };
     const TIER_LESSON_KEYS = { 'run-con': 'run', 'music-con': 'music', 'kintore-con': 'kintore', 'trampoline-con': 'trampoline', 'dance-con': 'dance', 'model-con': 'model', 'actress-con': 'actress' };
     function climbFullTotal() { return (state.climbTiers || []).reduce((sum, t) => sum + (t.vo || 0) + (t.pl || 0) + (t.da || 0) + (t.vi || 0), 0); }
+    // 崖登りで登った高さ(m)から獲得ポイントを計算（結果を見返すときも同じ計算で表示する）
+    function climbEarnedFor(heightM) {
+        const e = { vo: 0, pl: 0, da: 0, vi: 0 };
+        (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { e.vo += t.vo * POINT_SCALE; e.pl += t.pl * POINT_SCALE; e.da += t.da * POINT_SCALE; e.vi += t.vi * POINT_SCALE; } });
+        return e;
+    }
     // 獲得ポイントの倍率（崖登り・各レッスン共通。管理画面の崖登りの値×この倍率が実際の獲得量）
     const POINT_SCALE = 5;
     // 崖登り以外のレッスンの満点合計（崖登りの約1/3。どのレッスンも同じ合計になるよう20の倍数に揃える）
@@ -2770,7 +2776,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             startBtn.style.display = 'none';
             const ms2 = MASCOTS.find(x => x.id === me.mascotId) || MASCOTS[0];
             resultBox.style.display = 'block';
-            resultBox.innerHTML = buildResultHtml('climb-result-canvas', ms2, mi('emoji_events','mi-gold') + '今日の結果！', (me.climbHeight||0) + 'm', {vo:0,pl:0,da:0,vi:0}) + `<div style="font-size:0.85em;opacity:0.85;margin-top:4px;">また明日挑戦してね！</div>`;
+            resultBox.innerHTML = buildResultHtml('climb-result-canvas', ms2, mi('emoji_events','mi-gold') + '今日の結果！', (me.climbHeight||0) + 'm', climbEarnedFor(me.climbHeight || 0)) + `<div style="font-size:0.85em;opacity:0.85;margin-top:4px;">また明日挑戦してね！</div>`;
             renderResultChar('climb-result', 'climb-result-canvas', ms2, 'climb');
         } else {
             startBtn.style.display = 'block';
@@ -2791,7 +2797,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         const heightM = climb.height * 5;
-        (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo * POINT_SCALE; earned.pl += t.pl * POINT_SCALE; earned.da += t.da * POINT_SCALE; earned.vi += t.vi * POINT_SCALE; } });
+        Object.assign(earned, climbEarnedFor(heightM));
         addPointsWithLog(m, earned, '崖登り');
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
