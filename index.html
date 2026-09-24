@@ -1181,7 +1181,17 @@ function uploadIcon(base64, memberName) {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'uploadIcon', name: memberName, image: base64 })
-    }).then(r => r.json()).then(res => res.url);
+    }).then(r => r.text()).then(t => {
+        // GAS がエラーページ（HTML）を返した場合も理由がわかるようにする
+        let res;
+        try { res = JSON.parse(t); } catch (e) { throw new Error('GASの応答が読めませんでした（承認・デプロイ設定を確認）'); }
+        if (!res || res.error || !res.url) throw new Error((res && res.error) || 'URLが返ってきませんでした');
+        return res.url;
+    });
+}
+function uploadErrorAlert(err) {
+    document.getElementById('loading').style.display = 'none';
+    alert("画像のアップロードに失敗しました\n理由: " + ((err && err.message) || err || '不明'));
 }
 
 document.addEventListener('change', function(e) {
@@ -2035,10 +2045,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 const fi = document.getElementById('icon-file-input'); if (fi) fi.value = '';
                 document.getElementById('icon-preview-wrap').innerHTML = '';
                 updateLoginBoxUI(); render();
-            }).catch(() => {
-                document.getElementById('loading').style.display = 'none';
-                alert("画像のアップロードに失敗しました");
-            });
+            }).catch(uploadErrorAlert);
         } else {
             if (!confirm(`「${n}」としてログインしますか？`)) return;
             user = n; localStorage.setItem('lesson_user_v21', user); fetchAllData();
@@ -2811,10 +2818,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 m.icon = url;
                 syncToSheet(m);
                 render();
-            }).catch(() => {
-                document.getElementById('loading').style.display = 'none';
-                alert("画像のアップロードに失敗しました");
-            });
+            }).catch(uploadErrorAlert);
         });
     };
     tempInput.click();
@@ -3661,10 +3665,7 @@ state.members.forEach(m => {
                 uploadIcon(base64, m.name + '_profile').then(url => {
                     m.profileImg = url;
                     syncToSheet(m);
-                }).catch(() => {
-                    document.getElementById('loading').style.display = 'none';
-                    alert("画像のアップロードに失敗しました");
-                });
+                }).catch(uploadErrorAlert);
             });
         }
     });
