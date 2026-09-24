@@ -683,6 +683,90 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .dress-reward-part .dress-svg { width:100%; height:100%; }
 .dress-reward-who { color:#9a6a82; font-size:0.9em; }
 @media (max-width:420px) { .dress-parts { grid-template-columns:repeat(2, 1fr); } .dress-reward { grid-template-columns:1fr; } .dress-reward > .dress-card { max-width:180px; margin:0 auto; } }
+/* ===== ライブステージ ===== */
+.lv-stage { position:relative; z-index:1; height:260px; margin:0 -10px 10px; border-radius:18px; overflow:hidden; --pc:#ff8cc6; --beat:.4545s;
+  background: radial-gradient(ellipse at 50% 115%, color-mix(in srgb, var(--pc) 45%, transparent), transparent 60%), linear-gradient(180deg, #170b2e 0%, #2a1450 58%, #3d1a5e 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,179,217,.7), 0 0 18px rgba(255,140,198,.35); }
+.lv-screen { position:absolute; left:12%; right:12%; top:12px; height:62px; border-radius:10px; display:flex; align-items:center; justify-content:center; overflow:hidden;
+  background: radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 1.6px) 0 0/5px 5px, linear-gradient(110deg, color-mix(in srgb, var(--pc) 55%, #1c0c36), #1c0c36 45%, color-mix(in srgb, var(--pc) 45%, #1c0c36));
+  background-size: 5px 5px, 300% 100%; animation: lv-screen 5s linear infinite; box-shadow: 0 0 0 2px rgba(255,255,255,.25), 0 0 22px color-mix(in srgb, var(--pc) 55%, transparent); }
+@keyframes lv-screen { to { background-position: 0 0, 300% 0; } }
+.lv-screen-text { font-family:'Mochiy Pop One', sans-serif; font-size:1.25em; letter-spacing:3px; color:#fff; text-shadow:0 0 6px var(--pc), 0 0 14px var(--pc); animation: lv-glow calc(var(--beat) * 2) ease-in-out infinite; white-space:nowrap; }
+@keyframes lv-glow { 50% { opacity:.75; transform:scale(.97); } }
+.lv-beams i { position:absolute; top:-6px; width:70px; height:250px; margin-left:-35px; transform-origin:50% 0; clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,.7), color-mix(in srgb, var(--bc) 55%, transparent) 45%, transparent 95%); mix-blend-mode:screen; opacity:.5; animation: lv-swing 3.4s ease-in-out infinite alternate; transition: opacity .6s; }
+.lv-beams i:nth-child(1) { left:10%; --bc:#ff8cc6; --a:-28deg; --b:8deg; }
+.lv-beams i:nth-child(2) { left:34%; --bc:#9fe4ff; --a:-14deg; --b:18deg; animation-delay:-1.2s; }
+.lv-beams i:nth-child(3) { left:66%; --bc:#ffe28a; --a:14deg; --b:-18deg; animation-delay:-.6s; }
+.lv-beams i:nth-child(4) { left:90%; --bc:#d9a8ea; --a:28deg; --b:-8deg; animation-delay:-1.8s; }
+@keyframes lv-swing { from { transform:rotate(var(--a)); } to { transform:rotate(var(--b)); } }
+.lv-floor { position:absolute; left:-8%; right:-8%; bottom:34px; height:70px; border-radius:50%; background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,.55), color-mix(in srgb, var(--pc) 45%, transparent) 38%, transparent 70%); }
+.lv-performer { position:absolute; left:0; right:0; bottom:66px; z-index:3; display:flex; justify-content:center; align-items:flex-end; gap:10px; }
+.lv-one { display:flex; flex-direction:column; align-items:center; animation: lv-in .6s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes lv-in { from { opacity:0; transform:translateY(14px) scale(.8); } }
+.lv-icon { position:relative; width:86px; height:86px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--pc), 0 0 28px var(--pc); animation: lv-bob calc(var(--beat) * 2) ease-in-out infinite; }
+.lv-icon img { width:100% !important; height:100% !important; }
+.lv-one.small .lv-icon { width:48px; height:48px; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--pc), 0 0 14px var(--pc); }
+.lv-one.small:nth-child(2n) .lv-icon { animation-delay: calc(var(--beat) * -1); }
+@keyframes lv-bob { 50% { transform:translateY(-6px); } }
+.lv-aura { position:absolute; left:50%; bottom:-18px; width:190px; height:190px; margin-left:-95px; border-radius:50%; background: radial-gradient(circle, color-mix(in srgb, var(--pc) 55%, transparent), transparent 65%); animation: lv-glow calc(var(--beat) * 2) ease-in-out infinite; pointer-events:none; }
+.lv-name { margin-top:8px; padding:2px 14px; background:#fff; color:var(--ak-mag); border-radius:999px; font-size:.85em; box-shadow:0 0 12px color-mix(in srgb, var(--pc) 70%, transparent); white-space:nowrap; }
+.lv-one.small .lv-name { font-size:.62em; padding:1px 8px; margin-top:5px; }
+.lv-crowd { position:absolute; left:0; right:0; bottom:0; height:70px; z-index:4; pointer-events:none; }
+.lv-fan { position:absolute; bottom:-10px; width:24px; height:30px; margin-left:-12px; border-radius:50% 50% 30% 30% / 60% 60% 30% 30%; background:#0f0820; }
+.lv-fan.back { bottom:4px; transform:scale(.8); background:#1c0f36; }
+.lv-light { position:absolute; bottom:16px; left:50%; width:5px; height:28px; margin-left:-2.5px; border-radius:3px; background:#fff; transform-origin:50% 100%;
+  box-shadow: 0 0 4px var(--lc), 0 0 10px var(--lc), 0 0 18px var(--lc); outline:1.5px solid var(--lc); outline-offset:-1.5px; animation: lv-wave calc(var(--beat) * 2) ease-in-out infinite; animation-delay: var(--d); transition: opacity .5s; }
+@keyframes lv-wave { 0%, 100% { transform:rotate(-24deg); } 50% { transform:rotate(24deg); } }
+.lv-curtain { position:absolute; top:0; bottom:0; width:51%; z-index:6; transition: transform 1.3s cubic-bezier(.65,.05,.3,1);
+  background: linear-gradient(180deg, rgba(0,0,0,0) 70%, rgba(80,0,40,.35)), repeating-linear-gradient(90deg, #b8175a 0 8px, #e2337f 8px 17px, #ff6fb1 17px 21px, #e2337f 21px 30px); }
+.lv-curtain.l { left:0; border-right:2px solid #ffd86b; } .lv-curtain.r { right:0; border-left:2px solid #ffd86b; }
+.lv-stage:not(.lv-idle) .lv-curtain.l { transform:translateX(-102%); }
+.lv-stage:not(.lv-idle) .lv-curtain.r { transform:translateX(102%); }
+.lv-curtain-label { position:absolute; left:50%; top:50%; z-index:7; translate:-50% -50%; padding:8px 20px; background:#fff; color:var(--ak-mag); border-radius:999px; font-size:1em; letter-spacing:2px; box-shadow:0 0 0 3px #ffd86b, 0 0 18px rgba(255,216,107,.8); white-space:nowrap; transition: opacity .4s; animation: live-banner-pulse 1.6s ease-in-out infinite; }
+.lv-stage:not(.lv-idle) .lv-curtain-label { opacity:0; pointer-events:none; }
+.lv-callin { position:absolute; left:0; right:0; top:36%; z-index:8; text-align:center; opacity:0; pointer-events:none; }
+.lv-callin.show { animation: lv-callin 2.4s ease forwards; }
+.lv-callin-band { background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 18%, rgba(255,255,255,.95) 82%, transparent); padding:6px 0 8px; }
+.lv-callin-sub { font-size:.7em; letter-spacing:4px; color:#b0708f; }
+.lv-callin-name { font-size:1.35em; color:var(--ak-mag); letter-spacing:2px; }
+@keyframes lv-callin { 0% { opacity:0; transform:scaleY(.2); } 12% { opacity:1; transform:none; } 80% { opacity:1; } 100% { opacity:0; transform:translateY(-10px); } }
+.lv-fever { position:absolute; left:0; right:0; top:26px; z-index:5; text-align:center; font-size:1.7em; letter-spacing:3px; display:none;
+  background: linear-gradient(90deg, #ff8cc6, #ffd86b, #9fe4ff, #d9a8ea, #ff8cc6); background-size:200% 100%; -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.8)); animation: lv-fever-pop var(--beat) ease-in-out infinite alternate, live-banner-shine 2s linear infinite; }
+@keyframes lv-fever-pop { to { transform:scale(1.08); } }
+/* 盛り上がりレベル */
+.lv-f0 .lv-light { opacity:.45; animation-duration: calc(var(--beat) * 4); }
+.lv-f0 .lv-beams i { opacity:.25; }
+.lv-f2 .lv-beams i, .lv-f3 .lv-beams i { opacity:.7; animation-duration:1.7s; }
+.lv-f2 .lv-fan, .lv-f3 .lv-fan { animation: lv-jump calc(var(--beat) * 2) ease-in-out infinite; animation-delay: var(--d); }
+@keyframes lv-jump { 50% { transform:translateY(-4px); } }
+.lv-f3 .lv-crowd, .lv-f3 .lv-beams { animation: lv-hue 2.4s linear infinite; }
+@keyframes lv-hue { to { filter:hue-rotate(360deg); } }
+.lv-f3 .lv-fever { display:block; }
+.lv-f3 .lv-screen-text { opacity:0; }
+.lv-idle .lv-beams, .lv-idle .lv-performer { opacity:0; }
+.lv-appeal .lv-beams i { opacity:1; background: linear-gradient(180deg, #fff, rgba(255,240,180,.8) 50%, transparent); }
+.lv-appeal .lv-icon { box-shadow: 0 0 0 3px #fff, 0 0 0 6px #ffd86b, 0 0 40px #ffd86b, 0 0 70px #fff; }
+.lv-call { position:absolute; bottom:52px; z-index:8; padding:3px 11px; background:#fff; color:var(--ak-mag); border-radius:999px; font-size:.78em; white-space:nowrap; box-shadow:0 0 0 2px #ffb3d9; pointer-events:none; animation: lv-call 1.7s ease-out forwards; }
+@keyframes lv-call { 0% { opacity:0; transform:translateY(8px) scale(.7); } 15% { opacity:1; transform:none; } 75% { opacity:1; } 100% { opacity:0; transform:translateY(-46px); } }
+.lv-stage .live-cheer-heart { bottom:40px; z-index:8; }
+.lv-confetti { position:absolute; top:-12px; z-index:9; width:7px; height:11px; border-radius:2px; pointer-events:none; animation: lv-fall 2.6s ease-in forwards; }
+@keyframes lv-fall { to { transform: translate(var(--dx), 290px) rotate(var(--r)); opacity:.2; } }
+.lv-sub { position:relative; z-index:1; font-size:.9em; margin:2px 0 8px; }
+.lv-gauge { position:relative; z-index:1; display:flex; align-items:center; gap:8px; margin:-2px 0 10px; font-size:.78em; }
+.lv-gauge .bar { flex:1; height:12px; border-radius:999px; background:rgba(255,255,255,.18); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.5); overflow:hidden; }
+.lv-gauge .bar i { display:block; height:100%; width:0; border-radius:999px; background: linear-gradient(90deg, #ff8cc6, #ffd86b, #9fe4ff, #d9a8ea); background-size:200% 100%; transition: width .5s cubic-bezier(.34,1.56,.64,1); animation: live-banner-shine 2s linear infinite; box-shadow:0 0 10px rgba(255,216,107,.8); }
+.lv-gauge b { font-weight:normal; min-width:6.5em; text-align:right; white-space:nowrap; }
+.lv-gauge .cnt { background:#fff; color:var(--ak-mag); border-radius:999px; padding:1px 8px; font-family:'Zen Maru Gothic', sans-serif; font-weight:700; white-space:nowrap; }
+.lv-vote-grid { position:relative; z-index:1; display:grid; grid-template-columns:repeat(auto-fill, minmax(96px, 1fr)); gap:8px; }
+.lv-vote-card { background:#fff; color:var(--ak-ink); border-radius:16px; padding:10px 6px 8px; box-shadow:0 0 0 2px #ffb3d9; display:flex; flex-direction:column; align-items:center; gap:4px; font-family:'Zen Maru Gothic', sans-serif; font-weight:700; }
+.lv-vote-card .ic { width:52px; height:52px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px var(--pc, #ffb3d9); }
+.lv-vote-card .ic img { width:100% !important; height:100% !important; }
+.lv-vote-card button { padding:4px 12px; font-size:.85em; margin-top:2px; }
+.lv-vote-card .votes { font-size:.75em; color:#b0708f; }
+@media (prefers-reduced-motion: reduce) { .lv-stage *, .lv-stage { animation-duration: 0s !important; } }
 .grant-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:16px; }
 .grant-modal.open { display:flex; }
 .grant-panel { width:100%; max-width:360px; background:#fff; border:2px solid #f06aa8; border-radius:20px; box-shadow:0 5px 0 #ffc2e0; padding:14px; animation: ak-pop .3s cubic-bezier(.34,1.56,.64,1) both; }
@@ -1200,6 +1284,18 @@ html { -webkit-tap-highlight-color: transparent; }
         <div class="live-cabinet">
             <button id="live-bgm-btn" class="live-bgm-btn" onclick="LiveBGM.toggle()" aria-label="BGM"><span class="mi mi-solo">music_off</span></button>
             <div class="live-title"><span class="mi">mic</span>ライブ会場</div>
+            <div id="lv-stage" class="lv-stage lv-idle lv-f1">
+                <div class="lv-screen"><div class="lv-screen-text" id="lv-screen-text">COMING SOON</div></div>
+                <div class="lv-beams"><i></i><i></i><i></i><i></i></div>
+                <div class="lv-floor"></div>
+                <div class="lv-fever">FEVER!!</div>
+                <div class="lv-performer" id="lv-performer"></div>
+                <div class="lv-crowd" id="lv-crowd"></div>
+                <div class="lv-curtain l"></div><div class="lv-curtain r"></div>
+                <div class="lv-curtain-label">まもなく開演</div>
+                <div class="lv-callin" id="lv-callin"></div>
+            </div>
+            <div class="lv-gauge" id="lv-gauge" style="display:none;"><span class="cnt" id="lv-gauge-cnt"></span><div class="bar"><i id="lv-gauge-fill"></i></div><b id="lv-gauge-lv"></b></div>
             <div id="live-body">準備中です…</div>
         </div>
     </div>
@@ -2377,11 +2473,108 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
         liveSfxKey = key;
     }
+    // ===== ライブステージの演出（ステージは作り直さず、状態に合わせて中身だけ更新する） =====
+    const LIVE_FEVER = [{ at: 0, label: 'あたたまり中' }, { at: 20, label: 'いい感じ！' }, { at: 60, label: '大盛り上がり！' }, { at: 120, label: 'FEVER!!' }];
+    const LIVE_CALLS = ['かわいい！', '最高！', 'こっち向いて！', 'がんばれー！', 'キラキラ！', '大好き！', 'アンコール！', 'すてき！'];
+    let lvPrev = { status: null, idx: null, cheers: 0, lvl: 0 };
+    function liveMemberColor(id) { const m = (state.members || []).find(x => x.id === id); return (m && SUITS[m.suit]) ? SUITS[m.suit].color : '#ff8cc6'; }
+    function liveFeverLevel(c) { let l = 0; LIVE_FEVER.forEach((f, i) => { if (c >= f.at) l = i; }); return l; }
+    function liveStageOne(p, small) { return `<div class="lv-one${small ? ' small' : ''}" style="--pc:${liveMemberColor(p.id)}">${small ? '' : '<div class="lv-aura"></div>'}<div class="lv-icon">${getIconHtml(p.icon, small ? '30px' : '54px')}</div><div class="lv-name">${escapeHtml(p.name)}</div></div>`; }
+    function ensureLiveCrowd() {
+        const c = document.getElementById('lv-crowd'); if (!c || c.childElementCount) return;
+        const cols = ['#ff8cc6', '#9fe4ff', '#ffe28a', '#d9a8ea', '#ff8cc6', '#aef0c8'];
+        let h = '';
+        for (let i = 0; i < 11; i++) h += `<div class="lv-fan back" style="left:${4 + i * 9.2}%; --d:${(-i * 0.13).toFixed(2)}s"><div class="lv-light" style="--lc:${cols[(i + 2) % cols.length]}; --d:${(-i * 0.21).toFixed(2)}s"></div></div>`;
+        for (let i = 0; i < 9; i++) h += `<div class="lv-fan" style="left:${9 + i * 10.3}%; --d:${(-i * 0.17).toFixed(2)}s"><div class="lv-light" style="--lc:${cols[i % cols.length]}; --d:${(-i * 0.29).toFixed(2)}s"></div></div>`;
+        c.innerHTML = h;
+    }
+    function spawnLiveConfetti(n) {
+        const st = document.getElementById('lv-stage'); if (!st) return;
+        const cols = ['#ff8cc6', '#ffd86b', '#9fe4ff', '#d9a8ea', '#ffffff', '#aef0c8'];
+        for (let i = 0; i < n; i++) {
+            const d = document.createElement('div');
+            d.className = 'lv-confetti';
+            d.style.left = (Math.random() * 100) + '%';
+            d.style.background = cols[i % cols.length];
+            d.style.animationDelay = (Math.random() * 0.8).toFixed(2) + 's';
+            d.style.setProperty('--dx', (Math.random() * 60 - 30).toFixed(0) + 'px');
+            d.style.setProperty('--r', (Math.random() * 720 - 360).toFixed(0) + 'deg');
+            st.appendChild(d);
+            setTimeout(() => d.remove(), 3600);
+        }
+    }
+    function spawnLiveCall(text) {
+        const st = document.getElementById('lv-stage'); if (!st) return;
+        const d = document.createElement('div');
+        d.className = 'lv-call';
+        d.textContent = text || LIVE_CALLS[Math.floor(Math.random() * LIVE_CALLS.length)];
+        d.style.left = (8 + Math.random() * 58) + '%';
+        st.appendChild(d);
+        setTimeout(() => d.remove(), 1800);
+    }
+    function liveShowCallin(sub, name) {
+        const el = document.getElementById('lv-callin'); if (!el) return;
+        el.innerHTML = `<div class="lv-callin-band"><div class="lv-callin-sub">${sub}</div><div class="lv-callin-name">${escapeHtml(name)}</div></div>`;
+        el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+    }
+    function updateLiveGauge(cheers) {
+        const lvl = liveFeverLevel(cheers), next = LIVE_FEVER[lvl + 1];
+        const base = LIVE_FEVER[lvl].at, pct = next ? (cheers - base) / (next.at - base) * 100 : 100;
+        const f = document.getElementById('lv-gauge-fill'); if (f) f.style.width = Math.max(4, Math.min(100, pct)) + '%';
+        const t = document.getElementById('lv-gauge-lv'); if (t) t.textContent = LIVE_FEVER[lvl].label;
+        const c = document.getElementById('lv-gauge-cnt'); if (c) c.innerHTML = `${mi('favorite', 'mi-heart')}${cheers}`;
+        const st = document.getElementById('lv-stage');
+        if (st) { st.classList.remove('lv-f0', 'lv-f1', 'lv-f2', 'lv-f3'); st.classList.add('lv-f' + lvl); }
+        if (lvPrev.status === 'live' && lvl > lvPrev.lvl) { spawnLiveConfetti(lvl === 3 ? 40 : 16); spawnLiveCall(lvl === 3 ? 'FEVER!!' : LIVE_FEVER[lvl].label); if (LiveBGM) LiveBGM.sfx('reveal'); }
+        lvPrev.lvl = lvl; lvPrev.cheers = cheers;
+    }
+    function updateLiveStage(lv) {
+        const st = document.getElementById('lv-stage'); if (!st) return;
+        ensureLiveCrowd();
+        const has = lv.performers && lv.performers.length;
+        const status = has ? lv.status : 'idle';
+        const cur = status === 'live' ? lv.performers[lv.currentIndex] : null;
+        const first = lvPrev.status === null;
+        ['lv-idle', 'lv-live', 'lv-voting', 'lv-result'].forEach(c => st.classList.remove(c));
+        st.classList.add('lv-' + status);
+        st.style.setProperty('--pc', cur ? liveMemberColor(cur.id) : '#ff8cc6');
+        const bpm = LiveBGM && LiveBGM.songInfo('live') ? LiveBGM.songInfo('live').bpm : 132;
+        st.style.setProperty('--beat', (60 / bpm).toFixed(3) + 's');
+        const scr = document.getElementById('lv-screen-text');
+        const perf = document.getElementById('lv-performer');
+        const gauge = document.getElementById('lv-gauge');
+        const stageKey = status + ':' + (status === 'live' ? lv.currentIndex : '') + ':' + (has ? lv.performers.map(p => p.id).join(',') : '');
+        if (stageKey !== lvPrev.key) {
+            if (status === 'idle') { scr.textContent = 'COMING SOON'; perf.innerHTML = ''; }
+            else if (status === 'live' && cur) { scr.textContent = `STAGE ${lv.currentIndex + 1}`; perf.innerHTML = liveStageOne(cur); }
+            else if (status === 'voting') { scr.textContent = 'VOTE TIME'; perf.innerHTML = lv.performers.map(p => liveStageOne(p, true)).join(''); }
+            else if (status === 'result') { scr.textContent = 'RESULT'; perf.innerHTML = lv.performers.map(p => liveStageOne(p, true)).join(''); }
+            if (!first && status === 'live' && cur) { liveShowCallin(`STAGE ${lv.currentIndex + 1}`, cur.name); spawnLiveConfetti(14); }
+            if (!first && status === 'voting') liveShowCallin('THANK YOU', '投票タイム');
+            lvPrev.key = stageKey;
+            lvPrev.lvl = cur ? liveFeverLevel(cur.cheers || 0) : 0; lvPrev.cheers = cur ? (cur.cheers || 0) : 0;
+        }
+        gauge.style.display = cur ? 'flex' : 'none';
+        if (cur) {
+            const c = cur.cheers || 0, d = c - lvPrev.cheers;
+            // ほかの人の応援はハートでふわっと見せる
+            if (!first && lvPrev.status === 'live' && d > 0) for (let i = 0; i < Math.min(d, 6); i++) setTimeout(() => { spawnCheerHeart(); if (Math.random() < 0.35) spawnLiveCall(); }, i * 160);
+            updateLiveGauge(c);
+        } else { ['lv-f0', 'lv-f2', 'lv-f3'].forEach(c => st.classList.remove(c)); st.classList.add('lv-f1'); }
+        lvPrev.status = status; lvPrev.idx = lv.currentIndex;
+    }
+    function setLiveStageWinner(p) {
+        const perf = document.getElementById('lv-performer'), st = document.getElementById('lv-stage');
+        if (perf) perf.innerHTML = liveStageOne(p);
+        if (st) st.style.setProperty('--pc', liveMemberColor(p.id));
+        const scr = document.getElementById('lv-screen-text'); if (scr) scr.textContent = 'WINNER';
+    }
     function renderLiveView() {
         const body = document.getElementById('live-body');
         if (!body) return;
         const lv = state.live || { performers: [] };
         liveProgressSfx(lv);
+        updateLiveStage(lv);
         if (!lv.performers || lv.performers.length === 0) {
             body.innerHTML = '<div style="padding:20px;">準備中です…</div>';
             return;
@@ -2389,25 +2582,22 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const me = state.members.find(m => m.name === user);
         let html = '';
         if (lv.status === 'idle') {
-            html += `<div class="live-spotlight"><div style="font-weight:bold;">まもなく開演！</div></div>`;
+            html += `<div class="lv-sub">${mi('stars')}本日の出演者</div>`;
             html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'live' && lv.performers[lv.currentIndex]) {
             const cur = lv.performers[lv.currentIndex];
-            html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">${mi('favorite','mi-heart')}応援: ${cur.cheers||0}</div></div>`;
             html += `<button class="live-cheer-btn" onclick="liveCheer()">${mi('favorite')}応援する！</button>`;
             if (me && me.name === cur.name) {
                 html += `<button class="live-gimmick-btn" onclick="liveGimmick()">${mi('auto_awesome')}アピールを発動！</button>`;
             }
             html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'voting') {
-            html += `<div class="live-spotlight"><div style="font-weight:bold;">${mi('how_to_vote')}投票タイム！好きな演者に投票してね</div></div>`;
+            html += `<div class="lv-sub">${mi('how_to_vote')}好きなアイドルに投票してね</div>`;
             const voted = (lv.voters||[]).includes(me ? me.id : '');
-            lv.performers.forEach(p => {
-                html += `<div class="live-vote-row"><span>${getIconHtml(p.icon,'1.2em')} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`;
-            });
-            if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:6px;">投票ありがとう！結果発表をお待ちください</div>`;
+            html += `<div class="lv-vote-grid">` + lv.performers.map(p => `<div class="lv-vote-card" style="--pc:${liveMemberColor(p.id)}"><div class="ic">${getIconHtml(p.icon,'52px')}</div><div>${escapeHtml(p.name)}</div><div class="votes">${p.votes||0}票</div><button ${voted?'disabled':''} onclick="liveVote('${p.id}')">投票</button></div>`).join('') + `</div>`;
+            if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:8px; position:relative; z-index:1;">投票ありがとう！結果発表をお待ちください</div>`;
         } else if (lv.status === 'result') {
-            html += `<div class="live-spotlight"><div style="font-weight:bold;">${mi('emoji_events','mi-gold')}結果発表</div></div>`;
+            html += `<div class="lv-sub">${mi('emoji_events','mi-gold')}結果発表</div>`;
             html += `<div id="live-result-list"></div>`;
         }
         if (state.isAdmin) {
@@ -2445,6 +2635,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? mi('workspace_premium','mi-gold mi-solo') : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
                 if (!animate) row.style.animation = 'none', row.style.opacity = '1';
                 else if (LiveBGM) LiveBGM.sfx(rank === 1 ? 'fanfare' : 'reveal');
+                if (rank === 1) { setLiveStageWinner(p); if (animate) { spawnLiveConfetti(50); liveShowCallin('WINNER', p.name); } }
                 list.appendChild(row);
             };
             if (animate) setTimeout(show, 900 + i * 900); else show();
@@ -2462,8 +2653,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const cur = lv.performers[lv.currentIndex];
         cur.cheers = (cur.cheers || 0) + 1;
         livePendingCheers++;
-        const cnt = document.querySelector('.live-cheer-count'); if (cnt) cnt.innerHTML = `${mi('favorite','mi-heart')}応援: ${cur.cheers}`;
+        updateLiveGauge(cur.cheers);
         spawnCheerHeart();
+        if (Math.random() < 0.3) spawnLiveCall();
         LiveBGM.sfx('cheer', true);
         if (!liveCheerTimer) liveCheerTimer = setTimeout(flushLiveCheers, 900);
     }
@@ -2475,7 +2667,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         liveOp('cheer', { n: n, idx: state.live.currentIndex });
     }
     function spawnCheerHeart() {
-        const cab = document.querySelector('.live-cabinet'); if (!cab) return;
+        const cab = document.getElementById('lv-stage') || document.querySelector('.live-cabinet'); if (!cab) return;
         const h = document.createElement('div');
         h.className = 'live-cheer-heart';
         h.innerHTML = mi('favorite', 'mi-solo');
@@ -2512,6 +2704,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function triggerGimmickFlash() {
         if (LiveBGM) LiveBGM.sfx('gimmick');
+        const stg = document.getElementById('lv-stage');
+        if (stg) { stg.classList.add('lv-appeal'); setTimeout(() => stg.classList.remove('lv-appeal'), 1600); spawnLiveConfetti(24); spawnLiveCall('アピール成功！'); }
         const cab = document.querySelector('.live-cabinet'); if (!cab) return;
         const flash = document.createElement('div');
         flash.className = 'live-flash';
