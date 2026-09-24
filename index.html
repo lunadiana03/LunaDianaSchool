@@ -710,6 +710,23 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .dance-tap-hint { position:absolute; left:0; right:0; top:91%; text-align:center; font-size:.75em; color:rgba(255,255,255,.75); pointer-events:none; }
 .dance-stage.playing .dance-tap-hint { animation: hint-fade 3s ease forwards; }
 @keyframes hint-fade { 0%, 60% { opacity:1; } 100% { opacity:0; } }
+
+/* ---- 管理者メニュー（プロフィール） ---- */
+.member-admin { margin-top:16px; padding:12px; border-radius:16px; background:#fff7fb; border:2px dashed #ffb3d9; }
+.member-admin-title { font-weight:700; color:var(--ak-mag); margin-bottom:6px; }
+.member-admin-sub { font-size:.78em; color:#a08a96; margin-bottom:4px; }
+.member-admin-pts { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.member-admin-pt { display:flex; flex-direction:column; align-items:center; gap:0; padding:6px 2px; margin:0; border-radius:14px; box-shadow:0 0 0 1.5px currentColor; }
+.member-admin-pt.vo { background:#fff0f3; color:#ff5c7a; } .member-admin-pt.pl { background:#eef6ff; color:#339af0; } .member-admin-pt.da { background:#fff8e6; color:#e09600; } .member-admin-pt.vi { background:#f4efff; color:#9061f9; }
+.member-admin-pt .lbl { font-size:.75em; } .member-admin-pt .val { font-size:1.25em; } .member-admin-pt .chg { font-size:.7em; opacity:.7; }
+.member-admin-btns { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; }
+.member-admin-btns button { margin:0; font-size:.82em; padding:8px 6px; }
+.member-admin-danger { width:100%; margin:12px 0 0; background:#fff; color:#e5484d; box-shadow:0 0 0 1.5px #ffb3b8; font-size:.82em; }
+/* ---- メンバー管理一覧（管理画面） ---- */
+.member-admin-item { width:100%; display:flex; align-items:center; gap:8px; margin:0 0 6px; padding:6px 10px; background:#fff; color:var(--ak-ink); border-radius:14px; box-shadow:0 0 0 1.5px #ffd0e7; text-align:left; }
+.member-admin-item .nm { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.member-admin-item .ps { display:flex; gap:4px; font-size:.8em; }
+.member-admin-item .ps span { padding:1px 5px; border-radius:999px; }
     </style>
 </head>
 <body>
@@ -796,6 +813,8 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
         <h3 onclick="toggleActressList()" style="cursor:pointer;"><span class="mi">theater_comedy</span>女優設定 <span id="actress-list-arrow">▶</span></h3>
         <div id="actress-con" style="display:none;"></div>
         <textarea id="admin-actress-desc" rows="2" placeholder="女優の説明文" onchange="upActressDesc()"></textarea>
+        <h3 onclick="toggleMemberAdminList()" style="cursor:pointer;"><span class="mi">manage_accounts</span>メンバー管理（ポイント変更・獲得） <span id="member-admin-arrow">▶</span></h3>
+        <div id="member-admin-con" style="display:none;"></div>
         <h3 onclick="toggleUnitList()" style="cursor:pointer;"><span class="mi">group</span>ユニット設定 <span id="unit-list-arrow">▶</span></h3>
         <div id="unit-con" style="display:none;"></div>
         <button onclick="addUnit()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ ユニットを追加</button>
@@ -1102,10 +1121,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
                 <div class="member-profile-section-title"><span class="mi">style</span>タイプ</div>
                 <div id="member-profile-suit-picker" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
             </div>
-            <div id="member-profile-admin-ctrl" style="display:none; gap:6px; margin-top:14px;">
-                <button onclick="adminEditFromProfile()" style="flex:1;background:#1c7ed6;box-shadow:0 3px 0 #145a99;">名/組/タイプ編集</button>
-                <button onclick="adminDeleteFromProfile()" style="flex:1;background:#f03e3e;box-shadow:0 3px 0 #c92a2a;">除名</button>
-            </div>
+            <div id="member-profile-admin-ctrl" class="member-admin" style="display:none;"></div>
         </div>
     </div>
 
@@ -1696,7 +1712,7 @@ document.addEventListener('change', function(e) {
         addPointsWithLog(m, e, src);
         closeGrantPoints();
         syncToSheet(m);
-        render();
+        render(); refreshMemberViews();
     }
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
@@ -1709,11 +1725,8 @@ document.addEventListener('change', function(e) {
             pointLog: JSON.stringify(m.pointLog || []),
             callback: "handleSyncResponse"
         });
-        if (!user || user === m.name) {
-            user = m.name;
-            localStorage.setItem('lesson_user_v21', user);
-        }
-        currentView = "my";
+        // 自分のデータを保存したときだけログイン名を記録（管理者が他の人を保存してもログインは変わらない）
+        if (user && user === m.name) localStorage.setItem('lesson_user_v21', user);
         const script = document.createElement('script');
 script.src = `${API_URL}?${params.toString()}`;
 script.onerror = function() {
@@ -4547,12 +4560,14 @@ state.members.forEach(m => {
         return m ? m[1] : null;
     }
     function openMemberProfile(id) {
+        const menuEl = document.getElementById('menu'); if (menuEl) menuEl.style.display = 'none'; // 管理画面の一覧から開いたときはメニューを閉じる
         currentProfileMemberId = id;
         memberEditMode = false;
         setGameMode(true);
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById('view-member').classList.add('active');
         renderMemberProfile();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function closeMemberProfile() {
         currentProfileMemberId = null;
@@ -4592,10 +4607,68 @@ state.members.forEach(m => {
         const editToggleBtn = document.getElementById('member-edit-toggle-btn');
         if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerHTML = memberEditMode ? mi('check') + '完了' : mi('edit') + '編集'; }
         const adminCtrl = document.getElementById('member-profile-admin-ctrl');
-        if (adminCtrl) adminCtrl.style.display = state.isAdmin ? 'flex' : 'none';
+        if (adminCtrl) {
+            adminCtrl.style.display = state.isAdmin ? 'block' : 'none';
+            if (state.isAdmin) adminCtrl.innerHTML = memberAdminHtml(m);
+        }
         const suitSection = document.getElementById('member-profile-suit-section');
         if (suitSection) suitSection.style.display = (canEdit && memberEditMode) ? 'block' : 'none';
         renderSuitPicker();
+    }
+    // 管理者メニュー（プロフィール画面の下）：ポイントの変更・獲得、体力の回復、名前/組/タイプ、アイコン、除名
+    function memberAdminHtml(m) {
+        const pts = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].map(([k, l]) =>
+            `<button type="button" class="member-admin-pt ${k}" onclick="adminEditPt('${m.id}','${k}')"><span class="lbl">${l}</span><span class="val">${m.p[k] || 0}</span><span class="chg">${mi('edit','mi-solo')}</span></button>`).join('');
+        const total = (m.p.vo || 0) + (m.p.pl || 0) + (m.p.da || 0) + (m.p.vi || 0);
+        return `<div class="member-admin-title">${mi('admin_panel_settings')}管理者メニュー</div>
+            <div class="member-admin-sub">ポイント（合計 ${total}）　数字をタップで変更</div>
+            <div class="member-admin-pts">${pts}</div>
+            <div class="member-admin-btns">
+                <button type="button" onclick="openGrantPoints('${m.id}')">${mi('redeem')}獲得させる</button>
+                <button type="button" onclick="adminRestoreStamina('${m.id}')">${mi('favorite')}体力を回復（${Math.max(0, (state.limit || 2) - (m.r || 0))}/${state.limit || 2}）</button>
+                <button type="button" onclick="adminEditFromProfile()">${mi('badge')}名前・組・タイプ</button>
+                <button type="button" onclick="editIcon('${m.id}')">${mi('add_a_photo')}アイコン変更</button>
+            </div>
+            <div class="member-admin-sub" style="margin-top:10px;">ポイント獲得のきろく</div>
+            <div class="history">${pointLogHtml(m) || '<div class="gain-empty">まだ記録はありません</div>'}</div>
+            <button type="button" class="member-admin-danger" onclick="adminDeleteFromProfile()">${mi('person_remove')}除名する</button>`;
+    }
+    function adminEditPt(id, k) {
+        if (!state.isAdmin) return;
+        const m = state.members.find(x => x.id === id); if (!m) return;
+        const v = prompt(`${m.name} の ${k.toUpperCase()} を入力してください（今：${m.p[k] || 0}）`, m.p[k] || 0);
+        if (v === null) return;
+        m.p[k] = parseInt(v) || 0;
+        syncToSheet(m); render(); refreshMemberViews();
+    }
+    function adminRestoreStamina(id) {
+        if (!state.isAdmin) return;
+        const m = state.members.find(x => x.id === id); if (!m) return;
+        if (!confirm(`${m.name} の今日の体力を全回復しますか？`)) return;
+        m.r = 0;
+        syncToSheet(m); render(); refreshMemberViews();
+    }
+    // プロフィール画面・メンバー管理一覧を開いていれば描き直す
+    function refreshMemberViews() {
+        const pv = document.getElementById('view-member');
+        if (pv && pv.classList.contains('active') && currentProfileMemberId) renderMemberProfile();
+        renderMemberAdminList();
+    }
+    // 管理画面「メンバー管理」：全員のポイント一覧からプロフィールの管理者メニューへ
+    function toggleMemberAdminList() {
+        const con = document.getElementById('member-admin-con'); const arrow = document.getElementById('member-admin-arrow');
+        const open = con.style.display === 'none';
+        con.style.display = open ? 'block' : 'none'; arrow.innerText = open ? '▼' : '▶';
+        if (open) renderMemberAdminList();
+    }
+    function renderMemberAdminList() {
+        const con = document.getElementById('member-admin-con'); if (!con || con.style.display === 'none') return;
+        if (!state.members.length) { con.innerHTML = '<div class="gain-empty">メンバーがいません</div>'; return; }
+        con.innerHTML = state.members.map(m => `<button type="button" class="member-admin-item" onclick="openMemberProfile('${m.id}')">
+            <span class="ic">${getIconHtml(m.icon, '32px')}</span>
+            <span class="nm">${escapeHtml(m.name)}</span>
+            <span class="ps"><span class="vo">${m.p.vo || 0}</span><span class="pl">${m.p.pl || 0}</span><span class="da">${m.p.da || 0}</span><span class="vi">${m.p.vi || 0}</span></span>
+            ${mi('chevron_right','mi-solo')}</button>`).join('');
     }
       function toggleMemberEditMode() {
         memberEditMode = !memberEditMode;
