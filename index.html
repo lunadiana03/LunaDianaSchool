@@ -1052,7 +1052,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     
   <script>
     // 💡 110行目付近（このパートの2行目）にあるこのURLをご自身の最新URLに書き換えてください！
-    const API_URL = "https://script.google.com/macros/s/AKfycbx9O6N9Ef3EOrNHlJohxFdC13qV2HSKWGCB4Sq8bqmJuBekW-vip1urHlbo-IXMzzY/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycby8Ru14B5n_OgMkcf99x9BkC4DJWYRLrffySqvAxhD0vjJAX42FIl7idcqy4Y9t8rKJCg/exec";
 　　const LESSONS = [];
     const EMOJIS = { "崖登り":"🧗‍♀️", "筋トレ":"🏋️‍♀️", "トランポリン":"🤸‍♂️", "ダンスレッスン":"💃", "モデルレッスン":"👠", "女優レッスン":"🎬", "音感レッスン":"🎹" };
     const KUMI_LIST = ["花の歌組🌸", "鳥の劇組🕊‎", "風の舞組🍃", "月の美組🌙"];
@@ -1953,10 +1953,21 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!confirm('ライブ会場から退出しますか？')) return;
         switchView('bbs');
     }
+    // 進行が変わったときの効果音（出演者の交代・投票開始）
+    let liveSfxKey = null;
+    function liveProgressSfx(lv) {
+        const key = (lv.status || '') + ':' + (lv.currentIndex);
+        if (liveSfxKey !== null && key !== liveSfxKey && currentView === 'live' && LiveBGM) {
+            if (lv.status === 'live') LiveBGM.sfx('next');
+            else if (lv.status === 'voting') LiveBGM.sfx('voteStart');
+        }
+        liveSfxKey = key;
+    }
     function renderLiveView() {
         const body = document.getElementById('live-body');
         if (!body) return;
         const lv = state.live || { performers: [] };
+        liveProgressSfx(lv);
         if (!lv.performers || lv.performers.length === 0) {
             body.innerHTML = '<div style="padding:20px;">準備中です…</div>';
             return;
@@ -2010,7 +2021,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const key = lv.performers.map(p => p.id).join(',');
         const animate = liveRevealKey !== key;
         liveRevealKey = key;
-        if (animate && LiveBGM) LiveBGM.fanfare();
+        if (animate && LiveBGM) LiveBGM.sfx('drumroll');
         const sorted = [...lv.performers].sort((a,b) => (a.votes||0) - (b.votes||0));
         sorted.forEach((p, i) => {
             const show = () => {
@@ -2019,9 +2030,10 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
                 row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? mi('workspace_premium','mi-gold mi-solo') : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
                 if (!animate) row.style.animation = 'none', row.style.opacity = '1';
+                else if (LiveBGM) LiveBGM.sfx(rank === 1 ? 'fanfare' : 'reveal');
                 list.appendChild(row);
             };
-            if (animate) setTimeout(show, i * 900); else show();
+            if (animate) setTimeout(show, 900 + i * 900); else show();
         });
     }
     function liveAdvance() {
@@ -2038,6 +2050,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         livePendingCheers++;
         const cnt = document.querySelector('.live-cheer-count'); if (cnt) cnt.innerHTML = `${mi('favorite','mi-heart')}応援: ${cur.cheers}`;
         spawnCheerHeart();
+        LiveBGM.sfx('cheer', true);
         if (!liveCheerTimer) liveCheerTimer = setTimeout(flushLiveCheers, 900);
     }
     function flushLiveCheers() {
@@ -2060,6 +2073,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function liveGimmick() {
         const lv = state.live;
         if (!lv || lv.status !== 'live') return;
+        LiveBGM.sfx('unlock', true); // 音声を有効化するだけ（音はフラッシュ側で鳴る）
         liveOp('gimmick');
         liveLastGimmickTs = state.live.gimmick ? state.live.gimmick.ts : null;
         triggerGimmickFlash();
@@ -2069,6 +2083,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にログインしてください"); return; }
         if ((lv.voters || []).includes(me.id)) { alert("投票済みです"); return; }
+        LiveBGM.sfx('vote', true);
         liveOp('vote', { pid: pid, voter: me.id });
     }
     function liveReveal() {
@@ -2082,6 +2097,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         liveOp('reset');
     }
     function triggerGimmickFlash() {
+        if (LiveBGM) LiveBGM.sfx('gimmick');
         const cab = document.querySelector('.live-cabinet'); if (!cab) return;
         const flash = document.createElement('div');
         flash.className = 'live-flash';
@@ -2105,7 +2121,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             [77,.5],[76,.5],[74,.5],[71,.5],[72,2]
         ];
         const CHORDS = [[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[43,47,50],[45,48,52],[41,45,48]];
-        let ctx = null, master = null, noiseBuf = null, timer = null, playing = false, nextBarTime = 0, barIdx = 0;
+        let ctx = null, master = null, sfxOut = null, noiseBuf = null, timer = null, playing = false, nextBarTime = 0, barIdx = 0;
         const hz = n => 440 * Math.pow(2, (n - 69) / 12);
         function wanted() { try { return localStorage.getItem('live_bgm') !== 'off'; } catch (e) { return true; } }
         function setWanted(v) { try { localStorage.setItem('live_bgm', v ? 'on' : 'off'); } catch (e) {} }
@@ -2114,24 +2130,38 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
             ctx = new AC();
             master = ctx.createGain(); master.gain.value = 0.16; master.connect(ctx.destination);
+            sfxOut = ctx.createGain(); sfxOut.gain.value = 0.3; sfxOut.connect(ctx.destination);
             noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate);
             const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
             return true;
         }
-        function tone(freq, t, dur, type, vol, attack) {
+        function tone(freq, t, dur, type, vol, attack, out, toFreq) {
             const o = ctx.createOscillator(), g = ctx.createGain();
             o.type = type; o.frequency.setValueAtTime(freq, t);
+            if (toFreq) o.frequency.exponentialRampToValueAtTime(toFreq, t + dur);
             g.gain.setValueAtTime(0.0001, t);
             g.gain.exponentialRampToValueAtTime(vol, t + (attack || 0.01));
             g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-            o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+            o.connect(g); g.connect(out || master); o.start(t); o.stop(t + dur + 0.05);
         }
-        function noise(t, dur, vol, hp) {
+        function noise(t, dur, vol, hp, out, bp) {
             const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
-            src.buffer = noiseBuf; f.type = 'highpass'; f.frequency.value = hp;
+            src.buffer = noiseBuf; f.type = bp ? 'bandpass' : 'highpass'; f.frequency.value = hp;
+            if (bp) f.frequency.exponentialRampToValueAtTime(bp, t + dur);
             g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-            src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + dur + 0.02);
+            src.connect(f); f.connect(g); g.connect(out || master); src.start(t); src.stop(t + dur + 0.02);
         }
+        // ===== 効果音 =====
+        const SFX = {
+            cheer(t) { tone(620, t, 0.12, 'sine', 0.6, 0.005, sfxOut, 1250); tone(hz(96), t + 0.06, 0.18, 'square', 0.08, 0.005, sfxOut); tone(hz(100), t + 0.1, 0.2, 'triangle', 0.15, 0.005, sfxOut); },
+            gimmick(t) { [84, 88, 91, 96, 100, 103, 108].forEach((n, i) => tone(hz(n), t + i * 0.05, 0.35, 'triangle', 0.25, 0.005, sfxOut)); noise(t, 0.7, 0.35, 800, sfxOut, 6000); tone(hz(108), t + 0.4, 0.8, 'sine', 0.12, 0.01, sfxOut); },
+            next(t) { tone(hz(79), t, 0.5, 'triangle', 0.35, 0.005, sfxOut); tone(hz(84), t + 0.16, 0.8, 'triangle', 0.35, 0.005, sfxOut); tone(hz(96), t + 0.16, 0.6, 'sine', 0.08, 0.005, sfxOut); },
+            voteStart(t) { tone(hz(84), t, 0.6, 'sine', 0.45, 0.005, sfxOut); tone(hz(79), t + 0.35, 0.9, 'sine', 0.45, 0.005, sfxOut); tone(hz(96), t, 0.4, 'triangle', 0.06, 0.005, sfxOut); },
+            vote(t) { tone(hz(91), t, 0.35, 'sine', 0.4, 0.003, sfxOut); tone(hz(98), t + 0.08, 0.5, 'sine', 0.25, 0.003, sfxOut); },
+            reveal(t) { tone(160, t, 0.25, 'sine', 0.8, 0.003, sfxOut, 60); noise(t, 0.12, 0.25, 1200, sfxOut); },
+            drumroll(t) { for (let i = 0; i < 18; i++) noise(t + i * 0.045, 0.06, 0.12 + i * 0.012, 900, sfxOut); },
+            fanfare(t) { [[72,0],[76,.12],[79,.24],[84,.36]].forEach(([n, d]) => tone(hz(n), t + d, 0.5, 'square', 0.1, 0.005, sfxOut)); [72,76,79,84].forEach(n => tone(hz(n), t + 0.5, 1.3, 'triangle', 0.22, 0.01, sfxOut)); [96,100,103,108].forEach((n, i) => tone(hz(n), t + 0.55 + i * 0.07, 0.4, 'sine', 0.08, 0.005, sfxOut)); }
+        };
         function kick(t) {
             const o = ctx.createOscillator(), g = ctx.createGain();
             o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
@@ -2180,7 +2210,6 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             playing = false; clearInterval(timer); timer = null;
             const now = ctx.currentTime;
             master.gain.cancelScheduledValues(now); master.gain.setValueAtTime(master.gain.value, now); master.gain.linearRampToValueAtTime(0.0001, now + 0.3);
-            setTimeout(() => { if (!playing) { try { ctx.suspend(); } catch (e) {} } }, 400);
             updateBtn();
         }
         return {
@@ -2188,11 +2217,11 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             stop,
             // ブラウザの制限で、最初の1回はボタンを押したときに鳴り始める
             resumeIfWanted() { if (wanted() && ctx) start(); else updateBtn(); },
-            fanfare() {
-                if (!ctx || !playing) return;
-                const t = ctx.currentTime + 0.05;
-                [[72,0],[76,.12],[79,.24],[84,.36]].forEach(([n, d]) => tone(hz(n), t + d, 0.5, 'square', 0.12));
-                [72,76,79,84].forEach(n => tone(hz(n), t + 0.5, 1.2, 'triangle', 0.25));
+            // 効果音。byUser=true（タップ操作）なら音声を有効化してから鳴らす
+            sfx(name, byUser) {
+                if (byUser) { if (!ensureCtx()) return; if (ctx.state === 'suspended') ctx.resume(); }
+                if (!ctx || ctx.state !== 'running' || !SFX[name]) return;
+                SFX[name](ctx.currentTime + 0.02);
             }
         };
     })();
