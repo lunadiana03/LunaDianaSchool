@@ -179,7 +179,7 @@
     column-gap: 18px;
     padding: 0 50px;
 }
-.lesson-menu-item .lm-icon-circle { width: 40px; height: 40px; border-radius: 12px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 0 rgba(0,0,0,0.15); justify-self: start; }
+.lesson-menu-item .lm-icon-circle { grid-row: span 2; width: 40px; height: 40px; border-radius: 12px; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 0 rgba(0,0,0,0.15); justify-self: start; }
 .lesson-menu-item.lm-climb .lm-icon-circle { background: linear-gradient(145deg,#8bd7ff,#1c9be0); }
 .lesson-menu-item.lm-run .lm-icon-circle { background: linear-gradient(145deg,#ffd36e,#f5a800); }
 .lesson-menu-item.lm-music .lm-icon-circle { background: linear-gradient(145deg,#c9a0ff,#8a4fe0); }
@@ -330,6 +330,13 @@
         .cal-event-item { display:flex; justify-content:space-between; align-items:center; background:#fff; border:1px solid #ffe3e7; border-radius:10px; padding:6px 8px; margin-bottom:6px; font-size:0.85em; }
         .cal-event-item span.txt { flex:1; word-break: break-word; }
         .cal-add-row { display:flex; gap:6px; margin-top:6px; }
+        .cal-event-item .cal-ev-mark { width:10px; height:10px; border-radius:50%; margin-right:8px; flex:none; }
+        .cal-color-row { display:flex; align-items:center; gap:8px; margin-top:8px; font-size:0.8em; color:#8a7a7e; }
+        .cal-color-opt { width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 0 1px #e2dbdd; cursor:pointer; padding:0; transition:transform 0.15s ease; }
+        .cal-color-opt.sel { box-shadow:0 0 0 2px #7a4fb0; transform:scale(1.12); }
+        .lm-stats { grid-column: 2; display:flex; gap:8px; font-size:0.78em; font-weight:700; color:#b7a9ad; margin-top:-6px; }
+        .lm-stats .arr { letter-spacing:-3px; margin-left:1px; }
+        .lm-stats .st-vo.up { color:#ff5c7a; } .lm-stats .st-pl.up { color:#339af0; } .lm-stats .st-da.up { color:#f0a500; } .lm-stats .st-vi.up { color:#9061f9; }
         .cal-add-row input { margin:0; }
         .cal-add-row button { white-space:nowrap; }
         .piano-wrap { position:relative; height:150px; background:#fff; border-radius:10px; margin-bottom:10px; border:2px solid #5a4b4e; overflow:hidden; }
@@ -792,6 +799,31 @@ html, body {
     function kumiLabelHtml(k) { return k || '無所属'; }
     const KUMI_EMOJI_MAP = {};
     KUMI_LIST.forEach((k, i) => { KUMI_EMOJI_MAP[k] = KUMI_EMOJI_LIST[i]; });
+    // レッスンごとのポイント配分。崖登りの満点合計の約1/3を、この比率で各ステータスに振り分ける
+    const LESSON_STAT_WEIGHTS = {
+        run:        { vo: 0.35, pl: 0.15, da: 0.15, vi: 0.35 },
+        kintore:    { vo: 0.15, pl: 0.35, da: 0.35, vi: 0.15 },
+        trampoline: { vo: 0.15, pl: 0.35, da: 0.15, vi: 0.35 },
+        music:      { vo: 0.70, pl: 0.10, da: 0.10, vi: 0.10 },
+        dance:      { vo: 0.10, pl: 0.10, da: 0.70, vi: 0.10 },
+        model:      { vo: 0.10, pl: 0.70, da: 0.10, vi: 0.10 },
+        actress:    { vo: 0.10, pl: 0.10, da: 0.10, vi: 0.70 }
+    };
+    const TIER_LESSON_KEYS = { 'run-con': 'run', 'music-con': 'music', 'kintore-con': 'kintore', 'trampoline-con': 'trampoline', 'dance-con': 'dance', 'model-con': 'model', 'actress-con': 'actress' };
+    function climbFullTotal() { return (state.climbTiers || []).reduce((sum, t) => sum + (t.vo || 0) + (t.pl || 0) + (t.da || 0) + (t.vi || 0), 0); }
+    // 達成した段階数に応じてポイントを計算（上がりにくいステータスも最低1は上がる）
+    function lessonEarnedByCount(key, total, achieved) {
+        const w = LESSON_STAT_WEIGHTS[key];
+        const earned = { vo: 0, pl: 0, da: 0, vi: 0 };
+        if (!w || !total || !achieved) return earned;
+        const budget = climbFullTotal() / 3 * achieved / total;
+        ['vo', 'pl', 'da', 'vi'].forEach(k => { earned[k] = Math.max(1, Math.round(budget * w[k])); });
+        return earned;
+    }
+    function lessonEarned(key, tiers, isAchieved) {
+        tiers = tiers || [];
+        return lessonEarnedByCount(key, tiers.length, tiers.filter(isAchieved).length);
+    }
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
         'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() },
@@ -1675,6 +1707,23 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const cfg = TIER_CONFIGS[containerId];
         const con = document.getElementById(containerId); if (!con || !cfg) return;
         const tiers = cfg.getArr();
+        const lessonKey = TIER_LESSON_KEYS[containerId];
+        if (lessonKey) {
+            // 崖登り以外は配分比から自動計算（ここでは段階の基準値だけ編集）
+            let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:4px;">ポイントは崖登りの約1/3を自動で配分します（到達時の累計）</div>`;
+            h += `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
+            tiers.forEach((t, idx) => {
+                const e = lessonEarnedByCount(lessonKey, tiers.length, idx + 1);
+                h += `<div class="tier-row">
+                    <input type="number" value="${t[cfg.keyProp]}" onchange="upTierField('${containerId}',${idx},'${cfg.keyProp}',this.value)">
+                    <div>${e.vo}</div><div>${e.pl}</div><div>${e.da}</div><div>${e.vi}</div>
+                    <button class="edit-btn" onclick="delTierRow('${containerId}',${idx})">${mi('close','mi-solo')}</button>
+                </div>`;
+            });
+            h += `</div><button onclick="addTierRow('${containerId}')" style="width:100%;margin-top:6px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
+            con.innerHTML = h;
+            return;
+        }
         let html = `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
         tiers.forEach((t, idx) => {
             html += `<div class="tier-row">
@@ -1695,6 +1744,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         cfg.getArr()[idx][field] = n;
         if (field === cfg.keyProp) cfg.getArr().sort((a,b) => a[cfg.keyProp] - b[cfg.keyProp]);
         cfg.sync(); renderTierAdmin(containerId);
+        if (containerId === 'climb-con') Object.keys(TIER_LESSON_KEYS).forEach(id => { const c = document.getElementById(id); if (c && c.innerHTML) renderTierAdmin(id); });
     }
     function addTierRow(containerId) {
         const cfg = TIER_CONFIGS[containerId];
@@ -2304,7 +2354,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === run.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.runTiers || []).forEach(t => { if (run.distance >= t.distance) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('run', state.runTiers, t => run.distance >= t.distance));
         m.r++;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2498,7 +2548,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!m) return;
         const achieved = music.sequence.length;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        (state.musicTiers || []).forEach(t => { if (achieved >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('music', state.musicTiers, t => achieved >= t.rounds));
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2670,7 +2720,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === kintore.targetId);
         if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        (state.kintoreTiers || []).forEach(t => { if (kintore.totalTaps >= t.count) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('kintore', state.kintoreTiers, t => kintore.totalTaps >= t.count));
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2886,7 +2936,22 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     window.handleLessonVisResponse = function(r) {
         document.querySelectorAll('script[src*="lessonVisJson="]').forEach(x => x.remove());
     };
+    // レッスン選択画面に「上がりやすいステータス」を矢印で表示
+    function renderLessonStatHints() {
+        LESSON_LIST.forEach(l => {
+            const item = document.getElementById('lm-item-' + l.key); if (!item) return;
+            const w = l.key === 'climb' ? { vo: 0.75, pl: 0.75, da: 0.75, vi: 0.75 } : LESSON_STAT_WEIGHTS[l.key]; if (!w) return;
+            let el = item.querySelector('.lm-stats');
+            if (!el) { el = document.createElement('div'); el.className = 'lm-stats'; item.querySelector('.lm-label').after(el); }
+            el.innerHTML = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].map(([k, label]) => {
+                const a = w[k] >= 0.6 ? '↑↑' : w[k] >= 0.3 ? '↑' : '';
+                return `<span class="st-${k}${a ? ' up' : ''}">${label}${a ? `<span class="arr">${a}</span>` : ''}</span>`;
+            }).join('');
+        });
+    }
+    renderLessonStatHints();
     function applyLessonVisibility() {
+        renderLessonStatHints();
         if (!state.lessonVisibility) return;
         LESSON_LIST.forEach(l => {
             const el = document.getElementById('lm-item-' + l.key);
@@ -3184,7 +3249,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        (state.trampolineTiers || []).forEach(t => { if (trampoline.totalHeight >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('trampoline', state.trampolineTiers, t => trampoline.totalHeight >= t.height));
         m.r++; ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, mi('sports_gymnastics') + '結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
@@ -3297,7 +3362,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === dance.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.danceTiers || []).forEach(t => { if (dance.hits >= t.hits) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('dance', state.danceTiers, t => dance.hits >= t.hits));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', dance.hits + 'ヒット', earned, 'dance');
@@ -3385,7 +3450,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === model.targetId); if (!m) return;
         const seconds = Math.round(model.seconds * 10) / 10;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.modelTiers || []).forEach(t => { if (seconds >= t.seconds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('model', state.modelTiers, t => seconds >= t.seconds));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
@@ -3473,7 +3538,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === actress.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        (state.actressTiers || []).forEach(t => { if (actress.round >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        Object.assign(earned, lessonEarned('actress', state.actressTiers, t => actress.round >= t.rounds));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('actress-result', 'actress-result-canvas', ms, mi('theater_comedy') + '結果！', actress.round + '問正解', earned, 'actress');
@@ -3673,7 +3738,10 @@ state.members.forEach(m => {
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
 
     // ===================== 📅 カレンダー機能 =====================
-    let calState = { events: [], viewDate: new Date(), selectedDate: null, loaded: false, error: '', fetchTimer: null };
+    let calState = { events: [], viewDate: new Date(), selectedDate: null, loaded: false, error: '', fetchTimer: null, color: 'pink' };
+    const CAL_COLORS = { pink: '#ff6fa5', orange: '#ffa94d', green: '#51cf66', blue: '#4dabf7', purple: '#9775fa' };
+    function calColor(c) { return CAL_COLORS[c] || CAL_COLORS.pink; }
+    function selectCalColor(c) { calState.color = c; document.querySelectorAll('.cal-color-opt').forEach(b => b.classList.toggle('sel', b.dataset.c === c)); }
     function escapeHtml(str) { return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
     function pad2(n) { return (n < 10 ? '0' : '') + n; }
@@ -3740,7 +3808,7 @@ state.members.forEach(m => {
             cell.className = 'cal-day' + (d.getMonth() !== m ? ' other-month' : '') + (k === todayKey ? ' today' : '') + (k === calState.selectedDate ? ' selected' : '');
             let dotsHtml = '';
             const evs = eventsByDate[k] || [];
-            evs.slice(0, 3).forEach(() => { dotsHtml += '<span class="cal-dot"></span>'; });
+            evs.slice(0, 3).forEach(ev => { dotsHtml += `<span class="cal-dot" style="background:${calColor(ev.color)};"></span>`; });
             cell.innerHTML = `<div class="cal-day-num">${d.getDate()}</div><div>${dotsHtml}</div>`;
             cell.onclick = () => selectCalDay(k);
             body.appendChild(cell);
@@ -3762,21 +3830,26 @@ state.members.forEach(m => {
         else {
             evs.forEach(ev => {
                 const delBtn = state.isAdmin ? `<button class="edit-btn" onclick="deleteCalEvent('${escapeHtml(ev.id)}')" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>` : '';
-                html += `<div class="cal-event-item"><span class="txt">${escapeHtml(ev.text)}</span>${delBtn}</div>`;
+                html += `<div class="cal-event-item"><span class="cal-ev-mark" style="background:${calColor(ev.color)};"></span><span class="txt">${escapeHtml(ev.text)}</span>${delBtn}</div>`;
             });
         }
-        html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
+        // 予定の追加は管理画面（ロック解除中）のみ
+        if (state.isAdmin) {
+            html += `<div class="cal-color-row">色：${Object.keys(CAL_COLORS).map(c => `<button type="button" class="cal-color-opt${c === calState.color ? ' sel' : ''}" data-c="${c}" style="background:${CAL_COLORS[c]};" onclick="selectCalColor('${c}')" aria-label="${c}"></button>`).join('')}</div>`;
+            html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
+        }
         panel.innerHTML = html;
       }
 
     function addCalEvent() {
+        if (!state.isAdmin) return;
         const input = document.getElementById('cal-new-text');
         const text = input.value.trim();
         if (!text) return;
         const k = calState.selectedDate;
         input.disabled = true;
         const script = document.createElement('script');
-        const params = new URLSearchParams({ action: 'addEvent', date: k, text: text, callback: 'handleAddEventResponse' });
+        const params = new URLSearchParams({ action: 'addEvent', date: k, text: text, color: calState.color, callback: 'handleAddEventResponse' });
         script.src = `${API_URL}?${params.toString()}`;
         script.onerror = function() {
             input.disabled = false;
