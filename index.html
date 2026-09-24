@@ -132,15 +132,12 @@
 /* 岩壁レイヤー：登るたびに下へ流れて上昇感を出す */
 .climb-wall { position:absolute; inset:0; pointer-events:none; z-index:0;
   background-image:
-    radial-gradient(circle at 50% 45%, #ffd6ec 0 7px, #ff8fc4 8px 10px, transparent 11px),
-    radial-gradient(circle at 50% 50%, #fff3b0 0 6px, #f5c400 7px 9px, transparent 10px),
-    radial-gradient(circle at 50% 50%, #d9c8ff 0 6px, #9775fa 7px 9px, transparent 10px),
-    radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.14) 0 22px, transparent 23px),
-    radial-gradient(ellipse at 70% 60%, rgba(0,0,0,0.10) 0 28px, transparent 29px),
+    repeating-linear-gradient(176deg, transparent 0 70px, rgba(60,35,20,.28) 70px 73px, rgba(255,240,215,.22) 73px 76px, transparent 76px 118px),
+    repeating-linear-gradient(183deg, transparent 0 40px, rgba(60,35,20,.18) 40px 42px, rgba(255,240,215,.16) 42px 44px, transparent 44px 95px),
+    linear-gradient(90deg, rgba(0,0,0,.10), transparent 18%, transparent 82%, rgba(0,0,0,.12)),
     repeating-linear-gradient(115deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 20px),
     repeating-linear-gradient(65deg, rgba(0,0,0,0.08) 0 4px, transparent 4px 26px);
-  background-size: 150px 170px, 130px 210px, 170px 150px, 190px 160px, 230px 200px, 100% 240px, 100% 260px;
-  background-position: 20px 30px, 95px 110px, 60px 0px, 0 0, 40px 80px, 0 0, 0 0;
+  background-size: 100% 236px, 100% 190px, 100% 100%, 100% 240px, 100% 260px;
   transition: background-position 0.3s ease-out; }
     .climb-track { 
     background-image: url('climb-bg.png'), linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%);
@@ -654,6 +651,10 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 @keyframes bgm-pulse { to { transform:scale(1.08); } }
 .live-cheer-heart { position:absolute; bottom:90px; z-index:4; color:#ff8cc6; font-size:26px; pointer-events:none; text-shadow:0 0 8px #fff; animation: cheer-float 1.4s ease-out forwards; }
 @keyframes cheer-float { from { opacity:1; transform:translate(0,0) scale(.6); } to { opacity:0; transform:translate(var(--dx), -160px) scale(1.2); } }
+
+.bgm-btn { position:absolute; top:12px; right:12px; z-index:4; width:34px; height:34px; padding:0; margin:0; border-radius:50%; background:#fff; color:#d9b8c8; box-shadow:0 0 0 2px #ffd0e7; }
+.bgm-btn.on { color:var(--ak-mag); box-shadow:0 0 0 2px #ffb3d9, 0 0 10px rgba(255,140,198,.5); }
+.bgm-btn:active { transform:scale(.92); box-shadow:0 0 0 2px #ffb3d9; }
     </style>
 </head>
 <body>
@@ -775,6 +776,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
  </div>
     <div id="view-run" class="view-section">
         <div class="run-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('lesson')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
            <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
            <div id="run-title" class="run-title kira-text"> START DASH !!</div>
             <div class="run-stats"><span class="mi">straighten</span>距離: <span id="run-distance">0m</span></div>
@@ -813,6 +815,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
     <div id="view-kintore" class="view-section">
         <div class="run-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('lesson')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="kintore-title" class="run-title kira-text"> きんとれレッスン</div>
             <div id="kintore-desc" class="climb-desc"></div>
@@ -882,6 +885,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
    <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('climb')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="climb-title" class="climb-title kira-text"> Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
@@ -907,6 +911,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
     <div id="view-trampoline" class="view-section">
         <div class="climb-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('tramp')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="trampoline-exit-btn" class="game-exit-btn" onclick="exitTrampolineGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="trampoline-title" class="climb-title kira-text"><span class="mi">sports_gymnastics</span>トランポリンチャレンジ</div>
             <div id="trampoline-desc" class="climb-desc"></div>
@@ -928,6 +933,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
     <div id="view-dance" class="view-section">
         <div class="climb-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('lesson')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="dance-exit-btn" class="game-exit-btn" onclick="exitDanceGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="dance-title" class="climb-title kira-text"><span class="mi">music_note</span>ダンスレッスン</div>
             <div id="dance-desc" class="climb-desc"></div>
@@ -940,6 +946,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
     <div id="view-model" class="view-section">
         <div class="climb-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('lesson')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="model-exit-btn" class="game-exit-btn" onclick="exitModelGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="model-title" class="climb-title kira-text"><span class="mi">checkroom</span>モデルレッスン</div>
             <div id="model-desc" class="climb-desc"></div>
@@ -955,6 +962,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     </div>
     <div id="view-actress" class="view-section">
         <div class="climb-cabinet">
+            <button class="bgm-btn" onclick="LiveBGM.toggleFor('lesson')" aria-label="BGM"><span class="mi mi-solo">music_note</span></button>
             <button id="actress-exit-btn" class="game-exit-btn" onclick="exitActressGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="actress-title" class="climb-title kira-text"><span class="mi">theater_comedy</span>女優レッスン</div>
             <div id="actress-desc" class="climb-desc"></div>
@@ -1200,7 +1208,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     let climb = { active:false, height:0, dir:null, timeLeft:0, totalTime:30, reactTimer:null, gameTimer:null, targetId:null };
       const CLIMB_START_BOTTOM = -40;
     const CLIMB_MID_BOTTOM = 45;
-    const CLIMB_CAP_TAPS = 8;
+    const CLIMB_CAP_TAPS = 5;
 
     LESSONS.forEach(l => {
         state.probs[l] = [
@@ -1705,7 +1713,7 @@ setTimeout(() => {
     document.getElementById('view-live').classList.toggle('active', view === 'live');
            document.getElementById('view-trampoline').classList.toggle('active', view === 'trampoline'); document.getElementById('view-dance').classList.toggle('active', view === 'dance'); document.getElementById('view-model').classList.toggle('active', view === 'model'); document.getElementById('view-actress').classList.toggle('active', view === 'actress'); if (view === 'trampoline') refreshTrampolineGateUI(); if (view === 'dance') refreshDanceGateUI(); if (view === 'model') refreshModelGateUI(); if (view === 'actress') refreshActressGateUI(); 
             document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
-    if (view === 'live') { startLivePolling(); renderLiveView(); if (LiveBGM) LiveBGM.resumeIfWanted(); } else { stopLivePolling(); if (LiveBGM) LiveBGM.stop(); }
+    if (view === 'live') { startLivePolling(); renderLiveView(); if (LiveBGM) LiveBGM.resumeIfWanted(); } else { stopLivePolling(); if (LiveBGM) { LiveBGM.stop(); LiveBGM.refreshButtons(); } }
     if (view === 'bbs') updateBbsDisplay();
     if (view === 'climb') refreshClimbGateUI();
     if (view === 'run') refreshRunGateUI();
@@ -1869,20 +1877,31 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         else if (op === 'reset') { lv.status = 'idle'; lv.currentIndex = -1; (lv.performers || []).forEach(p => { p.cheers = 0; p.votes = 0; }); lv.voters = []; lv.gimmick = null; }
         else if (op === 'gimmick' && lv.status === 'live') lv.gimmick = { index: lv.currentIndex, ts: Date.now() };
     }
-    let liveOpSeq = 0;
+    let liveOpSeq = 0, liveOpsInFlight = 0, liveLastOpAt = 0;
+    // 受け取ったライブの状態が今より新しいか（GASが付ける通し番号 rev で判定）
+    function liveIsNewer(lv) {
+        if (!lv) return false;
+        const cur = state.live && state.live.rev || 0;
+        return (lv.rev || 0) >= cur;
+    }
     function liveOp(op, args) {
         args = args || {};
+        liveOpsInFlight++; liveLastOpAt = Date.now();
         applyLiveOpLocal(state.live, op, args);
         renderLiveView();
-        const params = new URLSearchParams({ action: 'liveOp', op: op, callback: 'handleLiveOpResponse', _: Date.now() + '_' + (++liveOpSeq) });
+        const seq = ++liveOpSeq, cb = 'handleLiveOp_' + seq;
+        window[cb] = function(r) { delete window[cb]; const el = document.getElementById('liveop-' + seq); if (el) el.remove(); handleLiveOpResponse(r); };
+        const params = new URLSearchParams({ action: 'liveOp', op: op, callback: cb, _: Date.now() + '_' + seq });
         Object.keys(args).forEach(k => params.set(k, typeof args[k] === 'object' ? JSON.stringify(args[k]) : args[k]));
         const script = document.createElement('script');
+        script.id = 'liveop-' + seq;
         script.src = `${API_URL}?${params.toString()}`;
+        script.onerror = () => { delete window[cb]; liveOpsInFlight = Math.max(0, liveOpsInFlight - 1); script.remove(); };
         document.body.appendChild(script);
     }
     window.handleLiveOpResponse = function(r) {
-        document.querySelectorAll('script[src*="action=liveOp"]').forEach(x => x.remove());
-        if (r && r.live) { state.live = r.live; renderLiveView(); renderLiveAdminSummary(); }
+        liveOpsInFlight = Math.max(0, liveOpsInFlight - 1);
+        if (r && r.live) { if (liveIsNewer(r.live)) { state.live = r.live; renderLiveView(); renderLiveAdminSummary(); } }
         else if (r && r.error && /unknown action/.test(r.error)) { syncLive(); } // GASが古い場合は従来の保存方法で
     };
     function syncLive() {
@@ -2108,19 +2127,34 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     // ===================== ライブBGM（ブラウザで演奏するオリジナル曲） =====================
     // 音源ファイルは使わず Web Audio でその場で鳴らす。C→G→Am→F のアイドルポップ風ループ（BPM132）
     var LiveBGM = (() => {
-        const BPM = 132, BEAT = 60 / BPM, BAR = BEAT * 4;
-        // [MIDIノート, 拍数]（null は休符）
-        const MELODY = [
-            [76,.5],[79,.5],[81,.5],[79,.5],[76,1],[72,1],
-            [74,.5],[74,.5],[79,.5],[74,.5],[71,1],[74,1],
-            [72,.5],[76,.5],[81,.5],[79,.5],[76,1],[74,.5],[72,.5],
-            [72,1],[77,.5],[76,.5],[74,1.5],[null,.5],
-            [76,.5],[79,.5],[84,.5],[83,.5],[81,1],[79,1],
-            [79,.5],[77,.5],[76,.5],[74,.5],[71,1],[74,1],
-            [76,.5],[77,.5],[79,1],[81,.5],[79,.5],[76,1],
-            [77,.5],[76,.5],[74,.5],[71,.5],[72,2]
-        ];
-        const CHORDS = [[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[43,47,50],[45,48,52],[41,45,48]];
+        // 曲データ：[MIDIノート, 拍数]（null は休符）。どれも8小節ループ
+        const SONGS = {
+            // ライブ：C→G→Am→F のアイドルポップ
+            live: { bpm: 132, style: 'pop', chords: [[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[43,47,50],[45,48,52],[41,45,48]], melody: [
+                [76,.5],[79,.5],[81,.5],[79,.5],[76,1],[72,1], [74,.5],[74,.5],[79,.5],[74,.5],[71,1],[74,1],
+                [72,.5],[76,.5],[81,.5],[79,.5],[76,1],[74,.5],[72,.5], [72,1],[77,.5],[76,.5],[74,1.5],[null,.5],
+                [76,.5],[79,.5],[84,.5],[83,.5],[81,1],[79,1], [79,.5],[77,.5],[76,.5],[74,.5],[71,1],[74,1],
+                [76,.5],[77,.5],[79,1],[81,.5],[79,.5],[76,1], [77,.5],[76,.5],[74,.5],[71,.5],[72,2] ] },
+            // レッスン（ランニング・筋トレ・ダンス・モデル・女優）：F→G→Em→Am の元気な王道進行
+            lesson: { bpm: 150, style: 'lesson', chords: [[41,45,48],[43,47,50],[40,43,47],[45,48,52],[41,45,48],[43,47,50],[40,43,47],[45,48,52]], melody: [
+                [72,.5],[74,.5],[77,1],[76,.5],[74,.5],[72,1], [71,.5],[72,.5],[74,1],[79,1],[74,1],
+                [76,.5],[74,.5],[76,.5],[79,.5],[83,1],[79,1], [81,1.5],[79,.5],[76,1],[null,1],
+                [77,.5],[76,.5],[77,.5],[81,.5],[84,1],[81,1], [83,.5],[81,.5],[79,.5],[77,.5],[74,1],[79,1],
+                [79,.5],[76,.5],[74,.5],[76,.5],[79,1],[83,1], [81,2],[null,1],[76,.5],[79,.5] ] },
+            // 崖登り：Am→F→C→G の冒険っぽいマーチ（笛のような音）
+            climb: { bpm: 112, style: 'climb', chords: [[45,48,52],[41,45,48],[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[43,47,50]], melody: [
+                [69,1],[72,.5],[74,.5],[76,1.5],[74,.5], [72,1],[69,1],[72,1],[77,1],
+                [76,1.5],[74,.5],[72,1],[67,1], [71,1],[74,1],[79,2],
+                [81,1],[79,.5],[76,.5],[79,1.5],[76,.5], [77,1],[76,.5],[74,.5],[72,2],
+                [72,.5],[74,.5],[76,1],[79,1],[76,1], [74,1.5],[71,.5],[69,2] ] },
+            // トランポリン：ぽよんと跳ねるマリンバ風
+            tramp: { bpm: 138, style: 'tramp', chords: [[48,52,55],[41,45,48],[43,47,50],[48,52,55],[48,52,55],[45,48,52],[41,45,48],[43,47,50]], melody: [
+                [72,.5],[76,.5],[79,.5],[76,.5],[84,1],[79,1], [77,.5],[81,.5],[84,.5],[81,.5],[77,1],[null,1],
+                [79,.5],[83,.5],[86,.5],[83,.5],[79,1],[74,1], [76,.5],[74,.5],[72,1],[null,2],
+                [84,.5],[83,.5],[81,.5],[79,.5],[76,1],[79,1], [81,.5],[79,.5],[76,.5],[72,.5],[69,1],[72,1],
+                [77,.5],[76,.5],[74,.5],[72,.5],[74,1],[77,1], [79,1],[74,.5],[71,.5],[72,2] ] }
+        };
+        let song = SONGS.live, songName = 'live', BEAT = 60 / song.bpm, BAR = BEAT * 4;
         let ctx = null, master = null, sfxOut = null, noiseBuf = null, timer = null, playing = false, nextBarTime = 0, barIdx = 0;
         const hz = n => 440 * Math.pow(2, (n - 69) / 12);
         function wanted() { try { return localStorage.getItem('live_bgm') !== 'off'; } catch (e) { return true; } }
@@ -2168,35 +2202,78 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
             o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.22);
         }
-        function scheduleBar(i, t) {
-            const ch = CHORDS[i % 8];
-            for (let b = 0; b < 4; b++) {
-                const bt = t + b * BEAT;
-                kick(bt);
-                if (b % 2 === 1) noise(bt, 0.16, 0.35, 1500);             // スネア
-                noise(bt, 0.04, 0.12, 7000); noise(bt + BEAT / 2, 0.04, 0.08, 7000); // ハイハット
-                tone(hz(ch[0] - 12), bt, BEAT * 0.45, 'triangle', 0.5);   // ベース
-                tone(hz(ch[0]), bt + BEAT / 2, BEAT * 0.4, 'triangle', 0.35);
-            }
-            for (let k = 0; k < 16; k++) {                                  // キラキラのアルペジオ
-                const n = ch[k % 3] + 24 + (k % 6 >= 3 ? 12 : 0);
-                tone(hz(n), t + k * BEAT / 4, BEAT / 4 * 0.9, 'square', 0.035);
-            }
-            let beat = 0, startIdx = 0;                                     // メロディ（該当する小節の分だけ）
-            for (let m = 0, acc = 0; m < MELODY.length; m++) { if (acc >= (i % 8) * 4) { startIdx = m; break; } acc += MELODY[m][1]; }
-            for (let m = startIdx; m < MELODY.length && beat < 4; m++) {
-                const [n, len] = MELODY[m];
-                if (n !== null) { tone(hz(n), t + beat * BEAT, len * BEAT * 0.92, 'triangle', 0.4, 0.015); tone(hz(n + 12), t + beat * BEAT, len * BEAT * 0.5, 'sine', 0.08); }
+        function melodyBar(i, t, voice) {
+            let beat = 0, startIdx = 0;
+            const M = song.melody;
+            for (let m = 0, acc = 0; m < M.length; m++) { if (acc >= (i % 8) * 4) { startIdx = m; break; } acc += M[m][1]; }
+            for (let m = startIdx; m < M.length && beat < 4; m++) {
+                const [n, len] = M[m];
+                if (n !== null) voice(n, t + beat * BEAT, len * BEAT);
                 beat += len;
+            }
+        }
+        function scheduleBar(i, t) {
+            const ch = song.chords[i % 8];
+            if (song.style === 'pop' || song.style === 'lesson') {
+                const fast = song.style === 'lesson';
+                for (let b = 0; b < 4; b++) {
+                    const bt = t + b * BEAT;
+                    kick(bt);
+                    if (b % 2 === 1) { noise(bt, 0.16, 0.35, 1500); if (fast) noise(bt + 0.01, 0.1, 0.2, 3000); } // スネア（＋クラップ）
+                    noise(bt, 0.04, 0.12, 7000); noise(bt + BEAT / 2, 0.04, 0.08, 7000);
+                    tone(hz(ch[0] - 12), bt, BEAT * 0.45, 'triangle', 0.5);
+                    tone(hz(ch[0] - (fast ? 0 : 0)), bt + BEAT / 2, BEAT * 0.4, 'triangle', 0.35);
+                }
+                for (let k = 0; k < 16; k++) {
+                    const n = ch[k % 3] + 24 + (k % 6 >= 3 ? 12 : 0);
+                    tone(hz(n), t + k * BEAT / 4, BEAT / 4 * 0.9, 'square', fast ? 0.025 : 0.035);
+                }
+                melodyBar(i, t, (n, st, len) => {
+                    tone(hz(n), st, len * 0.92, fast ? 'square' : 'triangle', fast ? 0.12 : 0.4, 0.015);
+                    tone(hz(n + 12), st, len * 0.5, 'sine', 0.08);
+                });
+            } else if (song.style === 'climb') {
+                for (let b = 0; b < 4; b++) {
+                    const bt = t + b * BEAT;
+                    if (b === 0 || b === 2) { tone(110, bt, 0.25, 'sine', 0.7, 0.003, null, 55); } // タム
+                    noise(bt + BEAT * 0.5, 0.08, 0.14, 2500); noise(bt + BEAT * 0.75, 0.06, 0.1, 2500); // マーチのスネア
+                    if (b === 3) noise(bt, 0.14, 0.3, 1400);
+                    tone(hz(ch[0] - 12), bt, BEAT * 0.8, 'triangle', 0.45);
+                }
+                ch.forEach(n => tone(hz(n + 12), t, BAR * 0.95, 'sine', 0.05, 0.3)); // やわらかい和音
+                melodyBar(i, t, (n, st, len) => {
+                    // 笛：少し揺れる音
+                    const o = ctx.createOscillator(), g = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+                    o.type = 'sine'; o.frequency.setValueAtTime(hz(n), st);
+                    lfo.frequency.value = 5.5; lg.gain.value = hz(n) * 0.012; lfo.connect(lg); lg.connect(o.frequency);
+                    g.gain.setValueAtTime(0.0001, st); g.gain.exponentialRampToValueAtTime(0.35, st + 0.05); g.gain.exponentialRampToValueAtTime(0.0001, st + len * 0.95);
+                    o.connect(g); g.connect(master); o.start(st); lfo.start(st); o.stop(st + len); lfo.stop(st + len);
+                    tone(hz(n + 12), st, len * 0.6, 'triangle', 0.04, 0.05);
+                });
+            } else if (song.style === 'tramp') {
+                for (let b = 0; b < 4; b++) {
+                    const bt = t + b * BEAT;
+                    kick(bt);
+                    tone(hz(ch[0] - 12) * 1.5, bt + BEAT / 2, BEAT * 0.45, 'sine', 0.5, 0.005, null, hz(ch[0] - 12)); // ぽよんベース
+                    noise(bt + BEAT * 0.5, 0.03, 0.1, 8000); noise(bt + BEAT * 0.83, 0.03, 0.07, 8000); // 跳ねるハイハット
+                    if (b % 2 === 1) noise(bt, 0.1, 0.22, 2000);
+                }
+                for (let k = 0; k < 8; k++) tone(hz(ch[k % 3] + 24), t + k * BEAT / 2, 0.12, 'sine', 0.12, 0.003); // マリンバ
+                melodyBar(i, t, (n, st, len) => {
+                    tone(hz(n), st, Math.min(len, 0.35), 'sine', 0.45, 0.003);
+                    tone(hz(n + 12), st, 0.12, 'triangle', 0.1, 0.003);
+                });
             }
         }
         function loop() {
             while (nextBarTime < ctx.currentTime + 0.3) { scheduleBar(barIdx++, nextBarTime); nextBarTime += BAR; }
         }
         function updateBtn() {
-            const b = document.getElementById('live-bgm-btn');
-            if (b) { b.innerHTML = `<span class="mi mi-solo">${playing ? 'music_note' : 'music_off'}</span>`; b.classList.toggle('on', playing); }
+            const btnOn = b => b.id === 'live-bgm-btn' ? playing : wanted();
+            document.querySelectorAll('#live-bgm-btn, .bgm-btn').forEach(b => { const on = btnOn(b); b.innerHTML = `<span class="mi mi-solo">${on ? 'music_note' : 'music_off'}</span>`; b.classList.toggle('on', on); });
         }
+        let context = null; // いま流すべき曲（ライブ会場やレッスン中）
+        function setSong(name) { song = SONGS[name] || SONGS.live; songName = name; BEAT = 60 / song.bpm; BAR = BEAT * 4; }
         function start() {
             if (playing || !ensureCtx()) return;
             if (ctx.state === 'suspended') ctx.resume();
@@ -2213,10 +2290,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             updateBtn();
         }
         return {
-            toggle() { if (playing) { setWanted(false); stop(); } else { setWanted(true); start(); } },
-            stop,
-            // ブラウザの制限で、最初の1回はボタンを押したときに鳴り始める
-            resumeIfWanted() { if (wanted() && ctx) start(); else updateBtn(); },
+            // 音符ボタン：ON/OFF（設定は全画面共通で保存）
+            toggle() { if (playing) { setWanted(false); stop(); } else { setWanted(true); if (!context) context = 'live'; setSong(context); start(); } },
+            // レッスン画面の音符ボタン：ON/OFFを切り替え、レッスン中ならその場で流す/止める
+            toggleFor(name) { const on = !wanted(); setWanted(on); if (!on) stop(); else if (context === name) { setSong(name); if (ensureCtx()) { if (ctx.state === 'suspended') ctx.resume(); start(); } } updateBtn(); },
+            refreshButtons() { updateBtn(); },
+            // 曲を流す（OFF設定なら流さない）
+            play(name) { context = name; if (playing && songName !== name) stop(); setSong(name); if (wanted() && ensureCtx()) { if (ctx.state === 'suspended') ctx.resume(); start(); } else updateBtn(); },
+            stop() { context = null; stop(); },
+            // ライブ会場に入ったとき：一度でも音を出したことがあれば自動で流す
+            resumeIfWanted() { context = 'live'; setSong('live'); if (wanted() && ctx) start(); else updateBtn(); },
             // 効果音。byUser=true（タップ操作）なら音声を有効化してから鳴らす
             sfx(name, byUser) {
                 if (byUser) { if (!ensureCtx()) return; if (ctx.state === 'suspended') ctx.resume(); }
@@ -2235,14 +2318,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     let liveUseReadAll = false, liveLastGimmickTs = null;
     function fetchLiveOnly() {
-        if (livePendingCheers) return; // 送信待ちの応援があるときは上書きしない
+        // 送信待ちの応援・処理中の操作があるときは、古い状態で巻き戻らないよう読み込まない
+        if (livePendingCheers || liveOpsInFlight > 0 || Date.now() - liveLastOpAt < 1500) return;
         const script = document.createElement('script');
         script.src = `${API_URL}?action=${liveUseReadAll ? 'readAll' : 'getLive'}&callback=handleLiveOnlyData&_=${Date.now()}`;
         document.body.appendChild(script);
     }
     window.handleLiveOnlyData = function(data) {
         if (data && data.error && /unknown action/.test(data.error)) liveUseReadAll = true; // GASが古い場合
-        if (data && data.live && !livePendingCheers) {
+        if (data && data.live && !livePendingCheers && liveOpsInFlight === 0 && Date.now() - liveLastOpAt >= 1500 && liveIsNewer(data.live)) {
             state.live = data.live;
             renderLiveView();
             const newTs = state.live.gimmick ? state.live.gimmick.ts : null;
@@ -2431,6 +2515,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         el.innerHTML = h;
     }
     function startClimb() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -2464,6 +2549,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartClimb(me) {
+        LiveBGM.play('climb');
         playSound('start');
         setGameMode(true);
         document.getElementById('climb-exit-btn').style.display = 'block';
@@ -2475,7 +2561,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('climb-progress-dot').style.left = '0%';
         document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
         const climbCharImg = document.getElementById('climb-char-img');
-        if (climbCharImg) { const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg.src = ms.climbImg || ms.img; }
+        if (climbCharImg) { const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg.onerror = function () { this.onerror = null; this.src = ms.img; }; climbCharImg.src = ms.climbImg || ms.img; }
         document.getElementById('climb-track').style.backgroundPositionY = '0px'; setClimbWallShift(0);
         clearInterval(climb.gameTimer);
         climb.gameTimer = setInterval(climbTick, 1000);
@@ -2512,13 +2598,14 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function setClimbWallShift(shift) {
         const wall = document.getElementById('climb-wall'); if (!wall) return;
         const y = shift;
-        wall.style.backgroundPositionY = [30, 110, 0, 0, 80, 0, 0].map(o => (o + y) + 'px').join(', ');
+        wall.style.backgroundPositionY = [0, 60, null, 0, 0].map(o => o === null ? '0px' : (o + y) + 'px').join(', ');
     }
       function updateClimbVisual() {
         const char = document.getElementById('climb-char');
         const track = document.getElementById('climb-track');
         const trackH = track.clientHeight || 300;
-        const midBottom = trackH * 0.75;
+        const charH = (document.getElementById('climb-char') || {}).offsetHeight || 64;
+        const midBottom = Math.round(trackH / 2 - charH / 2); // キャラは真ん中あたりで止まり、そこからは壁が流れる
         const perTap = (midBottom - CLIMB_START_BOTTOM) / CLIMB_CAP_TAPS;
         // 壁は毎回少しずつ下へ流れる（キャラが上限まで来たら大きく流す）
         const wallShift = climb.height <= CLIMB_CAP_TAPS
@@ -2558,6 +2645,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitClimbGame() {
         if (!confirm('崖登りをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         climb.active = false;
         clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
         setGameMode(false);
@@ -2565,6 +2653,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitRunGame() {
         if (!confirm('ランニングをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         setRunScrolling(false);
         run.active = false;
         clearInterval(run.tick);
@@ -2593,7 +2682,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
           const climbCharImg2 = document.getElementById('climb-char-img');
           showTitleDesc('climb-title','climb-desc');
-        if (climbCharImg2) { const ms2 = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg2.src = ms2.climbImg || ms2.img; }
+        if (climbCharImg2) { const ms2 = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg2.onerror = function () { this.onerror = null; this.src = ms2.img; }; climbCharImg2.src = ms2.climbImg || ms2.img; }
         document.getElementById('climb-track').style.backgroundPositionY = '0px'; setClimbWallShift(0);
         if (!me) { startBtn.style.display = 'block'; resultBox.style.display = 'none'; resultBox.innerHTML = ''; return; }
         const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
@@ -2610,6 +2699,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
     }
     function endClimb() {
+        LiveBGM.stop();
         climb.active = false;
         clearInterval(climb.gameTimer); clearTimeout(climb.reactTimer);
         playSound('timeup');
@@ -2782,6 +2872,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         else { startBtn.disabled = false; startBtn.innerText = 'スタート（レッスン1回分消費）'; }
     }
     function startRun() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -2812,6 +2903,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function setRunScrolling(on) { const t = document.getElementById('run-track'); if (t) t.classList.toggle('running', !!on); }
     function actuallyStartRun(me) {
+        LiveBGM.play('lesson');
         setRunScrolling(true);
         playSound('start');
         setGameMode(true);
@@ -2940,6 +3032,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
     }
     function endRun() {
+        LiveBGM.stop();
         setRunScrolling(false);
         run.active = false;
         clearInterval(run.tick);
@@ -3259,6 +3352,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         s.forEach(x => x.remove());
     };
     function startKintore() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -3296,6 +3390,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartKintore(me) {
+        LiveBGM.play('lesson');
         playSound('start');
         kintore.active = true;
         clearInterval(kintore.tick);
@@ -3311,6 +3406,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (kintore.timeLeft <= 0) endKintore();
     }
     function endKintore() {
+        LiveBGM.stop();
         kintore.active = false;
         clearInterval(kintore.tick);
         playSound('timeup');
@@ -3340,6 +3436,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitKintoreGame() {
         if (!confirm('筋トレレッスンをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         kintore.active = false;
         clearInterval(kintore.tick);
         setGameMode(false);
@@ -3576,6 +3673,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     
     const TRAMPOLINE_SWEET_WIDTHS = [20, 14, 9];
     function startTrampoline() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -3615,6 +3713,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartTrampoline(me) {
+        LiveBGM.play('tramp');
         playSound('start');
         const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
         trampoline = { active: true, jumpIndex: 0, heights: [0, 0, 0], totalHeight: 0, targetId: me.id, barPos: 0, barDir: 1, barSpeed: 3, sweetStart: 0, sweetWidth: 20, tick: null, phase: 'idle', ms: ms, approachTimer: null, bounceTimer: null, ascendTimer: null, spinInterval: null, poseInterval: null };
@@ -3841,6 +3940,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         triggerTrampolineSparkles();
     }
     function endTrampoline() {
+        LiveBGM.stop();
         trampoline.active = false;
         clearInterval(trampoline.tick); clearInterval(trampoline.spinInterval); clearInterval(trampoline.poseInterval);
         clearTimeout(trampoline.approachTimer); clearTimeout(trampoline.bounceTimer); clearTimeout(trampoline.ascendTimer);
@@ -3860,6 +3960,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitTrampolineGame() {
         if (!confirm('トランポリンをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         trampoline.active = false;
         clearInterval(trampoline.tick); clearInterval(trampoline.spinInterval); clearInterval(trampoline.poseInterval);
         clearTimeout(trampoline.approachTimer); clearTimeout(trampoline.bounceTimer); clearTimeout(trampoline.ascendTimer);
@@ -3894,6 +3995,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
 
     // ===== ダンス =====
     function startDance() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -3914,6 +4016,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartDance(me) {
+        LiveBGM.play('lesson');
         playSound('start'); setGameMode(true);
         document.getElementById('dance-exit-btn').style.display = 'block';
         document.getElementById('dance-tap-btn').style.display = 'block';
@@ -3957,6 +4060,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         } else { playSound('wrong'); }
     }
     function endDance() {
+        LiveBGM.stop();
         dance.active = false; clearInterval(dance.tick); setGameMode(false);
         document.getElementById('dance-exit-btn').style.display = 'none';
         document.getElementById('dance-tap-btn').style.display = 'none';
@@ -3973,6 +4077,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitDanceGame() {
         if (!confirm('ダンスをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         dance.active = false; clearInterval(dance.tick); setGameMode(false);
         document.getElementById('dance-track').querySelectorAll('.dance-note').forEach(n => n.remove());
         refreshDanceGateUI();
@@ -3995,6 +4100,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
 
     // ===== モデル =====
     function startModel() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -4015,6 +4121,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartModel(me) {
+        LiveBGM.play('lesson');
         playSound('start'); setGameMode(true);
         document.getElementById('model-exit-btn').style.display = 'block';
         document.getElementById('model-btns').style.display = 'grid';
@@ -4045,6 +4152,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function modelPress(dir) { if (model.active) model.holding = dir; }
     function modelRelease() { model.holding = null; }
     function endModel() {
+        LiveBGM.stop();
         model.active = false; clearInterval(model.tick); setGameMode(false);
         document.getElementById('model-exit-btn').style.display = 'none';
         document.getElementById('model-btns').style.display = 'none';
@@ -4061,6 +4169,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitModelGame() {
         if (!confirm('モデルレッスンをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         model.active = false; clearInterval(model.tick); setGameMode(false);
         refreshModelGateUI();
     }
@@ -4082,6 +4191,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
 
     // ===== 女優 =====
     function startActress() {
+        LiveBGM.sfx('unlock', true);
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にマイページで登録・ログインしてください"); return; }
         checkReset();
@@ -4102,6 +4212,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }, 1200);
     }
     function actuallyStartActress(me) {
+        LiveBGM.play('lesson');
         playSound('start'); setGameMode(true);
         document.getElementById('actress-exit-btn').style.display = 'block';
         const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
@@ -4133,6 +4244,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function actressFail() { playSound('wrong'); setTimeout(endActress, 600); }
     function endActress() {
+        LiveBGM.stop();
         actress.active = false; setGameMode(false);
         document.getElementById('actress-exit-btn').style.display = 'none';
         document.getElementById('actress-choices').innerHTML = '';
@@ -4149,6 +4261,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitActressGame() {
         if (!confirm('女優レッスンをやめますか？（記録は保存されません）')) return;
+        LiveBGM.stop();
         actress.active = false; clearTimeout(actress.timer); setGameMode(false);
         document.getElementById('actress-choices').innerHTML = '';
         document.getElementById('actress-prompt').innerText = '';
