@@ -660,7 +660,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .dance-diff { display:flex; justify-content:center; gap:6px; margin:0 0 10px; }
 .dance-diff button { background:#fff; color:#c79ab4; box-shadow:0 0 0 2px #ffd0e7; padding:6px 12px; font-size:.85em; }
 .dance-diff button.sel { background:linear-gradient(180deg, #ff9fd0, #f0569f); color:#fff; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px var(--ak-mag), 0 3px 0 2px var(--ak-mag-d); }
-.dance-stage { position:relative; height:min(62vh, 440px); border-radius:18px; overflow:hidden; margin-bottom:8px; display:grid; grid-template-columns:repeat(4,1fr);
+.dance-stage { position:relative; height:min(66vh, 480px); border-radius:18px; overflow:hidden; margin-bottom:8px; display:grid; grid-template-columns:repeat(4,1fr);
   box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; background: radial-gradient(ellipse at 50% 100%, rgba(255,140,198,.35), transparent 60%), linear-gradient(180deg, #3a1d5e, #6b2c80); }
 .dance-lane { border-right:1px solid rgba(255,255,255,.12); background:linear-gradient(180deg, transparent, rgba(255,255,255,.05)); }
 .dance-lane:last-of-type { border-right:0; }
@@ -677,14 +677,6 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .dance-judge-text.miss { color:#d9c8e6; text-shadow:none; }
 .dance-judge-text.pop { animation: judge-pop .45s ease-out; }
 @keyframes judge-pop { 0% { opacity:0; transform:scale(.6); } 25% { opacity:1; transform:scale(1.15); } 100% { opacity:0; transform:scale(1) translateY(-10px); } }
-.dance-pads { grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:8px; touch-action:manipulation; }
-.dance-pad { height:64px; border-radius:18px; margin:0; font-size:1.3em; color:#fff; user-select:none; -webkit-user-select:none; }
-.dance-pad[data-lane="0"] { background:linear-gradient(180deg, #ffb3d9, #f0569f); }
-.dance-pad[data-lane="1"] { background:linear-gradient(180deg, #ffe7a6, #f5b43a); box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px #f0a93a, 0 4px 0 2px #c77d12; }
-.dance-pad[data-lane="2"] { background:linear-gradient(180deg, #b8ecff, #3ba9dc); box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px #3ba9dc, 0 4px 0 2px #1f7fae; }
-.dance-pad[data-lane="3"] { background:linear-gradient(180deg, #e6c8ff, #9061f9); box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px #9061f9, 0 4px 0 2px #6a3fd0; }
-.dance-pad.flash { animation: pad-flash .18s ease-out; }
-@keyframes pad-flash { 0% { transform:translateY(3px) scale(.96); filter:brightness(1.35); } 100% { transform:none; filter:none; } }
 .dance-result-detail { margin-top:6px; font-size:.8em; color:#a08a96; }
 
 /* ---- モデル：風で針がかたむく ---- */
@@ -708,6 +700,16 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .dance-song-title { position:absolute; left:50%; top:30%; transform:translate(-50%,-50%); padding:8px 18px; white-space:nowrap; background:#fff; color:var(--ak-mag); border-radius:999px; font:1em 'Mochiy Pop One', sans-serif; box-shadow:0 0 0 3px #ffb3d9, 0 0 18px rgba(255,140,198,.7); opacity:0; pointer-events:none; }
 .dance-song-title.show { animation: song-title 2.6s ease both; }
 @keyframes song-title { 0% { opacity:0; transform:translate(-50%,-30%) scale(.9); } 15%, 75% { opacity:1; transform:translate(-50%,-50%) scale(1); } 100% { opacity:0; transform:translate(-50%,-70%); } }
+
+.dance-stage.playing { touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; cursor:pointer; }
+.dance-receptor { position:absolute; top:86%; width:20%; height:30px; margin-top:-13px; border-radius:999px; box-shadow:0 0 0 2px rgba(255,255,255,.75), inset 0 0 10px rgba(255,255,255,.35); pointer-events:none; transform:translateX(-50%); }
+.dance-receptor[data-lane="0"] { left:12.5%; } .dance-receptor[data-lane="1"] { left:37.5%; } .dance-receptor[data-lane="2"] { left:62.5%; } .dance-receptor[data-lane="3"] { left:87.5%; }
+.dance-receptor.flash { animation: receptor-flash .22s ease-out; }
+@keyframes receptor-flash { 0% { background:rgba(255,255,255,.75); box-shadow:0 0 0 3px #fff, 0 0 24px 8px rgba(255,160,210,.9); transform:translateX(-50%) scale(1.12); } 100% { background:transparent; transform:translateX(-50%) scale(1); } }
+.dance-lane { pointer-events:none; }
+.dance-tap-hint { position:absolute; left:0; right:0; top:91%; text-align:center; font-size:.75em; color:rgba(255,255,255,.75); pointer-events:none; }
+.dance-stage.playing .dance-tap-hint { animation: hint-fade 3s ease forwards; }
+@keyframes hint-fade { 0%, 60% { opacity:1; } 100% { opacity:0; } }
     </style>
 </head>
 <body>
@@ -999,15 +1001,11 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
             <div class="dance-stage" id="dance-track">
                 <div class="dance-lane" data-lane="0"></div><div class="dance-lane" data-lane="1"></div><div class="dance-lane" data-lane="2"></div><div class="dance-lane" data-lane="3"></div>
                 <div class="dance-judge-line"></div>
+                <div class="dance-receptor" data-lane="0"></div><div class="dance-receptor" data-lane="1"></div><div class="dance-receptor" data-lane="2"></div><div class="dance-receptor" data-lane="3"></div>
+                <div id="dance-tap-hint" class="dance-tap-hint">白い線のあたりをタップ！</div>
                 <div id="dance-judge-text" class="dance-judge-text"></div>
                 <div id="dance-song-title" class="dance-song-title"></div>
                 <div id="dance-countdown" class="climb-countdown"></div>
-            </div>
-            <div id="dance-pads" class="dance-pads" style="display:none;">
-                <button type="button" class="dance-pad" data-lane="0"><span class="mi mi-solo">favorite</span></button>
-                <button type="button" class="dance-pad" data-lane="1"><span class="mi mi-solo">star</span></button>
-                <button type="button" class="dance-pad" data-lane="2"><span class="mi mi-solo">diamond</span></button>
-                <button type="button" class="dance-pad" data-lane="3"><span class="mi mi-solo">music_note</span></button>
             </div>
             <span id="dance-hits" style="display:none;">0</span>
             <div id="dance-result" class="climb-result" style="display:none;"></div>
@@ -4172,8 +4170,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         LiveBGM.play(songKey);
         playSound('start'); setGameMode(true);
         document.getElementById('dance-exit-btn').style.display = 'block';
-        document.getElementById('dance-pads').style.display = 'grid';
         document.getElementById('dance-diff').style.display = 'none';
+        document.getElementById('dance-track').classList.add('playing');
         const chart = buildDanceChart(danceDiff, songKey);
         const title = LiveBGM.songInfo(songKey).title;
         const tEl = document.getElementById('dance-song-title');
@@ -4217,8 +4215,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function danceTap(lane) {
         if (!dance.active) return;
-        const pad = document.querySelector(`.dance-pad[data-lane="${lane}"]`);
-        if (pad) { pad.classList.remove('flash'); void pad.offsetWidth; pad.classList.add('flash'); }
+        const rc = document.querySelector(`.dance-receptor[data-lane="${lane}"]`);
+        if (rc) { rc.classList.remove('flash'); void rc.offsetWidth; rc.classList.add('flash'); }
         const now = danceNow();
         let best = null, bestDt = 9;
         dance.notes.forEach(n => { if (n.done || n.lane !== lane) return; const d = Math.abs(n.t - now); if (d < bestDt) { bestDt = d; best = n; } });
@@ -4226,14 +4224,21 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         best.done = true;
         danceJudge(best, bestDt <= DANCE_WIN_P ? 'perfect' : 'good');
     }
-    // 押した瞬間に反応するよう pointerdown で受ける（キーボードは D F J K）
-    document.addEventListener('pointerdown', e => { const pad = e.target.closest && e.target.closest('.dance-pad'); if (pad) { e.preventDefault(); danceTap(parseInt(pad.dataset.lane)); } });
+    // ステージ（白い線のあたり）をタップ。押した位置の横位置でレーンを決める。複数の指で同時押しもOK（キーボードは D F J K）
+    document.addEventListener('pointerdown', e => {
+        const stage = e.target.closest && e.target.closest('#dance-track');
+        if (!stage || !dance.active) return;
+        e.preventDefault();
+        const r = stage.getBoundingClientRect();
+        const lane = Math.max(0, Math.min(3, Math.floor((e.clientX - r.left) / r.width * 4)));
+        danceTap(lane);
+    });
     document.addEventListener('keydown', e => { const k = { d: 0, f: 1, j: 2, k: 3 }[e.key]; if (k !== undefined && dance.active) danceTap(k); });
     function endDance() {
         LiveBGM.stop();
         dance.active = false; cancelAnimationFrame(dance.raf); setGameMode(false);
         document.getElementById('dance-exit-btn').style.display = 'none';
-        document.getElementById('dance-pads').style.display = 'none';
+        document.getElementById('dance-track').classList.remove('playing');
         document.getElementById('dance-diff').style.display = 'flex';
         document.getElementById('dance-track').querySelectorAll('.dance-note').forEach(n => n.remove());
         playSound('timeup');
@@ -4262,7 +4267,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function refreshDanceGateUI() {
         if (dance.active) return; setGameMode(false);
         const exitBtn = document.getElementById('dance-exit-btn'); if (exitBtn) exitBtn.style.display = 'none';
-        const pads = document.getElementById('dance-pads'); if (pads) pads.style.display = 'none';
+        const stageEl = document.getElementById('dance-track'); if (stageEl) stageEl.classList.remove('playing');
         const diffEl = document.getElementById('dance-diff'); if (diffEl) diffEl.style.display = 'flex';
         setDanceDiff(danceDiff);
         const descEl = document.getElementById('dance-desc'); if (descEl) descEl.style.display = 'block';
