@@ -393,6 +393,105 @@ html, body {
     min-height: 100%;
 }
 
+
+/* =====================================================================
+   アイカツ！風テーマ（ダイヤ柄の背景・マゼンタの縁取り・ツヤのある飾り）
+   ===================================================================== */
+:root { --ak-mag:#ea3f93; --ak-mag-d:#c92677; --ak-pink:#ff9ad0; --ak-pink-l:#ffe6f2; --ak-lav:#d9a8ea; --ak-yel:#ffd86b; --ak-sky:#7fd6f7; --ak-ink:#6b4a5c; }
+html { scroll-behavior:smooth; }
+body { color:var(--ak-ink); background-color:#fde9f3; background-image: conic-gradient(from 45deg, #fbd6e8 25%, #fdeaf4 0 50%, #fbd6e8 0 75%, #fdeaf4 0); background-size:46px 46px; background-attachment:fixed; padding-top:0; }
+body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='white' stroke='%23f06aa8' stroke-width='1.4'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='white' stroke='%23f06aa8' stroke-width='1.4'/%3E%3C/svg%3E"); background-size:14px 14px, 10px 10px; background-repeat:no-repeat; background-position: 8% 30%, 92% 64%; animation:none; opacity:.7; }
+.box { padding-top:0; }
+
+/* ---- ヘッダー：上のピンク帯＋フリル＋飾り ---- */
+header { position:relative; margin:0 -10px 18px; padding:30px 16px 26px; border:0; border-radius:0 0 26px 26px; box-shadow:none;
+  background: linear-gradient(#ff9ad0, #ff9ad0) top/100% 10px no-repeat, radial-gradient(circle at 50% 0, #ff9ad0 7px, transparent 7.5px) 0 9px/18px 10px repeat-x, #fff; overflow:hidden; }
+header::before, header::after { content:''; position:absolute; pointer-events:none; background-repeat:no-repeat; }
+header::before { inset:0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.5s-7.6-4.6-9.7-9.2C.6 8.4 2.9 4.2 6.9 4.2c2.2 0 3.8 1.2 5.1 3 1.3-1.8 2.9-3 5.1-3 4 0 6.3 4.2 4.6 8.1-2.1 4.6-9.7 9.2-9.7 9.2z' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cellipse cx='7.6' cy='8.6' rx='2.2' ry='1.4' fill='white' opacity='.75' transform='rotate(-30 7.6 8.6)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2.2l2.9 6 6.6.8-4.9 4.5 1.3 6.5L12 16.8 6.1 20l1.3-6.5L2.5 9l6.6-.8z' fill='%23ffd86b' stroke='%23f0a93a' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cellipse cx='9.4' cy='9.6' rx='1.6' ry='1' fill='white' opacity='.8' transform='rotate(-35 9.4 9.6)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%237fd6f7'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23ffd86b'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 16C10 8 3 7 3 12.5S10 20 16 16zM16 16c6-8 13-9 13-3.5S22 20 16 16z' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cpath d='M14 17l-3 8 3-1 2 2 1-8M18 17l3 8-3-1-2 2' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23ff6fb0' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cellipse cx='8' cy='12' rx='2' ry='1.2' fill='white' opacity='.7'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23f5a3d2'/%3E%3C/svg%3E"),
+    linear-gradient(90deg, #ffd86b, #ffd86b), linear-gradient(90deg, #d9a8ea, #d9a8ea);
+  background-size: 30px 30px, 24px 24px, 14px 14px, 12px 12px, 38px 32px, 12px 12px, 70px 9px, 54px 9px;
+  background-position: 6% 72%, 94% 76%, 18% 26%, 84% 30%, 93% 22%, 72% 82%, -14px 38%, calc(100% + 12px) 58%; }
+header h1 { position:relative; z-index:1; font-size:1.75em !important; color:var(--ak-mag); background:none; -webkit-text-fill-color:var(--ak-mag); animation:none;
+  text-shadow: 2px 2px 0 #fff, -2px 2px 0 #fff, 2px -2px 0 #fff, -2px -2px 0 #fff, 0 4px 0 #ffc2e0; letter-spacing:2px; }
+header h1 .mi { color:var(--ak-mag); -webkit-text-fill-color:var(--ak-mag); }
+.ak-sub { position:relative; z-index:1; margin-top:4px; font:700 0.7em 'Zen Maru Gothic', sans-serif; letter-spacing:4px; color:#f59ac6; }
+
+/* ---- 見出し（小さい白ラベル＋大きいマゼンタのピル） ---- */
+.ak-heading { position:relative; display:flex; flex-direction:column; align-items:flex-start; margin:6px 0 16px 4px; }
+.ak-heading .ak-h-small { position:relative; z-index:1; margin:0 0 -8px 16px; padding:3px 14px; background:#fff; color:var(--ak-mag); border-radius:999px; font:0.85em 'Mochiy Pop One', sans-serif; letter-spacing:3px; box-shadow:0 0 0 2px #ffd0e7; }
+.ak-heading .ak-h-big { padding:8px 26px 6px; background:var(--ak-mag); color:#fff; border-radius:999px; font:1.45em 'Mochiy Pop One', sans-serif; letter-spacing:6px; box-shadow:0 4px 0 #ffc2e0; }
+.ak-heading::after { content:''; position:absolute; right:4px; top:4px; width:120px; height:34px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23ffd86b'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.5s-7.6-4.6-9.7-9.2C.6 8.4 2.9 4.2 6.9 4.2c2.2 0 3.8 1.2 5.1 3 1.3-1.8 2.9-3 5.1-3 4 0 6.3 4.2 4.6 8.1-2.1 4.6-9.7 9.2-9.7 9.2z' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cellipse cx='7.6' cy='8.6' rx='2.2' ry='1.4' fill='white' opacity='.75' transform='rotate(-30 7.6 8.6)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%237fd6f7'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-size:14px 14px, 22px 22px, 12px 12px; background-position:0 60%, 50% 0, 100% 80%; }
+
+/* ---- フリルの区切り線 ---- */
+.ak-wave { height:12px; margin:14px -10px; background: radial-gradient(circle at 50% 100%, transparent 6px, #f7a8cf 6.5px 8px, transparent 8.5px) 0 0/18px 12px repeat-x; }
+
+/* ---- カード・パネル共通：白地＋マゼンタの縁 ---- */
+.card, .bbs-card, .login, .menu, .member-profile-card, .calendar-panel, .plaza-card, .mascot-card, .cfg-blk, .ctrl { background:#fff; border:2px solid #f06aa8 !important; border-radius:18px; box-shadow:0 4px 0 #ffc2e0; }
+.bbs-card[style] { background:#fff !important; }
+.my-border { border:2px solid var(--ak-mag) !important; box-shadow:0 4px 0 #ffc2e0, 0 0 0 4px #fff inset !important; }
+.plaza-card.mine { border-color:var(--ak-mag) !important; box-shadow:0 4px 0 #ffc2e0, 0 0 0 3px #ffe0ef; }
+.mascot-card.selected { background:var(--ak-pink-l); border-color:var(--ak-mag) !important; }
+.home-cell { background:#fff7fb; border:1.5px solid #ffd0e7; }
+.bbs-title { color:var(--ak-mag); font-size:1.05em; }
+.bbs-title .mi { color:var(--ak-yel); text-shadow:0 1px 0 #f0a93a; }
+.member-profile-section-title, .calendar-topbar b, .live-title { color:var(--ak-mag); }
+.kira-text { background:none; -webkit-background-clip:border-box; background-clip:border-box; color:var(--ak-mag); -webkit-text-fill-color:var(--ak-mag); animation:none; }
+select, input, textarea { border:1.5px solid #ffc6e1; background:#fffafd; border-radius:12px; transition:border-color .2s, box-shadow .2s; }
+select:focus, input:focus, textarea:focus { outline:none; border-color:var(--ak-mag); box-shadow:0 0 0 3px #ffe0ef; }
+
+/* ---- ボタン：ぷっくりピンクのピル（白い内縁＋マゼンタの外縁） ---- */
+button { background:linear-gradient(180deg, #ff9fd0, #f0569f); border-radius:999px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px var(--ak-mag), 0 4px 0 2px var(--ak-mag-d); letter-spacing:1px; transition: transform .15s ease, box-shadow .15s ease, filter .15s ease; margin:2px; }
+button:active { transform:translateY(3px); box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px var(--ak-mag), 0 1px 0 2px var(--ak-mag-d); }
+button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px #fff, 0 0 0 2px #dccfd5, 0 3px 0 2px #cdbfc6; }
+.edit-btn { border-radius:8px; margin:2px 0 0; }
+.climb-start-btn { font-size:1.05em; padding:12px; }
+.game-exit-btn { background:#fff; color:var(--ak-mag); box-shadow: 0 0 0 2px var(--ak-mag), 0 3px 0 2px var(--ak-mag-d); border-radius:999px; }
+
+/* ---- ボトムナビ：丸いボタン（白と水色の二重リング） ---- */
+.bottom-nav { background:#fff; border-top:0; box-shadow:0 -4px 12px rgba(234,63,147,.12); padding-top:12px; }
+.bottom-nav::before { content:''; position:absolute; left:0; right:0; top:-8px; height:9px; background: radial-gradient(circle at 50% 100%, #fff 7px, transparent 7.5px) 0 0/16px 9px repeat-x; }
+.bn-item { box-shadow:none; margin:0; }
+.bn-item:active { transform:none; box-shadow:none; }
+.bn-icon { border-radius:50%; width:48px; height:48px; box-shadow: 0 0 0 3px #fff, 0 0 0 5.5px #a9e2f8, 0 4px 8px rgba(234,63,147,.25); transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.bn-home .bn-icon { background: linear-gradient(160deg,#ff8cc6,#e8388a); }
+.bn-lesson .bn-icon { background: linear-gradient(160deg,#ffe08a,#f5b43a); }
+.bn-zukan .bn-icon { background: linear-gradient(160deg,#9fe0fa,#3ba9dc); }
+.bn-chara .bn-icon { background: linear-gradient(160deg,#e6b8f5,#a86cc9); }
+.bn-bbs .bn-icon { background: linear-gradient(160deg,#9ff0c0,#3cbf7a); }
+.bn-item.active .bn-icon { transform:translateY(-4px) scale(1.08); box-shadow: 0 0 0 3px #fff, 0 0 0 6px #ffb3d9, 0 6px 12px rgba(234,63,147,.35); }
+.bn-label { color:var(--ak-mag); -webkit-text-fill-color:var(--ak-mag); margin-top:5px; }
+
+/* ---- レッスン選択：虹色のフレームのカード ---- */
+.lesson-menu-grid { gap:14px; }
+.lesson-menu-item { background-image:none; min-height:84px; padding:10px 18px; border-radius:20px; column-gap:14px; grid-template-columns:52px 1fr;
+  border:3px solid transparent; background: linear-gradient(#fff,#fff) padding-box, linear-gradient(120deg,#ffb3d9,#ffe08a,#a9e2f8,#d9b3ff,#ffb3d9) border-box;
+  box-shadow: 0 0 0 2px #f06aa8, 0 5px 0 2px #ffc2e0; cursor:pointer; transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+.lesson-menu-item:active { transform:scale(.97); }
+.lesson-menu-item::after { content:''; position:absolute; right:10px; bottom:8px; width:30px; height:22px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23ffd86b'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23f5a3d2'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-size:14px 14px, 10px 10px; background-position:0 100%, 100% 0; opacity:.9; pointer-events:none; }
+.lesson-menu-item .lm-icon-circle { width:46px; height:46px; border-radius:50%; box-shadow: 0 0 0 3px #fff, 0 0 0 5px #ffd0e7; }
+.lesson-menu-item .lm-label { color:var(--ak-mag); -webkit-text-fill-color:var(--ak-mag); font-size:1.1em; }
+.lesson-badge { top:8px; right:14px; background:#fff; padding:2px 8px; border-radius:999px; box-shadow:0 0 0 1.5px #ffc2e0; }
+
+/* ---- ゲーム画面の枠 ---- */
+.climb-cabinet, .run-cabinet { background:#fff; color:var(--ak-ink); border:2px solid #f06aa8; box-shadow:0 5px 0 #ffc2e0; animation:none; }
+.climb-cabinet::before, .run-cabinet::before { content:''; position:absolute; inset:0; pointer-events:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%23ffd86b'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21.5s-7.6-4.6-9.7-9.2C.6 8.4 2.9 4.2 6.9 4.2c2.2 0 3.8 1.2 5.1 3 1.3-1.8 2.9-3 5.1-3 4 0 6.3 4.2 4.6 8.1-2.1 4.6-9.7 9.2-9.7 9.2z' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cellipse cx='7.6' cy='8.6' rx='2.2' ry='1.4' fill='white' opacity='.75' transform='rotate(-30 7.6 8.6)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0C12.9 7.6 16.4 11.1 24 12 16.4 12.9 12.9 16.4 12 24 11.1 16.4 7.6 12.9 0 12 7.6 11.1 11.1 7.6 12 0z' fill='%237fd6f7'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 18V5l11-2v13' fill='none' stroke='%23f06aa8' stroke-width='2.4' stroke-linejoin='round'/%3E%3Ccircle cx='6.5' cy='18' r='3' fill='%23ff8cc6' stroke='%23e8388a'/%3E%3Ccircle cx='17.5' cy='16' r='3' fill='%23ff8cc6' stroke='%23e8388a'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-size:14px 14px, 22px 22px, 12px 12px, 22px 22px; background-position: 14px 14px, calc(100% - 12px) 12px, calc(100% - 16px) calc(100% - 16px), 10px calc(100% - 12px); opacity:.95; }
+.mascot-page { background:transparent; border:0; box-shadow:none; padding:0; }
+.climb-track, .run-track { border:3px solid #fff; box-shadow: 0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; }
+
+/* ---- カレンダー ---- */
+.calendar-overlay { background:rgba(234,63,147,.18); backdrop-filter:blur(3px); }
+.calendar-overlay.open .calendar-panel { animation: ak-pop .35s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ---- ロード中 ---- */
+.loading-mask { background:rgba(253,233,243,.9); color:var(--ak-mag); }
+
+/* ---- なめらかな画面切り替え・動き ---- */
+.view-section.active { animation: ak-in .45s cubic-bezier(.22,1,.36,1) both; }
+@keyframes ak-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+@keyframes ak-pop { from { opacity:0; transform:scale(.92); } to { opacity:1; transform:none; } }
+.plaza-card, .mascot-card { transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
+.plaza-card:active, .mascot-card:active { transform:scale(.95); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
     </style>
 </head>
 <body>
@@ -400,6 +499,7 @@ html, body {
 <div class="box">
     <header>
         <h1 class="kira-text"><span class="mi">local_florist</span>レッスン手帳</h1>
+        <div class="ak-sub">IDOL LESSON NOTE</div>
     </header>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
@@ -495,6 +595,7 @@ html, body {
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
+        <div class="ak-heading"><span class="ak-h-small">がくえん</span><span class="ak-h-big">けいじばん</span></div>
         <div id="live-banner" class="live-banner" onclick="switchView('live')" style="display:none;"><span class="mi">mic</span>ただいまライブ開催中！タップして参加</div>
       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
             <div class="bbs-title"><span class="mi">format_quote</span>今日のアイカツ格言</div>
@@ -565,11 +666,12 @@ html, body {
     </div>
     <div id="view-mascot" class="view-section">
         <div class="mascot-page">
-           <div class="mascot-title kira-text"> マスコットをえらぼう</div>
+           <div class="ak-heading"><span class="ak-h-small">えらぼう</span><span class="ak-h-big">マスコット</span></div>
             <div id="mascot-grid" class="mascot-grid"></div>
         </div>
     </div>
     <div id="view-lesson-menu" class="view-section">
+        <div class="ak-heading"><span class="ak-h-small">きょうの</span><span class="ak-h-big">レッスン</span></div>
         <div class="lesson-menu-grid">
             <div id="lm-item-climb"class="lesson-menu-item lm-climb" onclick="switchViewWithTransition('climb')">
                 <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M3 19h18L14 6l-3 5-2-2z"/></svg></div>
@@ -707,7 +809,7 @@ html, body {
         </div>
     </div>
     <div id="view-all" class="view-section">
-        <div class="kira-text" style="font-size:1.2em; font-weight:bold; text-align:center; margin-bottom:8px;"><span class="mi">menu_book</span>アイドル図鑑！</div>
+        <div class="ak-heading"><span class="ak-h-small">みんなの</span><span class="ak-h-big">アイドル図鑑</span></div>
         <div style="margin-bottom:8px;">
             <label style="font-size:0.85em; font-weight:bold;"><span class="mi">search</span>組でしぼりこむ:</label>
             <select id="filter-kumi" onchange="render()"><option value="all">すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
