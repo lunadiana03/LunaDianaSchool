@@ -637,6 +637,52 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .gain-empty, .history-old { color:#a08a96; padding:4px; }
 
 /* ---- 獲得モーダル ---- */
+.dress-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:12px; }
+.dress-modal.open { display:flex; }
+.dress-panel { width:100%; max-width:560px; max-height:92vh; display:flex; flex-direction:column; background:#fff; border:2px solid #f06aa8; border-radius:20px; box-shadow:0 5px 0 #ffc2e0; animation: ak-pop .3s cubic-bezier(.34,1.56,.64,1); overflow:hidden; }
+.dress-panel-head { display:flex; align-items:center; gap:6px; padding:10px 14px; background:var(--ak-pink-l); color:var(--ak-mag); font-family:'Mochiy Pop One', sans-serif; }
+.dress-panel-head .dress-close { margin-left:auto; background:#fff; color:var(--ak-mag); box-shadow:0 2px 0 #ffc2e0; padding:4px 10px; width:auto; }
+.dress-trial { font-size:0.7em; background:#fff; border-radius:999px; padding:2px 8px; color:#b0708f; }
+#dress-body { overflow-y:auto; padding:12px; }
+.dress-tabs { display:flex; gap:6px; margin-bottom:10px; }
+.dress-tab { flex:1; background:#fff; color:var(--ak-mag); border:2px solid #ffc2e0; box-shadow:0 2px 0 #ffc2e0; padding:6px 4px; font-size:0.9em; }
+.dress-tab.on { background:var(--ak-mag); color:#fff; border-color:var(--ak-mag); box-shadow:0 2px 0 var(--ak-mag-d); }
+.dress-note { font-size:0.8em; color:#9a6a82; margin:4px 2px 10px; }
+.dress-back { background:#fff; color:var(--ak-mag); border:2px solid #ffc2e0; box-shadow:none; padding:4px 12px; width:auto; margin-bottom:8px; font-size:0.85em; }
+.dress-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+.dress-grid.parts { grid-template-columns:repeat(auto-fill, minmax(98px, 1fr)); margin-top:10px; }
+.dress-card { position:relative; border-radius:14px; border:3px solid #f7cfe2; background:#fff; overflow:hidden; cursor:pointer; transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.dress-card:active { transform:scale(.96); }
+.dress-card.r-R { border-color:transparent; background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#fff3c4,#e8b94a,#fff3c4,#d9a43a) border-box; }
+.dress-card.r-PR { border-color:transparent; background:linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#ff9ad0,#ffd86b,#9fe4ff,#d9a8ea,#ff9ad0) border-box; }
+.dress-card-art { position:relative; aspect-ratio: 240 / 350; background:radial-gradient(circle at 50% 42%, #fff 0 30%, color-mix(in srgb, var(--tc) 22%, #fff) 100%); }
+.dress-card-art::before { content:''; position:absolute; inset:0; opacity:.35; background-image:linear-gradient(45deg, color-mix(in srgb, var(--tc) 25%, transparent) 25%, transparent 25% 75%, color-mix(in srgb, var(--tc) 25%, transparent) 75%), linear-gradient(45deg, color-mix(in srgb, var(--tc) 25%, transparent) 25%, transparent 25% 75%, color-mix(in srgb, var(--tc) 25%, transparent) 75%); background-size:22px 22px; background-position:0 0, 11px 11px; }
+.dress-card.part .dress-card-art { aspect-ratio: 1 / 1; }
+.dress-card-art .dress-svg { position:relative; width:100%; height:100%; display:block; }
+.dress-card.r-PR .dress-card-art::after { content:''; position:absolute; inset:0; background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.65) 48%, rgba(255,240,250,.2) 55%, transparent 65%); background-size:250% 100%; animation: dress-shine 3.6s ease-in-out infinite; pointer-events:none; }
+@keyframes dress-shine { 0%, 40% { background-position:120% 0; } 100% { background-position:-120% 0; } }
+.dress-card-info { padding:5px 7px 7px; }
+.dress-card-top { display:flex; align-items:center; gap:4px; font-size:0.68em; }
+.dress-rar { font-family:'Mochiy Pop One', sans-serif; padding:1px 6px; border-radius:999px; background:#f7cfe2; color:#fff; }
+.r-R .dress-rar { background:linear-gradient(135deg,#f2cf6b,#c9982f); }
+.r-PR .dress-rar { background:linear-gradient(135deg,#ff8cc6,#ffb43c,#5fd3f5,#b98cf5); }
+.dress-type { font-weight:bold; }
+.dress-brand { color:#b0708f; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dress-name { font-weight:bold; font-size:0.85em; color:var(--ak-ink); line-height:1.3; margin-top:2px; }
+.dress-card.part .dress-name { font-size:0.72em; }
+.dress-detail { display:flex; flex-direction:column; gap:10px; }
+.dress-card.big { max-width:260px; margin:0 auto; width:100%; cursor:default; }
+.dress-parts { display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; }
+.dress-gacha-btns { display:flex; gap:8px; }
+.dress-gacha-btns button { flex:1; }
+.dress-flip { animation: dress-flip .55s cubic-bezier(.34,1.4,.64,1) both; }
+@keyframes dress-flip { from { opacity:0; transform:rotateY(90deg) scale(.85); } to { opacity:1; transform:none; } }
+.dress-reward { display:grid; grid-template-columns:130px 1fr; gap:10px; align-items:start; margin-bottom:12px; }
+.dress-reward-row { display:flex; gap:8px; align-items:center; font-size:0.8em; padding:4px; border-bottom:1px dashed #f7cfe2; }
+.dress-reward-part { width:46px; height:46px; flex-shrink:0; background:var(--ak-pink-l); border-radius:10px; }
+.dress-reward-part .dress-svg { width:100%; height:100%; }
+.dress-reward-who { color:#9a6a82; font-size:0.9em; }
+@media (max-width:420px) { .dress-parts { grid-template-columns:repeat(2, 1fr); } .dress-reward { grid-template-columns:1fr; } .dress-reward > .dress-card { max-width:180px; margin:0 auto; } }
 .grant-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:16px; }
 .grant-modal.open { display:flex; }
 .grant-panel { width:100%; max-width:360px; background:#fff; border:2px solid #f06aa8; border-radius:20px; box-shadow:0 5px 0 #ffc2e0; padding:14px; animation: ak-pop .3s cubic-bezier(.34,1.56,.64,1) both; }
@@ -900,6 +946,7 @@ html { -webkit-tap-highlight-color: transparent; }
         <h3 onclick="toggleActressList()" style="cursor:pointer;"><span class="mi">theater_comedy</span>女優設定 <span id="actress-list-arrow">▶</span></h3>
         <div id="actress-con" style="display:none;"></div>
         <textarea id="admin-actress-desc" rows="2" placeholder="女優の説明文" onchange="upActressDesc()"></textarea>
+        <h3 onclick="openDressLab()" style="cursor:pointer;"><span class="mi">diamond</span>ドレス（試作・管理者のみ） <span>▶</span></h3>
         <h3 onclick="toggleMemberAdminList()" style="cursor:pointer;"><span class="mi">manage_accounts</span>メンバー管理（ポイント変更・獲得） <span id="member-admin-arrow">▶</span></h3>
         <div id="member-admin-con" style="display:none;"></div>
         <h3 onclick="toggleUnitList()" style="cursor:pointer;"><span class="mi">group</span>ユニット設定 <span id="unit-list-arrow">▶</span></h3>
@@ -5154,6 +5201,295 @@ state.members.forEach(m => {
         s.forEach(x => x.remove());
         fetchCalendarEvents();
     };
+    // ===== ドレス（試作・管理者のみ） =====
+    const DRESS_BRANDS = {
+        cute: { name: 'Pétale Rosée', kana: 'ペタルロゼ', type: 'cute' },
+        cool: { name: 'Crystal Nocturne', kana: 'クリスタルノクターン', type: 'cool' },
+        sexy: { name: 'Velvet Rouge', kana: 'ヴェルヴェットルージュ', type: 'sexy' },
+        pop:  { name: 'Candy Parade', kana: 'キャンディパレード', type: 'pop' },
+        luna: { name: 'Luna Diana', kana: 'ルナディアーナ', type: null }
+    };
+    const DRESS_PARTS = { head: 'アクセ', top: 'トップス', bottom: 'ボトムス', shoes: 'シューズ' };
+    const DRESS_RARITY = { N: { label: 'ノーマル', rate: 60 }, R: { label: 'レア', rate: 30 }, PR: { label: 'プレミアム', rate: 10 } };
+    // pal: a=メイン b=サブ c=飾り g=宝石
+    const DRESS_COORDS = [
+        { id: 'rose_mariage', name: 'ローズマリアージュ', brand: 'cute', type: 'cute', rarity: 'PR', motif: 'heart',
+          pal: { a: '#ff8cc6', b: '#fff0f7', c: '#ffffff', g: '#ff4fa0' }, skirt: 'tier', sleeve: 'puff', chest: 'bow', head: 'tiara', shoes: 'pump' },
+        { id: 'sugar_ribbon', name: 'シュガーリボン', brand: 'cute', type: 'cute', rarity: 'R', motif: 'heart',
+          pal: { a: '#ffb3d9', b: '#ffffff', c: '#ff6fb1', g: '#ff8cc6' }, skirt: 'bubble', sleeve: 'puff', chest: 'bow', head: 'ribbon', shoes: 'boot' },
+        { id: 'aurora_crystal', name: 'オーロラクリスタル', brand: 'cool', type: 'cool', rarity: 'PR', motif: 'star',
+          pal: { a: '#6fb8f5', b: '#e6f4ff', c: '#ffffff', g: '#9fe4ff' }, skirt: 'over', sleeve: 'cape', chest: 'gem', head: 'crown', shoes: 'boot' },
+        { id: 'midnight_star', name: 'ミッドナイトスター', brand: 'cool', type: 'cool', rarity: 'R', motif: 'star',
+          pal: { a: '#4b5fc9', b: '#c9d6ff', c: '#f2cf6b', g: '#8fb0ff' }, skirt: 'ball', sleeve: 'off', chest: 'gem', head: 'tiara', shoes: 'pump' },
+        { id: 'rouge_rose', name: 'ルージュローズ', brand: 'sexy', type: 'sexy', rarity: 'PR', motif: 'rose',
+          pal: { a: '#c8264f', b: '#2b1530', c: '#f2cf6b', g: '#ff4f78' }, skirt: 'over', sleeve: 'off', chest: 'gem', head: 'hat', shoes: 'pump' },
+        { id: 'violet_night', name: 'ヴァイオレットナイト', brand: 'sexy', type: 'sexy', rarity: 'N', motif: 'diamond',
+          pal: { a: '#8f4fc9', b: '#e9d9ff', c: '#f2cf6b', g: '#c89bff' }, skirt: 'ball', sleeve: 'none', chest: 'gem', head: 'flower', shoes: 'pump' },
+        { id: 'candy_parade', name: 'キャンディパレード', brand: 'pop', type: 'pop', rarity: 'PR', motif: 'star',
+          pal: { a: '#ffb43c', b: '#fff6c9', c: '#ff6fb1', g: '#5fd3f5' }, skirt: 'bubble', sleeve: 'puff', chest: 'bow', head: 'crown', shoes: 'boot' },
+        { id: 'melody_pop', name: 'メロディポップ', brand: 'pop', type: 'pop', rarity: 'N', motif: 'note',
+          pal: { a: '#5fd08a', b: '#f0fff2', c: '#ffd84f', g: '#ff8cc6' }, skirt: 'tier', sleeve: 'puff', chest: 'bow', head: 'ribbon', shoes: 'pump' },
+        { id: 'luna_diana', name: 'ルナディアーナ・ロイヤル', brand: 'luna', type: 'cute', rarity: 'PR', motif: 'moon', reward: true,
+          pal: { a: '#b9a2f5', b: '#fff5fb', c: '#f2cf6b', g: '#ff9ad0' }, skirt: 'over', sleeve: 'cape', chest: 'gem', head: 'crown', shoes: 'boot',
+          need: { head: ['vo', 1000], top: ['pl', 1000], bottom: ['da', 1000], shoes: ['vi', 1000] } }
+    ];
+
+    function dcHex(h) { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); }
+    function dcMix(a, b, t) { const x = dcHex(a), y = dcHex(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+    function dcRng(str) { let s = 0; for (const ch of str) s = (s * 31 + ch.charCodeAt(0)) >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+    function dcMotif(kind, x, y, s, fill, extra) {
+        extra = extra || '';
+        const f = n => (+n).toFixed(1);
+        if (kind === 'heart') return `<path d="M${f(x)},${f(y + s * 0.8)} C${f(x - s * 1.25)},${f(y - s * 0.05)} ${f(x - s * 0.7)},${f(y - s * 1.15)} ${f(x)},${f(y - s * 0.45)} C${f(x + s * 0.7)},${f(y - s * 1.15)} ${f(x + s * 1.25)},${f(y - s * 0.05)} ${f(x)},${f(y + s * 0.8)}Z" fill="${fill}" ${extra}/>`;
+        if (kind === 'star') { let p = ''; for (let i = 0; i < 10; i++) { const r = i % 2 ? s * 0.45 : s, a = -Math.PI / 2 + i * Math.PI / 5; p += (i ? 'L' : 'M') + f(x + r * Math.cos(a)) + ',' + f(y + r * Math.sin(a)); } return `<path d="${p}Z" fill="${fill}" ${extra}/>`; }
+        if (kind === 'diamond') return `<path d="M${f(x)},${f(y - s)} L${f(x + s * 0.7)},${f(y)} L${f(x)},${f(y + s)} L${f(x - s * 0.7)},${f(y)}Z" fill="${fill}" ${extra}/>`;
+        if (kind === 'sparkle') return `<path d="M${f(x)},${f(y - s)} Q${f(x + s * 0.14)},${f(y - s * 0.14)} ${f(x + s)},${f(y)} Q${f(x + s * 0.14)},${f(y + s * 0.14)} ${f(x)},${f(y + s)} Q${f(x - s * 0.14)},${f(y + s * 0.14)} ${f(x - s)},${f(y)} Q${f(x - s * 0.14)},${f(y - s * 0.14)} ${f(x)},${f(y - s)}Z" fill="${fill}" ${extra}/>`;
+        if (kind === 'moon') return `<path d="M${f(x + s * 0.3)},${f(y - s)} A${f(s)},${f(s)} 0 1 0 ${f(x + s * 0.3)},${f(y + s)} A${f(s * 0.75)},${f(s * 0.75)} 0 1 1 ${f(x + s * 0.3)},${f(y - s)}Z" fill="${fill}" ${extra}/>`;
+        if (kind === 'note') return `<g ${extra}><ellipse cx="${f(x - s * 0.3)}" cy="${f(y + s * 0.55)}" rx="${f(s * 0.42)}" ry="${f(s * 0.32)}" transform="rotate(-20 ${f(x - s * 0.3)} ${f(y + s * 0.55)})" fill="${fill}"/><path d="M${f(x + s * 0.06)},${f(y + s * 0.5)} L${f(x + s * 0.06)},${f(y - s * 0.9)} Q${f(x + s * 0.5)},${f(y - s * 0.6)} ${f(x + s * 0.7)},${f(y - s * 0.2)}" stroke="${fill}" stroke-width="${f(s * 0.2)}" fill="none" stroke-linecap="round"/></g>`;
+        if (kind === 'rose') { let p = `<g ${extra}>`; for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; p += `<circle cx="${f(x + s * 0.5 * Math.cos(a))}" cy="${f(y + s * 0.5 * Math.sin(a))}" r="${f(s * 0.55)}" fill="${fill}"/>`; } return p + `<circle cx="${f(x)}" cy="${f(y)}" r="${f(s * 0.4)}" fill="${fill}" stroke="rgba(0,0,0,0.18)" stroke-width="${f(s * 0.12)}"/></g>`; }
+        return `<circle cx="${f(x)}" cy="${f(y)}" r="${f(s * 0.6)}" fill="${fill}" ${extra}/>`;
+    }
+    // 宝石（金の台座つき）
+    function dcGem(u, kind, x, y, s) {
+        const k = kind === 'rose' || kind === 'note' ? 'heart' : kind;
+        return `<g>${dcMotif(k, x, y, s * 1.22, `url(#${u}gold)`)}${dcMotif(k, x, y, s, `url(#${u}gem)`)}<ellipse cx="${(x - s * 0.3).toFixed(1)}" cy="${(y - s * 0.35).toFixed(1)}" rx="${(s * 0.28).toFixed(1)}" ry="${(s * 0.16).toFixed(1)}" transform="rotate(-30 ${(x - s * 0.3).toFixed(1)} ${(y - s * 0.35).toFixed(1)})" fill="#fff" opacity="0.85"/></g>`;
+    }
+    function dcBow(x, y, s, fill, dark, trim) {
+        const f = n => (+n).toFixed(1);
+        const loop = d => `<path d="M${f(x)},${f(y)} C${f(x + d * s * 0.6)},${f(y - s * 1.05)} ${f(x + d * s * 1.65)},${f(y - s * 0.75)} ${f(x + d * s * 1.45)},${f(y + s * 0.05)} C${f(x + d * s * 1.3)},${f(y + s * 0.7)} ${f(x + d * s * 0.55)},${f(y + s * 0.45)} ${f(x)},${f(y)}Z" fill="${fill}" stroke="${trim}" stroke-width="${f(s * 0.1)}"/><path d="M${f(x + d * s * 0.2)},${f(y - s * 0.05)} C${f(x + d * s * 0.7)},${f(y - s * 0.55)} ${f(x + d * s * 1.15)},${f(y - s * 0.4)} ${f(x + d * s * 1.1)},${f(y)}" stroke="${dark}" stroke-width="${f(s * 0.14)}" fill="none" opacity="0.55" stroke-linecap="round"/>`;
+        const tail = d => `<path d="M${f(x + d * s * 0.1)},${f(y + s * 0.1)} C${f(x + d * s * 0.35)},${f(y + s * 0.7)} ${f(x + d * s * 0.5)},${f(y + s * 1.2)} ${f(x + d * s * 0.75)},${f(y + s * 1.6)} L${f(x + d * s * 0.55)},${f(y + s * 1.45)} L${f(x + d * s * 0.42)},${f(y + s * 1.7)} C${f(x + d * s * 0.25)},${f(y + s * 1.2)} ${f(x + d * s * 0.05)},${f(y + s * 0.7)} ${f(x - d * s * 0.05)},${f(y + s * 0.15)}Z" fill="${fill}" stroke="${trim}" stroke-width="${f(s * 0.1)}"/>`;
+        return `<g>${tail(-1)}${tail(1)}${loop(-1)}${loop(1)}<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(s * 0.34)}" ry="${f(s * 0.4)}" fill="${fill}" stroke="${dark}" stroke-width="${f(s * 0.12)}"/></g>`;
+    }
+    // 丸いフリルの裾（左→右に下向きのスカラップ）
+    function dcScallop(x0, x1, yAt, n, depth) {
+        let d = '';
+        const w = (x1 - x0) / n;
+        for (let i = 0; i < n; i++) { const xa = x0 + w * i, xb = xa + w; d += ` A${(w / 2).toFixed(1)},${depth} 0 0 0 ${xb.toFixed(1)},${yAt(xb).toFixed(1)}`; }
+        return d;
+    }
+    function dcPearls(pts, r, fill) { return pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${fill}" stroke="rgba(0,0,0,0.12)" stroke-width="0.4"/><circle cx="${(p[0] - r * 0.35).toFixed(1)}" cy="${(p[1] - r * 0.35).toFixed(1)}" r="${(r * 0.35).toFixed(1)}" fill="#fff"/>`).join(''); }
+    function dcQuad(p0, p1, p2, n) { const r = []; for (let i = 0; i <= n; i++) { const t = i / n, a = (1 - t) * (1 - t), b = 2 * (1 - t) * t, c = t * t; r.push([a * p0[0] + b * p1[0] + c * p2[0], a * p0[1] + b * p1[1] + c * p2[1]]); } return r; }
+
+    let dressUidSeq = 0;
+    function dressSvg(c, part) {
+        part = part || 'all';
+        const u = 'dr' + (++dressUidSeq) + '_';
+        const P = c.pal, W = '#ffffff';
+        const aL = dcMix(P.a, W, 0.5), aD = dcMix(P.a, '#2a0a20', 0.3), bD = dcMix(P.b, P.a, 0.35);
+        const rnd = dcRng(c.id + part);
+        const show = k => part === 'all' || part === k;
+        const defs = `<defs>
+            <linearGradient id="${u}ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${aL}"/><stop offset="0.55" stop-color="${P.a}"/><stop offset="1" stop-color="${aD}"/></linearGradient>
+            <linearGradient id="${u}gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dcMix(P.b, W, 0.4)}"/><stop offset="1" stop-color="${bD}"/></linearGradient>
+            <linearGradient id="${u}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset="0.5" stop-color="#f2cf6b"/><stop offset="1" stop-color="#c38f25"/></linearGradient>
+            <radialGradient id="${u}gem" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${dcMix(P.g, W, 0.8)}"/><stop offset="0.45" stop-color="${P.g}"/><stop offset="1" stop-color="${dcMix(P.g, '#200018', 0.4)}"/></radialGradient>
+            <linearGradient id="${u}sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+            <pattern id="${u}pt" width="24" height="24" patternUnits="userSpaceOnUse">${dcMotif(c.motif === 'note' ? 'note' : c.motif, 6, 6, 3.2, P.c, 'opacity="0.6"')}${dcMotif('sparkle', 18, 18, 2.6, '#fff', 'opacity="0.8"')}</pattern>
+            <filter id="${u}sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="${aD}" flood-opacity="0.35"/></filter>
+        </defs>`;
+        let g = '';
+        // ---- ケープ（うしろ） ----
+        if (show('top') && c.sleeve === 'cape') {
+            g += `<path d="M78,92 C60,130 40,190 30,236 Q60,226 80,238 Q100,226 120,240 Q140,226 160,238 Q180,226 210,236 C200,190 180,130 162,92 Z" fill="${aL}" opacity="0.5"/>`;
+            g += `<path d="M30,236 Q60,226 80,238 Q100,226 120,240 Q140,226 160,238 Q180,226 210,236" stroke="url(#${u}gold)" stroke-width="2" fill="none"/>`;
+            for (let i = 0; i < 9; i++) g += dcMotif('sparkle', 45 + rnd() * 150, 130 + rnd() * 95, 2 + rnd() * 2.5, '#fff', 'opacity="0.9"');
+        }
+        // ---- スカート ----
+        if (show('bottom')) {
+            const layer = (hw, yh, fill, n, withPt) => {
+                const yAt = x => yh + 9 * (1 - Math.pow((x - 120) / hw, 2));
+                const top = 148;
+                const d = `M94,${top} C${120 - hw * 0.45},${top + (yh - top) * 0.3} ${120 - hw + 4},${yh - (yh - top) * 0.3} ${120 - hw},${yAt(120 - hw)}` + dcScallop(120 - hw, 120 + hw, yAt, n, 7) + ` C${120 + hw - 4},${yh - (yh - top) * 0.3} ${120 + hw * 0.45},${top + (yh - top) * 0.3} 146,${top} Z`;
+                let s = `<path d="${d}" fill="${fill}" filter="url(#${u}sh)"/>`;
+                if (withPt) s += `<path d="${d}" fill="url(#${u}pt)"/>`;
+                // ひだ
+                for (let i = 1; i < 6; i++) { const t = i / 6, xb = 120 - hw + hw * 2 * t; s += `<path d="M${(100 + 40 * t).toFixed(1)},${top + 6} Q${(110 + 20 * t + (xb - 120) * 0.5).toFixed(1)},${((top + yh) / 2).toFixed(1)} ${xb.toFixed(1)},${(yAt(xb) - 3).toFixed(1)}" stroke="${aD}" stroke-width="1.2" fill="none" opacity="0.18"/>`; }
+                // レースの縁取り
+                s += `<path d="M${120 - hw},${(yAt(120 - hw) - 3).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, x => yAt(x) - 3, n, 7) + `" stroke="#fff" stroke-width="2.2" fill="none" opacity="0.95"/>`;
+                s += `<path d="M${120 - hw},${(yAt(120 - hw) - 7).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, x => yAt(x) - 7, n * 2, 3) + `" stroke="url(#${u}gold)" stroke-width="1.2" fill="none"/>`;
+                s += `<path d="M${(120 - hw * 0.55).toFixed(1)},${top + 30} Q${(120 - hw * 0.7).toFixed(1)},${((top + yh) / 2 + 10).toFixed(1)} ${(120 - hw * 0.75).toFixed(1)},${yh - 8}" stroke="url(#${u}sheen)" stroke-width="7" fill="none" opacity="0.8" stroke-linecap="round"/>`;
+                return s;
+            };
+            const petti = (hw, yh, fill) => { const top = 150, yAt = x => yh + 7 * (1 - Math.pow((x - 120) / hw, 2)); return `<path d="M96,${top} C${120 - hw * 0.45},${top + (yh - top) * 0.3} ${120 - hw + 4},${yh - (yh - top) * 0.3} ${120 - hw},${yAt(120 - hw).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, yAt, 16, 4) + ` C${120 + hw - 4},${yh - (yh - top) * 0.3} ${120 + hw * 0.45},${top + (yh - top) * 0.3} 144,${top} Z" fill="${fill}" stroke="${bD}" stroke-width="0.6"/>`; };
+            // プレミアムはチュールのトレーン
+            if (c.rarity === 'PR' && c.skirt !== 'bubble') {
+                const yAt = x => 286 + 8 * (1 - Math.pow((x - 120) / 114, 2));
+                g += `<path d="M100,160 C60,190 14,240 6,${yAt(6).toFixed(1)}` + dcScallop(6, 234, yAt, 12, 6) + ` C226,240 180,190 140,160 Z" fill="${aL}" opacity="0.45"/>`;
+                g += `<path d="M6,${(yAt(6) - 2).toFixed(1)}` + dcScallop(6, 234, x => yAt(x) - 2, 12, 6) + `" stroke="url(#${u}gold)" stroke-width="1.4" fill="none" opacity="0.9"/>`;
+                for (let i = 0; i < 12; i++) { const side = i % 2 ? 1 : -1, x = 120 + side * (80 + rnd() * 30); g += dcMotif(i % 3 ? 'sparkle' : c.motif, x, 200 + rnd() * 80, 2 + rnd() * 2.5, i % 3 ? '#fff' : `url(#${u}gold)`, 'opacity="0.95"'); }
+            }
+            if (c.skirt === 'ball') {
+                g += petti(96, 280, '#fff');
+                g += layer(94, 270, `url(#${u}ga)`, 9, true);
+                // パールのドレープ
+                [205, 238].forEach((yy, i) => { const hw = 40 + i * 18; g += dcPearls(dcQuad([120 - hw, yy - 12], [120, yy + 14], [120 + hw, yy - 12], 12 + i * 4), 2.2, '#fffaf2'); g += dcBow(120 - hw, yy - 12, 6, P.c === '#ffffff' ? P.b : P.c, aD, '#fff') + dcBow(120 + hw, yy - 12, 6, P.c === '#ffffff' ? P.b : P.c, aD, '#fff'); });
+            } else if (c.skirt === 'tier') {
+                g += petti(100, 282, '#fff');
+                g += layer(98, 272, `url(#${u}gb)`, 11, true);
+                g += layer(84, 244, `url(#${u}ga)`, 9, false);
+                g += layer(64, 208, `url(#${u}ga)`, 7, true);
+                g += dcBow(120 - 64, 206, 7, P.b, aD, P.a) + dcBow(120 + 64, 206, 7, P.b, aD, P.a);
+            } else if (c.skirt === 'over') {
+                g += petti(100, 282, '#fff');
+                g += layer(96, 272, `url(#${u}gb)`, 11, true);
+                // フロントの横フリル
+                [196, 222, 248].forEach((yy, i) => { const hw = 38 + i * 16; g += `<path d="M${120 - hw},${yy}` + dcScallop(120 - hw, 120 + hw, x => yy + 4 * (1 - Math.pow((x - 120) / hw, 2)), 6 + i * 2, 5) + `" stroke="#fff" stroke-width="3" fill="none"/><path d="M${120 - hw},${yy - 3}` + dcScallop(120 - hw, 120 + hw, x => yy - 3 + 4 * (1 - Math.pow((x - 120) / hw, 2)), 6 + i * 2, 5) + `" stroke="${P.a}" stroke-width="1" fill="none" opacity="0.6"/>`; });
+                // オーバースカート（左右に開く）
+                const panel = dir => { const sx = x => 120 + dir * (x - 120); return `<path d="M${sx(94)},148 C${sx(70)},180 ${sx(30)},230 ${sx(20)},270 Q${sx(34)},282 ${sx(50)},276 Q${sx(64)},284 ${sx(76)},272 C${sx(88)},236 ${sx(100)},196 ${sx(114)},152 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="M${sx(76)},272 C${sx(88)},236 ${sx(100)},196 ${sx(114)},152" stroke="url(#${u}gold)" stroke-width="2.4" fill="none"/><path d="M${sx(20)},270 Q${sx(34)},282 ${sx(50)},276 Q${sx(64)},284 ${sx(76)},272" stroke="url(#${u}gold)" stroke-width="2" fill="none"/><path d="M${sx(80)},168 Q${sx(56)},220 ${sx(42)},262" stroke="url(#${u}sheen)" stroke-width="8" fill="none" stroke-linecap="round"/>`; };
+                g += panel(-1) + panel(1);
+                for (let i = 0; i < 6; i++) { const t = (i + 0.5) / 6; g += dcMotif(c.motif, 40 + 12 * t + rnd() * 20, 190 + t * 70, 3 + rnd() * 1.5, P.c, 'opacity="0.75"') + dcMotif(c.motif, 200 - 12 * t - rnd() * 20, 190 + t * 70, 3 + rnd() * 1.5, P.c, 'opacity="0.75"'); }
+                g += dcGem(u, c.motif, 104, 166, 6) + dcGem(u, c.motif, 136, 166, 6);
+                g += dcPearls(dcQuad([104, 172], [98, 200], [106, 226], 8), 1.8, '#fffaf2') + dcPearls(dcQuad([136, 172], [142, 200], [134, 226], 8), 1.8, '#fffaf2');
+            } else { // bubble
+                g += petti(88, 244, '#fff') + petti(82, 236, P.b);
+                const d = `M94,148 C58,156 34,192 42,226` + dcScallop(42, 198, x => 226 + 8 * (1 - Math.pow((x - 120) / 78, 2)), 9, 7) + ` C206,192 182,156 146,148 Z`;
+                g += `<path d="${d}" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="${d}" fill="url(#${u}pt)"/>`;
+                g += `<path d="M42,222` + dcScallop(42, 198, x => 222 + 8 * (1 - Math.pow((x - 120) / 78, 2)), 9, 7) + `" stroke="#fff" stroke-width="2.4" fill="none"/>`;
+                g += `<path d="M70,172 Q56,196 58,214" stroke="url(#${u}sheen)" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+                for (let i = 0; i < 5; i++) { const x = 64 + i * 28; g += `<path d="M${x},${160 + Math.abs(2 - i) * 4} Q${x + (x - 120) * 0.12},200 ${x + (x - 120) * 0.2},${226 + 8 * (1 - Math.pow((x - 120) / 78, 2))}" stroke="${aD}" stroke-width="1.2" fill="none" opacity="0.2"/>`; }
+                g += dcBow(64, 190, 7, P.c, aD, '#fff') + dcBow(176, 190, 7, P.c, aD, '#fff');
+                g += dcGem(u, c.motif, 64, 190, 3.2) + dcGem(u, c.motif, 176, 190, 3.2);
+            }
+        }
+        // ---- トップス ----
+        if (show('top')) {
+            const body = 'M80,94 Q90,82 104,86 Q114,89 120,98 Q126,89 136,86 Q150,82 160,94 Q154,125 146,152 Q120,162 94,152 Q86,125 80,94 Z';
+            // 袖（うしろ側）
+            if (c.sleeve === 'puff' || c.sleeve === 'cape') {
+                [-1, 1].forEach(dir => { const x = 120 + dir * 46; g += `<ellipse cx="${x}" cy="100" rx="16" ry="14" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`; for (let i = -1; i <= 1; i++) g += `<path d="M${x + i * 6},88 Q${x + i * 9},100 ${x + i * 6},112" stroke="${aD}" stroke-width="1" fill="none" opacity="0.3"/>`; g += `<path d="M${x - 14},110 Q${x},118 ${x + 14},110" stroke="url(#${u}gold)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M${x - 13},114` + dcScallop(x - 13, x + 13, () => 114, 4, 3) + `" stroke="#fff" stroke-width="2" fill="none"/>`; g += `<ellipse cx="${x - dir * 5}" cy="95" rx="5" ry="3" fill="#fff" opacity="0.55"/>`; });
+            }
+            g += `<path d="${body}" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`;
+            g += `<path d="M112,104 L110,146 M128,104 L130,146" stroke="${aD}" stroke-width="1" opacity="0.25"/>`;
+            // コルセットの編み上げ
+            for (let i = 0; i < 4; i++) { const y = 112 + i * 9; g += `<path d="M114,${y} L126,${y + 7} M126,${y} L114,${y + 7}" stroke="${P.c === '#ffffff' ? P.g : P.c}" stroke-width="1.3" opacity="0.8"/>`; }
+            g += `<path d="M86,100 Q88,122 96,144" stroke="url(#${u}sheen)" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+            // ネックラインのレースと金縁
+            const nl = dcQuad([80, 94], [90, 82], [104, 86], 5).concat(dcQuad([104, 86], [114, 89], [120, 98], 4).slice(1), dcQuad([120, 98], [126, 89], [136, 86], 4).slice(1), dcQuad([136, 86], [150, 82], [160, 94], 5).slice(1));
+            g += nl.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${(p[1] + 1).toFixed(1)}" r="3.4" fill="#fff"/>`).join('');
+            g += `<path d="M80,94 Q90,82 104,86 Q114,89 120,98 Q126,89 136,86 Q150,82 160,94" stroke="url(#${u}gold)" stroke-width="1.8" fill="none"/>`;
+            // ウエストベルト
+            g += `<path d="M93,146 Q120,156 147,146 L146,154 Q120,164 94,154 Z" fill="url(#${u}gold)"/>`;
+            g += dcPearls(dcQuad([98, 151], [120, 160], [142, 151], 8), 1.5, '#fffaf2');
+            if (c.sleeve === 'off') {
+                [-1, 1].forEach(dir => { const sx = x => 120 + dir * (x - 120); g += `<path d="M${sx(82)},96 Q${sx(66)},96 ${sx(54)},104 L${sx(58)},118 Q${sx(70)},112 ${sx(86)},114 Z" fill="${P.b}" stroke="${bD}" stroke-width="0.6"/><path d="M${sx(54)},104 Q${sx(62)},122 ${sx(58)},118 Q${sx(66)},126 ${sx(70)},116 Q${sx(76)},124 ${sx(80)},116 Q${sx(86)},122 ${sx(86)},114" fill="#fff" stroke="${bD}" stroke-width="0.6"/>`; g += dcBow(sx(70), 106, 4.5, P.a, aD, '#fff'); });
+            }
+            if (c.sleeve === 'cape') [-1, 1].forEach(dir => { g += dcMotif('star', 120 + dir * 42, 90, 5, `url(#${u}gold)`); });
+            if (c.chest === 'bow') { g += dcBow(120, 104, 11, P.c === '#ffffff' ? P.g : P.c, aD, '#fff') + dcGem(u, c.motif, 120, 104, 4.2); }
+            else { g += dcPearls(dcQuad([100, 100], [120, 118], [140, 100], 9), 1.8, '#fffaf2') + dcGem(u, c.motif, 120, 112, 8); g += dcMotif('diamond', 120, 128, 3, `url(#${u}gem)`); }
+        }
+        // ---- アクセ（頭） ----
+        if (show('head')) {
+            const hy = 44;
+            if (c.head === 'tiara') {
+                g += `<path d="M78,${hy + 18} Q120,${hy - 2} 162,${hy + 18} L160,${hy + 24} Q120,${hy + 6} 80,${hy + 24} Z" fill="url(#${u}gold)" filter="url(#${u}sh)"/>`;
+                [[-30, 10], [-15, 18], [0, 28], [15, 18], [30, 10]].forEach(([dx, h]) => { const x = 120 + dx, by = hy + 8 + Math.abs(dx) * 0.2; g += `<path d="M${x - 6},${by + 4} Q${x - 2},${by - h * 0.5} ${x},${by - h} Q${x + 2},${by - h * 0.5} ${x + 6},${by + 4} Z" fill="url(#${u}gold)"/>`; g += dcPearls([[x, by - h]], 2.2, '#fffaf2'); });
+                g += dcGem(u, c.motif, 120, hy + 4, 7) + dcGem(u, 'diamond', 100, hy + 10, 3.5) + dcGem(u, 'diamond', 140, hy + 10, 3.5);
+                g += dcPearls(dcQuad([84, hy + 21], [120, hy + 6], [156, hy + 21], 10), 1.4, '#fffaf2');
+            } else if (c.head === 'crown') {
+                const b = hy + 22;
+                g += `<path d="M92,${b} L88,${hy - 6} L104,${hy + 8} L120,${hy - 14} L136,${hy + 8} L152,${hy - 6} L148,${b} Z" fill="url(#${u}gold)" filter="url(#${u}sh)"/>`;
+                g += `<path d="M96,${b - 4} L94,${hy + 4} L106,${hy + 14} L120,${hy - 2} L134,${hy + 14} L146,${hy + 4} L144,${b - 4} Z" fill="${P.a}" opacity="0.55"/>`;
+                g += `<rect x="90" y="${b - 6}" width="60" height="9" rx="4" fill="url(#${u}gold)"/>` + dcPearls([92, 100, 108, 116, 124, 132, 140, 148].map(x => [x, b - 1.5]), 1.8, '#fffaf2');
+                g += dcPearls([[88, hy - 8], [120, hy - 17], [152, hy - 8]], 3, '#fffaf2');
+                g += dcGem(u, c.motif, 120, hy + 10, 8) + dcGem(u, 'diamond', 101, hy + 16, 3.6) + dcGem(u, 'diamond', 139, hy + 16, 3.6);
+                g += dcBow(150, b + 2, 6, P.b, aD, P.a);
+            } else if (c.head === 'ribbon') {
+                g += dcBow(120, hy + 6, 22, `url(#${u}ga)`, aD, '#fff');
+                g += `<path d="M96,${hy - 2} Q86,${hy + 4} 92,${hy + 12}" stroke="url(#${u}sheen)" stroke-width="4" fill="none"/>`;
+                for (let i = 0; i < 6; i++) g += dcMotif(c.motif, 90 + rnd() * 60, hy - 6 + rnd() * 18, 2.2, P.c === '#ffffff' ? P.b : P.c, 'opacity="0.85"');
+                g += dcGem(u, c.motif, 120, hy + 6, 7.5);
+            } else if (c.head === 'hat') {
+                g += `<g transform="rotate(-12 120 ${hy + 10})"><ellipse cx="120" cy="${hy + 22}" rx="34" ry="8" fill="${P.b}" filter="url(#${u}sh)"/><path d="M100,${hy + 20} L102,${hy - 8} Q120,${hy - 14} 138,${hy - 8} L140,${hy + 20} Q120,${hy + 26} 100,${hy + 20} Z" fill="${dcMix(P.b, '#ffffff', 0.08)}"/><path d="M101,${hy + 10} Q120,${hy + 16} 139,${hy + 10} L140,${hy + 18} Q120,${hy + 24} 100,${hy + 18} Z" fill="url(#${u}ga)"/>`;
+                g += `<path d="M86,${hy + 22} Q120,${hy + 50} 154,${hy + 22}" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.6"/><path d="M86,${hy + 22} Q120,${hy + 54} 154,${hy + 22} Z" fill="${P.b}" opacity="0.25"/>`;
+                g += `<path d="M138,${hy + 12} C150,${hy - 20} 164,${hy - 26} 170,${hy - 30} C160,${hy - 12} 152,${hy} 140,${hy + 14} Z" fill="${aL}"/><path d="M140,${hy + 12} C150,${hy - 10} 160,${hy - 20} 170,${hy - 30}" stroke="${aD}" stroke-width="0.8" fill="none"/>`;
+                g += dcMotif('rose', 134, hy + 14, 6, P.a) + dcGem(u, 'diamond', 120, hy + 14, 3.6) + `</g>`;
+                g += dcPearls(dcQuad([100, hy + 40], [120, hy + 50], [140, hy + 40], 7), 1.3, '#fffaf2');
+            } else { // flower
+                [[-20, 6, 9], [0, 0, 12], [20, 6, 9], [-8, 16, 7], [10, 16, 7]].forEach(([dx, dy, s], i) => { g += dcMotif('rose', 120 + dx, hy + dy, s, i % 2 ? aL : P.a, `filter="url(#${u}sh)"`); });
+                g += `<path d="M90,${hy + 12} Q80,${hy + 4} 78,${hy + 16} Q86,${hy + 20} 94,${hy + 14}Z M150,${hy + 12} Q160,${hy + 4} 162,${hy + 16} Q154,${hy + 20} 146,${hy + 14}Z" fill="#8fcf9a"/>`;
+                g += dcPearls([[108, hy - 6], [132, hy - 6], [120, hy + 24], [96, hy + 20], [144, hy + 20]], 2.4, '#fffaf2') + dcGem(u, c.motif, 120, hy, 4);
+            }
+        }
+        // ---- シューズ ----
+        if (show('shoes')) {
+            const boot = c.shoes === 'boot';
+            const shoe = (tx, dir) => {
+                let s = `<g transform="translate(${tx},338) scale(${dir},1)">`;
+                s += `<path d="M1,-26 L8,-14 L6,0 L3,0 Z" fill="url(#${u}gold)"/>`;
+                if (boot) s += `<path d="M0,-66 L24,-66 C24,-44 25,-26 34,-16 C42,-10 50,-9 54,-5 C56,-1 53,1 48,1 L24,1 C16,-6 8,-12 3,-14 C1,-30 0,-50 0,-66 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`;
+                else s += `<path d="M0,-30 C8,-28 22,-22 32,-15 C40,-10 50,-9 54,-5 C56,-1 53,1 48,1 L24,1 C16,-6 8,-12 3,-14 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="M0,-30 C4,-22 14,-17 26,-18" stroke="#fff" stroke-width="2.4" fill="none" opacity="0.9"/>`;
+                s += `<path d="M24,1 L48,1 C53,1 56,-1 54,-5" stroke="url(#${u}gold)" stroke-width="1.8" fill="none"/>`;
+                if (boot) { s += `<path d="M-1,-66` + dcScallop(-1, 25, () => -64, 4, 4) + `" stroke="#fff" stroke-width="3" fill="none"/><path d="M-1,-60 L25,-60" stroke="url(#${u}gold)" stroke-width="2"/>`; for (let i = 0; i < 4; i++) s += `<path d="M6,${-52 + i * 8} L20,${-48 + i * 8} M20,${-52 + i * 8} L6,${-48 + i * 8}" stroke="${P.c === '#ffffff' ? P.g : P.c}" stroke-width="1.2"/>`; s += dcBow(12, -58, 5, P.b, aD, P.a); }
+                else s += dcBow(4, -26, 5, P.c === '#ffffff' ? P.b : P.c, aD, '#fff');
+                s += dcGem(u, c.motif, 36, -10, 4);
+                s += `<path d="M30,-12 Q40,-8 48,-6" stroke="#fff" stroke-width="1.6" opacity="0.6" fill="none"/>`;
+                return s + `</g>`;
+            };
+            g += shoe(112, -1) + shoe(128, 1);
+        }
+        // キラキラ
+        if (part === 'all') for (let i = 0; i < 10; i++) g += dcMotif('sparkle', 20 + rnd() * 200, 20 + rnd() * 320, 2 + rnd() * 4, i % 3 ? '#fff' : '#ffe59a', 'opacity="0.95"');
+        const vb = { all: '0 0 240 350', head: '66 4 108 92', top: '40 70 160 100', bottom: '10 140 220 150', shoes: '48 256 144 92' }[part];
+        return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="dress-svg">${defs}${g}</svg>`;
+    }
+
+    let dressTab = 'book';
+    function openDressLab() { document.getElementById('dress-modal').classList.add('open'); dressTab = 'book'; renderDressLab(); }
+    function closeDressLab() { document.getElementById('dress-modal').classList.remove('open'); }
+    function dressSetTab(t) { dressTab = t; renderDressLab(); }
+    function dressTypeOf(c) { return SUITS[c.type] || SUITS.cute; }
+    function dressCardHtml(c, part, extra) {
+        const t = dressTypeOf(c), br = DRESS_BRANDS[c.brand];
+        const title = part && part !== 'all' ? `${c.name}${DRESS_PARTS[part]}` : c.name;
+        return `<div class="dress-card r-${c.rarity} ${extra || ''}" style="--tc:${t.color};" ${part === 'all' ? `onclick="dressShowCoord('${c.id}')"` : ''}>
+            <div class="dress-card-art">${dressSvg(c, part)}</div>
+            <div class="dress-card-info"><div class="dress-card-top"><span class="dress-rar">${c.rarity}</span><span class="dress-type" style="color:${t.color}">${t.symbol}</span><span class="dress-brand">${br.name}</span></div><div class="dress-name">${title}</div></div>
+        </div>`;
+    }
+    function renderDressLab(detailId) {
+        const tabs = [['book', 'menu_book', '図鑑'], ['gacha', 'auto_awesome', 'ガチャ'], ['reward', 'workspace_premium', '報酬']];
+        let h = `<div class="dress-tabs">${tabs.map(([k, ic, lb]) => `<button type="button" class="dress-tab ${dressTab === k ? 'on' : ''}" onclick="dressSetTab('${k}')">${mi(ic)}${lb}</button>`).join('')}</div>`;
+        if (dressTab === 'book' && detailId) {
+            const c = DRESS_COORDS.find(x => x.id === detailId);
+            h += `<button type="button" class="dress-back" onclick="renderDressLab()">${mi('arrow_back')}図鑑にもどる</button>`;
+            h += `<div class="dress-detail">${dressCardHtml(c, 'all', 'big')}<div class="dress-parts">${Object.keys(DRESS_PARTS).map(p => dressCardHtml(c, p, 'part')).join('')}</div></div>`;
+            h += `<div class="dress-note">${DRESS_BRANDS[c.brand].kana} / ${DRESS_RARITY[c.rarity].label}${c.reward ? ' / 報酬限定' : ''}</div>`;
+        } else if (dressTab === 'book') {
+            h += `<div class="dress-note">試作のドレス ${DRESS_COORDS.length} 着。タップすると4パーツを見られるよ</div>`;
+            h += `<div class="dress-grid">${DRESS_COORDS.map(c => dressCardHtml(c, 'all')).join('')}</div>`;
+        } else if (dressTab === 'gacha') {
+            h += `<div class="dress-note">お試しなので結果は保存されません。出る確率：${Object.keys(DRESS_RARITY).map(k => `${DRESS_RARITY[k].label} ${DRESS_RARITY[k].rate}%`).join(' / ')}</div>`;
+            h += `<div class="dress-gacha-btns"><button type="button" onclick="dressGacha(1)">${mi('auto_awesome')}1回ひく</button><button type="button" onclick="dressGacha(10)">${mi('auto_awesome')}10回ひく</button></div><div id="dress-gacha-result" class="dress-grid parts"></div>`;
+        } else {
+            h += `<div class="dress-note">ステータスが条件に届くと、そのパーツがもらえる予定（今は表示だけ）</div>`;
+            const lb = { vo: 'Vo', pl: 'Pl', da: 'Da', vi: 'Vi' };
+            DRESS_COORDS.filter(c => c.reward).forEach(c => {
+                h += `<div class="dress-reward">${dressCardHtml(c, 'all')}<div class="dress-reward-list">${Object.keys(DRESS_PARTS).map(p => {
+                    const [st, need] = c.need[p];
+                    const who = (state.members || []).filter(m => ((m.p || {})[st] || 0) >= need).map(m => escapeHtml(m.name));
+                    return `<div class="dress-reward-row"><div class="dress-reward-part">${dressSvg(c, p)}</div><div><b>${DRESS_PARTS[p]}</b><div>${lb[st]} ${need} 以上</div><div class="dress-reward-who">${who.length ? '達成：' + who.join('、') : 'まだ誰も達成していません'}</div></div></div>`;
+                }).join('')}</div></div>`;
+            });
+        }
+        document.getElementById('dress-body').innerHTML = h;
+        document.getElementById('dress-body').scrollTop = 0;
+    }
+    function dressShowCoord(id) { renderDressLab(id); }
+    function dressGacha(n) {
+        const pool = DRESS_COORDS.filter(c => !c.reward);
+        const out = [];
+        for (let i = 0; i < n; i++) {
+            let r = Math.random() * 100, rar = 'N';
+            for (const k of ['PR', 'R', 'N']) { if (r < DRESS_RARITY[k].rate) { rar = k; break; } r -= DRESS_RARITY[k].rate; }
+            const cand = pool.filter(c => c.rarity === rar);
+            const c = (cand.length ? cand : pool)[Math.floor(Math.random() * (cand.length || pool.length))];
+            const parts = Object.keys(DRESS_PARTS);
+            out.push([c, parts[Math.floor(Math.random() * parts.length)]]);
+        }
+        const box = document.getElementById('dress-gacha-result');
+        box.innerHTML = out.map(([c, p], i) => `<div class="dress-flip" style="animation-delay:${i * 0.12}s">${dressCardHtml(c, p, 'part')}</div>`).join('');
+        if (typeof LiveBGM !== 'undefined' && out.some(x => x[0].rarity === 'PR')) LiveBGM.sfx('fanfare');
+    }
 </script>
     <div class="bottom-nav">
         <button class="bn-item bn-home" id="bn-my" onclick="switchView('my')">
@@ -5207,6 +5543,12 @@ state.members.forEach(m => {
                 <button id="icon-crop-cancel" type="button" style="flex:1;background:#baabb0;box-shadow:0 3px 0 #9e8e93;">キャンセル</button>
                 <button id="icon-crop-ok" type="button" style="flex:1;">決定</button>
             </div>
+        </div>
+    </div>
+   <div id="dress-modal" class="dress-modal" onclick="if(event.target===this)closeDressLab()">
+        <div class="dress-panel">
+            <div class="dress-panel-head"><span class="mi">diamond</span>ドレス<span class="dress-trial">試作・管理者のみ</span><button type="button" class="dress-close" onclick="closeDressLab()"><span class="mi mi-solo">close</span></button></div>
+            <div id="dress-body"></div>
         </div>
     </div>
    <div id="scene-transition-overlay" class="scene-transition-overlay">
