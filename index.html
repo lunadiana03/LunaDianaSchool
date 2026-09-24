@@ -704,6 +704,10 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .actress-choice.noimg .actress-face .mi { display:block; }
 .actress-choice.noimg .actress-face { aspect-ratio:auto; height:84px; background:radial-gradient(circle, #fff, #ffe6f2); border-radius:14px; }
 .actress-label { margin-top:4px; font-weight:700; color:var(--ak-ink); font-size:.9em; }
+
+.dance-song-title { position:absolute; left:50%; top:30%; transform:translate(-50%,-50%); padding:8px 18px; white-space:nowrap; background:#fff; color:var(--ak-mag); border-radius:999px; font:1em 'Mochiy Pop One', sans-serif; box-shadow:0 0 0 3px #ffb3d9, 0 0 18px rgba(255,140,198,.7); opacity:0; pointer-events:none; }
+.dance-song-title.show { animation: song-title 2.6s ease both; }
+@keyframes song-title { 0% { opacity:0; transform:translate(-50%,-30%) scale(.9); } 15%, 75% { opacity:1; transform:translate(-50%,-50%) scale(1); } 100% { opacity:0; transform:translate(-50%,-70%); } }
     </style>
 </head>
 <body>
@@ -996,6 +1000,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
                 <div class="dance-lane" data-lane="0"></div><div class="dance-lane" data-lane="1"></div><div class="dance-lane" data-lane="2"></div><div class="dance-lane" data-lane="3"></div>
                 <div class="dance-judge-line"></div>
                 <div id="dance-judge-text" class="dance-judge-text"></div>
+                <div id="dance-song-title" class="dance-song-title"></div>
                 <div id="dance-countdown" class="climb-countdown"></div>
             </div>
             <div id="dance-pads" class="dance-pads" style="display:none;">
@@ -2201,7 +2206,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 [76,.5],[79,.5],[84,.5],[83,.5],[81,1],[79,1], [79,.5],[77,.5],[76,.5],[74,.5],[71,1],[74,1],
                 [76,.5],[77,.5],[79,1],[81,.5],[79,.5],[76,1], [77,.5],[76,.5],[74,.5],[71,.5],[72,2] ] },
             // レッスン（ランニング・筋トレ・ダンス・モデル・女優）：F→G→Em→Am の元気な王道進行
-            lesson: { bpm: 150, style: 'lesson', chords: [[41,45,48],[43,47,50],[40,43,47],[45,48,52],[41,45,48],[43,47,50],[40,43,47],[45,48,52]], melody: [
+            lesson: { title: 'スタートダッシュ・ステップ', bpm: 150, style: 'lesson', chords: [[41,45,48],[43,47,50],[40,43,47],[45,48,52],[41,45,48],[43,47,50],[40,43,47],[45,48,52]], melody: [
                 [72,.5],[74,.5],[77,1],[76,.5],[74,.5],[72,1], [71,.5],[72,.5],[74,1],[79,1],[74,1],
                 [76,.5],[74,.5],[76,.5],[79,.5],[83,1],[79,1], [81,1.5],[79,.5],[76,1],[null,1],
                 [77,.5],[76,.5],[77,.5],[81,.5],[84,1],[81,1], [83,.5],[81,.5],[79,.5],[77,.5],[74,1],[79,1],
@@ -2217,7 +2222,13 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 [72,.5],[76,.5],[79,.5],[76,.5],[84,1],[79,1], [77,.5],[81,.5],[84,.5],[81,.5],[77,1],[null,1],
                 [79,.5],[83,.5],[86,.5],[83,.5],[79,1],[74,1], [76,.5],[74,.5],[72,1],[null,2],
                 [84,.5],[83,.5],[81,.5],[79,.5],[76,1],[79,1], [81,.5],[79,.5],[76,.5],[72,.5],[69,1],[72,1],
-                [77,.5],[76,.5],[74,.5],[72,.5],[74,1],[77,1], [79,1],[74,.5],[71,.5],[72,2] ] }
+                [77,.5],[76,.5],[74,.5],[72,.5],[74,1],[77,1], [79,1],[74,.5],[71,.5],[72,2] ] },
+            // ダンス用（ランダムで1曲）
+            dance_ribbon: { title: 'ときめきリボン', bpm: 128, style: 'pop', chords: [[48,52,55],[45,48,52],[41,45,48],[43,47,50],[48,52,55],[45,48,52],[41,45,48],[43,47,50]], melody: [[79,.5],[76,.5],[72,.5],[76,.5],[79,1],[84,1],[81,.5],[79,.5],[76,1],[72,1.5],[null,.5],[77,.5],[76,.5],[77,.5],[81,.5],[84,1],[81,1],[79,1],[77,.5],[76,.5],[74,2],[76,.5],[79,.5],[84,.5],[83,.5],[81,.5],[79,.5],[76,1],[76,.5],[77,.5],[76,.5],[72,.5],[69,1],[72,1],[72,.5],[74,.5],[77,.5],[81,.5],[79,1],[77,1],[79,.5],[81,.5],[83,1],[84,2]] },
+            dance_runway: { title: 'ミッドナイト・ランウェイ', bpm: 118, style: 'pop', chords: [[45,48,52],[50,53,57],[43,47,50],[48,52,55],[45,48,52],[50,53,57],[43,47,50],[48,52,55]], melody: [[69,.75],[72,.25],[76,.5],[74,.5],[72,1],[null,1],[74,.75],[77,.25],[81,.5],[79,.5],[77,1],[74,1],[79,.5],[77,.5],[74,.5],[71,.5],[74,1.5],[null,.5],[72,.5],[74,.5],[76,1],[79,1],[76,1],[81,.75],[79,.25],[76,.5],[72,.5],[76,1],[69,1],[77,.75],[76,.25],[74,.5],[72,.5],[74,1],[77,1],[79,.5],[83,.5],[86,.5],[83,.5],[79,1],[74,1],[76,.5],[74,.5],[72,2],[null,1]] },
+            dance_star: { title: 'きらきらシューティングスター', bpm: 164, style: 'lesson', chords: [[50,54,57],[45,49,52],[47,50,54],[43,47,50],[50,54,57],[45,49,52],[47,50,54],[43,47,50]], melody: [[78,.5],[81,.5],[86,.5],[81,.5],[78,.5],[81,.5],[86,1],[85,.5],[81,.5],[76,.5],[81,.5],[85,1],[88,1],[86,.5],[85,.5],[83,.5],[81,.5],[78,1],[83,1],[79,.5],[81,.5],[83,1],[81,2],[86,1],[85,.5],[83,.5],[81,1],[78,1],[76,.5],[78,.5],[81,1],[85,1],[81,1],[83,.5],[85,.5],[86,.5],[88,.5],[90,1],[86,1],[83,.5],[81,.5],[79,.5],[76,.5],[78,2]] },
+            dance_honey: { title: 'はちみつマーチ', bpm: 140, style: 'tramp', chords: [[41,45,48],[48,52,55],[50,53,57],[43,47,50],[41,45,48],[48,52,55],[43,47,50],[48,52,55]], melody: [[77,1],[81,.5],[79,.5],[77,1],[72,1],[76,.5],[77,.5],[79,1],[84,1],[79,1],[77,.5],[76,.5],[74,.5],[77,.5],[81,2],[79,1],[83,.5],[81,.5],[79,2],[81,.5],[81,.5],[77,1],[84,.5],[84,.5],[81,1],[79,.5],[76,.5],[72,.5],[76,.5],[79,2],[74,.5],[77,.5],[79,.5],[83,.5],[86,1],[83,1],[84,1],[79,1],[72,2]] },
+            dance_heart: { title: 'ハートビート・ダンス', bpm: 136, style: 'pop', chords: [[40,43,47],[48,52,55],[43,47,50],[50,54,57],[40,43,47],[48,52,55],[43,47,50],[50,54,57]], melody: [[76,.5],[76,.5],[79,.5],[76,.5],[71,1],[74,1],[76,.5],[79,.5],[84,1],[83,.5],[79,.5],[76,1],[74,.5],[74,.5],[79,.5],[74,.5],[71,1],[67,1],[69,.5],[71,.5],[74,1],[78,1],[74,1],[79,.5],[78,.5],[76,.5],[78,.5],[79,1],[83,1],[84,.5],[83,.5],[79,.5],[76,.5],[72,1],[76,1],[79,.5],[83,.5],[86,.5],[83,.5],[79,.5],[74,.5],[79,1],[78,1],[81,1],[78,.5],[76,.5],[74,1]] }
         };
         let song = SONGS.live, songName = 'live', BEAT = 60 / song.bpm, BAR = BEAT * 4;
         let ctx = null, master = null, sfxOut = null, noiseBuf = null, timer = null, playing = false, nextBarTime = 0, barIdx = 0;
@@ -2361,11 +2372,11 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             // 音符ボタン：ON/OFF（設定は全画面共通で保存）
             toggle() { if (playing) { setWanted(false); stop(); } else { setWanted(true); if (!context) context = 'live'; setSong(context); start(); } },
             // レッスン画面の音符ボタン：ON/OFFを切り替え、レッスン中ならその場で流す/止める
-            toggleFor(name) { const on = !wanted(); setWanted(on); if (!on) stop(); else if (context === name) { setSong(name); if (ensureCtx()) { if (ctx.state === 'suspended') ctx.resume(); start(); } } updateBtn(); },
+            toggleFor(name) { const on = !wanted(); setWanted(on); if (!on) stop(); else if (context && context !== 'live') { setSong(context); if (ensureCtx()) { if (ctx.state === 'suspended') ctx.resume(); start(); } } updateBtn(); },
             refreshButtons() { updateBtn(); },
             // 音ゲー用：曲の再生位置（秒）。BGMが流れていなければ null
             songTime() { return (playing && ctx) ? ctx.currentTime - songStart : null; },
-            songInfo(name) { const x = SONGS[name]; return x ? { bpm: x.bpm, melody: x.melody } : null; },
+            songInfo(name) { const x = SONGS[name]; return x ? { bpm: x.bpm, melody: x.melody, title: x.title || '' } : null; },
             // 曲を流す（OFF設定なら流さない）
             play(name) { context = name; if (playing && songName !== name) stop(); setSong(name); if (wanted() && ensureCtx()) { if (ctx.state === 'suspended') ctx.resume(); start(); } else updateBtn(); },
             stop() { context = null; stop(); },
@@ -4112,8 +4123,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.querySelectorAll('#dance-diff button').forEach(b => b.classList.toggle('sel', b.dataset.d === d));
     }
     // メロディから譜面を作る（1小節目から、曲2周分）
-    function buildDanceChart(diff) {
-        const info = LiveBGM.songInfo('lesson');
+    const DANCE_SONGS = ['lesson', 'dance_ribbon', 'dance_runway', 'dance_star', 'dance_honey', 'dance_heart'];
+    let danceLastSong = null;
+    function pickDanceSong() {
+        const pool = DANCE_SONGS.filter(k => k !== danceLastSong);
+        danceLastSong = pool[Math.floor(Math.random() * pool.length)];
+        return danceLastSong;
+    }
+    function buildDanceChart(diff, songKey) {
+        const info = LiveBGM.songInfo(songKey || 'lesson');
         const beat = 60 / info.bpm;
         const onsets = []; let acc = 0;
         info.melody.forEach(([n, len]) => { if (n !== null) onsets.push({ b: acc, n: n, len: len }); acc += len; });
@@ -4150,13 +4168,17 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         return (performance.now() - dance.perfStart) / 1000;
     }
     function actuallyStartDance(me) {
-        LiveBGM.play('lesson');
+        const songKey = pickDanceSong();
+        LiveBGM.play(songKey);
         playSound('start'); setGameMode(true);
         document.getElementById('dance-exit-btn').style.display = 'block';
         document.getElementById('dance-pads').style.display = 'grid';
         document.getElementById('dance-diff').style.display = 'none';
-        const chart = buildDanceChart(danceDiff);
-        dance = { active: true, hits: 0, perfect: 0, good: 0, miss: 0, combo: 0, maxCombo: 0, targetId: me.id, diff: danceDiff,
+        const chart = buildDanceChart(danceDiff, songKey);
+        const title = LiveBGM.songInfo(songKey).title;
+        const tEl = document.getElementById('dance-song-title');
+        if (tEl) { tEl.innerHTML = `${mi('music_note')}${title}`; tEl.classList.remove('show'); void tEl.offsetWidth; tEl.classList.add('show'); }
+        dance = { active: true, song: songKey, songTitle: title, hits: 0, perfect: 0, good: 0, miss: 0, combo: 0, maxCombo: 0, targetId: me.id, diff: danceDiff,
                   notes: chart.notes.map(n => Object.assign({ el: null, done: false }, n)), end: chart.end,
                   useAudio: LiveBGM.songTime() !== null, perfStart: performance.now(), raf: null };
         document.getElementById('dance-combo').innerText = '0';
@@ -4226,7 +4248,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', score + 'pt', earned, 'dance');
         const rb = document.getElementById('dance-result');
-        if (rb) rb.insertAdjacentHTML('beforeend', `<div class="dance-result-detail">${DANCE_DIFFS[dance.diff].label}　PERFECT ${dance.perfect} / GOOD ${dance.good} / MISS ${dance.miss}　最大コンボ ${dance.maxCombo}</div>`);
+        if (rb) rb.insertAdjacentHTML('beforeend', `<div class="dance-result-detail">${mi('music_note')}${escapeHtml(dance.songTitle || '')}<br>${DANCE_DIFFS[dance.diff].label}　PERFECT ${dance.perfect} / GOOD ${dance.good} / MISS ${dance.miss}　最大コンボ ${dance.maxCombo}</div>`);
         document.getElementById('dance-start-btn').style.display = 'block';
         syncToSheet(m);
     }
