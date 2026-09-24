@@ -811,13 +811,21 @@ html, body {
     };
     const TIER_LESSON_KEYS = { 'run-con': 'run', 'music-con': 'music', 'kintore-con': 'kintore', 'trampoline-con': 'trampoline', 'dance-con': 'dance', 'model-con': 'model', 'actress-con': 'actress' };
     function climbFullTotal() { return (state.climbTiers || []).reduce((sum, t) => sum + (t.vo || 0) + (t.pl || 0) + (t.da || 0) + (t.vi || 0), 0); }
-    // 達成した段階数に応じてポイントを計算（上がりにくいステータスも最低1は上がる）
+    // 獲得ポイントの倍率（崖登り・各レッスン共通。管理画面の崖登りの値×この倍率が実際の獲得量）
+    const POINT_SCALE = 5;
+    // 崖登り以外のレッスンの満点合計（崖登りの約1/3。どのレッスンも同じ合計になるよう20の倍数に揃える）
+    function lessonFullTotal() { return Math.max(20, Math.round(climbFullTotal() * POINT_SCALE / 3 / 20) * 20); }
+    // 達成した段階数に応じてポイントを計算。合計値を配分比で割り振る（端数は大きい順に配って合計を必ず一致させる）
     function lessonEarnedByCount(key, total, achieved) {
         const w = LESSON_STAT_WEIGHTS[key];
         const earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         if (!w || !total || !achieved) return earned;
-        const budget = climbFullTotal() / 3 * achieved / total;
-        ['vo', 'pl', 'da', 'vi'].forEach(k => { earned[k] = Math.max(1, Math.round(budget * w[k])); });
+        const target = Math.round(lessonFullTotal() * Math.min(achieved, total) / total);
+        const keys = ['vo', 'pl', 'da', 'vi'];
+        const raw = keys.map(k => target * w[k]);
+        keys.forEach((k, i) => { earned[k] = Math.floor(raw[i] + 1e-9); });
+        let rest = target - keys.reduce((sum, k) => sum + earned[k], 0);
+        keys.map((k, i) => [k, raw[i] - earned[k]]).sort((a, b) => b[1] - a[1]).forEach(([k]) => { if (rest > 0) { earned[k]++; rest--; } });
         return earned;
     }
     function lessonEarned(key, tiers, isAchieved) {
@@ -1710,7 +1718,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const lessonKey = TIER_LESSON_KEYS[containerId];
         if (lessonKey) {
             // 崖登り以外は配分比から自動計算（ここでは段階の基準値だけ編集）
-            let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:4px;">ポイントは崖登りの約1/3を自動で配分します（到達時の累計）</div>`;
+            let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:4px;">ポイントは崖登りの約1/3（満点合計 ${lessonFullTotal()}）を自動で配分します（到達時の累計）</div>`;
             h += `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
             tiers.forEach((t, idx) => {
                 const e = lessonEarnedByCount(lessonKey, tiers.length, idx + 1);
@@ -1724,7 +1732,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             con.innerHTML = h;
             return;
         }
-        let html = `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
+        let html = containerId === 'climb-con' ? `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:4px;">実際に上がるポイントは、この表の値の${POINT_SCALE}倍です</div>` : '';
+        html += `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
         tiers.forEach((t, idx) => {
             html += `<div class="tier-row">
                 <input type="number" value="${t[cfg.keyProp]}" onchange="upTierField('${containerId}',${idx},'${cfg.keyProp}',this.value)">
@@ -2048,7 +2057,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         const heightM = climb.height * 5;
-        (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
+        (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo * POINT_SCALE; earned.pl += t.pl * POINT_SCALE; earned.da += t.da * POINT_SCALE; earned.vi += t.vi * POINT_SCALE; } });
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
