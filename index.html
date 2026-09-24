@@ -583,6 +583,46 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .actress-choice:active { transform:scale(.95); }
 .actress-choice.correct { border-color:#3cbf7a; background:#eafff2; }
 .actress-choice.wrong { border-color:#ff6b8b; background:#fff0f3; }
+
+/* =====================================================================
+   ライブ会場（ピンクの幕のステージ＋ペンライトの客席）
+   ===================================================================== */
+.live-banner { background:linear-gradient(90deg, #ff8cc6, var(--ak-mag), #ff8cc6); background-size:200% 100%; border-radius:999px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px var(--ak-mag), 0 5px 0 2px var(--ak-mag-d), 0 0 18px rgba(234,63,147,.45); font-family:'Mochiy Pop One', sans-serif; font-weight:normal; letter-spacing:1px; animation: live-banner-pulse 1.6s ease-in-out infinite, live-banner-shine 3s linear infinite; }
+@keyframes live-banner-shine { to { background-position:200% 0; } }
+.live-exit-btn { background:#fff; color:var(--ak-mag); box-shadow:0 0 0 2px var(--ak-mag), 0 3px 0 2px var(--ak-mag-d); border-radius:999px; }
+.live-cabinet { border:0; border-radius:22px; padding:30px 44px 18px; color:#fff; overflow:hidden;
+  box-shadow: 0 0 0 3px #fff, 0 0 0 5px #f06aa8, 0 6px 0 5px #ffc2e0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 26'%3E%3Crect width='40' height='10' fill='%23e2337f'/%3E%3Cpath d='M0 10 Q10 26 20 10 Q30 26 40 10Z' fill='%23ff5fa8'/%3E%3Cpath d='M0 10 Q10 26 20 10 Q30 26 40 10' fill='none' stroke='%23ffd86b' stroke-width='2'/%3E%3C/svg%3E") 0 0/40px 26px repeat-x,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 200' preserveAspectRatio='none'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23c2185b'/%3E%3Cstop offset='.35' stop-color='%23ff5fa8'/%3E%3Cstop offset='.6' stop-color='%23e2337f'/%3E%3Cstop offset='1' stop-color='%23ff7ab8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 0H60C52 40 58 90 40 140 30 170 34 190 20 200H0Z' fill='url(%23g)'/%3E%3Cpath d='M14 0C12 60 16 120 8 200M32 0C30 50 34 110 26 170' stroke='%23b0124f' stroke-width='2' fill='none' opacity='.5'/%3E%3Ccircle cx='40' cy='142' r='6' fill='%23ffd86b' stroke='%23f0a93a'/%3E%3C/svg%3E") left top/48px 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 200' preserveAspectRatio='none'%3E%3Cg transform='translate(60 0) scale(-1 1)'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%23c2185b'/%3E%3Cstop offset='.35' stop-color='%23ff5fa8'/%3E%3Cstop offset='.6' stop-color='%23e2337f'/%3E%3Cstop offset='1' stop-color='%23ff7ab8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0 0H60C52 40 58 90 40 140 30 170 34 190 20 200H0Z' fill='url(%23g)'/%3E%3Cpath d='M14 0C12 60 16 120 8 200M32 0C30 50 34 110 26 170' stroke='%23b0124f' stroke-width='2' fill='none' opacity='.5'/%3E%3Ccircle cx='40' cy='142' r='6' fill='%23ffd86b' stroke='%23f0a93a'/%3E%3C/g%3E%3C/svg%3E") right top/48px 100% no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 32'%3E%3Cg opacity='.9'%3E%3Ccircle cx='6' cy='20' r='2' fill='%23ff8cc6'/%3E%3Ccircle cx='18' cy='26' r='2' fill='%237fd6f7'/%3E%3Ccircle cx='30' cy='18' r='2' fill='%23ffd86b'/%3E%3Ccircle cx='42' cy='27' r='2' fill='%23c9a0ff'/%3E%3Ccircle cx='54' cy='21' r='2' fill='%239ff0c0'/%3E%3C/g%3E%3C/svg%3E") 0 100%/60px 32px repeat-x,
+    conic-gradient(from 200deg at 30% -10%, transparent 0 6deg, rgba(255,240,250,.22) 8deg 14deg, transparent 16deg),
+    conic-gradient(from 146deg at 70% -10%, transparent 0 6deg, rgba(220,240,255,.22) 8deg 14deg, transparent 16deg),
+    radial-gradient(ellipse at 50% 100%, rgba(255,140,198,.45), transparent 60%),
+    linear-gradient(180deg, #3a1d5e 0%, #5b2a7e 55%, #7a2f7f 100%); }
+.live-cabinet::before { background-image: radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1.6px); background-size:26px 26px; opacity:.35; }
+.live-cabinet .live-title { display:inline-block; margin:6px 0 14px; padding:6px 22px; background:#fff; color:var(--ak-mag); -webkit-text-fill-color:var(--ak-mag); border-radius:999px; box-shadow:0 0 0 3px #ffb3d9, 0 0 18px rgba(255,140,198,.7); text-shadow:none; font-size:1.15em; letter-spacing:3px; }
+.live-spotlight { background: radial-gradient(ellipse at 50% 0, rgba(255,255,255,.28), rgba(255,255,255,.06) 70%); border:2px solid rgba(255,179,217,.8); border-radius:20px; box-shadow:0 0 16px rgba(255,140,198,.35) inset; }
+.live-current-icon { filter:drop-shadow(0 0 14px #ffd86b); }
+.live-current-icon img { box-shadow:0 0 0 3px #fff, 0 0 0 6px #ffb3d9; }
+.live-current-name { font-size:1.25em; text-shadow:0 2px 0 var(--ak-mag), 0 0 10px rgba(255,140,198,.8); }
+.live-cheer-count { display:inline-block; margin-top:8px; padding:3px 12px; background:#fff; color:var(--ak-mag); border-radius:999px; opacity:1; font-family:'Zen Maru Gothic', sans-serif; font-weight:700; }
+.live-cheer-btn, .live-gimmick-btn { border-radius:999px; font-family:'Mochiy Pop One', sans-serif; font-weight:normal; letter-spacing:1px; }
+.live-cheer-btn { background:linear-gradient(180deg, #ff9fd0, #f0569f); }
+.live-gimmick-btn { background:linear-gradient(180deg, #ffe7a6, #f5b43a); color:#8a4a00; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px #f0a93a, 0 4px 0 2px #c77d12; }
+.live-cheer-btn:active { transform:scale(.96); }
+.live-queue-item { background:rgba(255,255,255,.14); border-radius:999px; padding:5px 12px; font-family:'Zen Maru Gothic', sans-serif; font-weight:700; }
+.live-queue-item.current { background:#fff; color:var(--ak-mag); border:0; box-shadow:0 0 12px rgba(255,216,107,.9); }
+.live-vote-row, .live-result-row { background:#fff; color:var(--ak-ink); border-radius:16px; box-shadow:0 0 0 2px #ffb3d9; font-family:'Zen Maru Gothic', sans-serif; font-weight:700; }
+.live-result-row.gold { background:linear-gradient(90deg, #fff6d6, #fff); border:0; box-shadow:0 0 0 2px #ffd86b, 0 0 16px rgba(255,216,107,.8); }
+.live-admin-ctrl button { font-family:'Zen Maru Gothic', sans-serif; }
+
+.box.stage-mode { background:none; padding-top:10px; }
+/* ---- 管理画面への入口：目立たない小さなリンク ---- */
+#lock-btn { display:block; width:auto !important; margin:14px 0 0 auto !important; padding:2px 6px; background:none; box-shadow:none; color:#d9b8c8; font-size:.72em; font-weight:500; letter-spacing:0; }
+#lock-btn .mi { font-size:1.1em; }
+#lock-btn:active { transform:none; box-shadow:none; color:var(--ak-mag); }
     </style>
 </head>
 <body>
@@ -1825,7 +1865,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (state.isAdmin) {
             html += `<div class="live-admin-ctrl">`;
             if (lv.status === 'idle') {
-                html += `<button onclick="liveAdvance()">▶ ライブ開始</button>`;
+                html += `<button onclick="liveAdvance()">${mi('play_arrow')}ライブ開始</button>`;
             } else if (lv.status === 'live') {
                 const isLast = lv.currentIndex >= lv.performers.length - 1;
                 html += `<button onclick="liveAdvance()">${isLast ? mi('how_to_vote') + '投票を開始' : mi('skip_next') + '次の出演者へ'}</button>`;
