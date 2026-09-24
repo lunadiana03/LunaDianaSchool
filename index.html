@@ -4,8 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✯ レッスン手帳</title>
-    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&display=swap" rel="stylesheet">
+    <title>レッスン手帳</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0..1,0&display=block" rel="stylesheet">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0"> 
@@ -15,7 +16,7 @@
 .run-cabinet { position:relative; }
 #climb-play-area, #run-play-area, #music-play-area, #kintore-play-area { position:relative; }
         :root { --p: #ffb7c5; --bg: #fff2f4; --c: rgba(255, 255, 255, 0.96); }
-        body { font-family: sans-serif; margin: 0; padding: 10px 10px 90px; color: #5a4b4e; font-size: 14px; background: linear-gradient(160deg, #ffd6ec 0%, #dcb8f5 50%, #c9a6f7 100%); background-attachment: fixed; position: relative; }
+        body { font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif; font-weight: 500; margin: 0; padding: 10px 10px 90px; color: #5a4b4e; font-size: 14px; background: linear-gradient(160deg, #ffd6ec 0%, #dcb8f5 50%, #c9a6f7 100%); background-attachment: fixed; position: relative; }
         body::before { content:''; position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image:
             radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px),
             radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px);
@@ -28,6 +29,14 @@
         header { text-align: center; padding: 18px 10px; background: linear-gradient(160deg, #fff0f8, #f7e6ff); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(160deg, #fff0f8, #f7e6ff); background-size: 26px 26px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 22px; margin-bottom: 10px; border: 3px solid #f0c6ff; box-shadow: 0 0 20px rgba(200,110,224,0.4), inset 0 0 20px rgba(255,255,255,0.6); position: relative; }
         header h1 { font-size: 1.6em !important; margin: 0 !important; }
         h1 { margin: 0; font-size: 1.2em; }
+        button, input, select, textarea { font-family: inherit; }
+        h1, h2, .kira-text, .bbs-title { font-family: 'Mochiy Pop One', 'Zen Maru Gothic', sans-serif; font-weight: normal; }
+        h3 { font-weight: 700; }
+        .mi { font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; font-size: 1.25em; line-height: 1; display: inline-block; vertical-align: -0.22em; margin-right: 0.2em; letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr; font-feature-settings: 'liga'; -webkit-font-feature-settings: 'liga'; font-variation-settings: 'FILL' 1, 'wght' 500; }
+        .mi.mi-o { font-variation-settings: 'FILL' 0, 'wght' 500; }
+        .mi.mi-solo { margin-right: 0; }
+        .mi-gold { color: #ffc93c; text-shadow: 0 0 6px rgba(255,236,150,0.9); }
+        .mi-heart { color: #ff6fa5; }
         button { background: var(--p); color: #fff; border: none; padding: 6px 12px; border-radius: 15px; cursor: pointer; font-weight: bold; font-size: 0.9em; box-shadow: 0 3px 0 #ff9aa9; }
         button:active { transform: translateY(2px); box-shadow: 0 1px 0 #ff9aa9; }
         button:disabled { background: #e2dbdd; box-shadow: 0 3px 0 #cdc4c6; color: #a69b9d; }
@@ -115,7 +124,7 @@
         .bbs-title { font-weight: bold; color: #ff758f; margin-bottom: 5px; font-size: 1.05em; display: flex; justify-content: space-between; align-items: center; }
         .bbs-body { font-size: 0.9em; line-height: 1.4; color: #6d585c; white-space: pre-wrap; }
         .loading-mask { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,242,244,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; font-weight: bold; color: #ff758f; }
-        .climb-cabinet, .run-cabinet { font-family: 'Mochiy Pop One', sans-serif; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-size: 34px 34px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #7a4fb0; text-align:center; box-shadow: 0 6px 0 #d9a6f0, 0 0 20px rgba(200,110,224,0.35); position:relative; overflow:hidden; }
+        .climb-cabinet, .run-cabinet { font-family: 'Mochiy Pop One', 'Zen Maru Gothic', sans-serif; background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-image: radial-gradient(circle, rgba(255,255,255,0.9) 1.5px, transparent 2px), linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,225,250,0.94)); background-size: 34px 34px, 100% 100%; animation: sparkle-move 8s linear infinite; border-radius: 24px; padding: 16px; color: #7a4fb0; text-align:center; box-shadow: 0 6px 0 #d9a6f0, 0 0 20px rgba(200,110,224,0.35); position:relative; overflow:hidden; }
         .climb-title { font-size:1.1em; margin-bottom:10px; letter-spacing:1px; position:relative; z-index:1; }
    .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }   
     .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; aspect-ratio:1/1; height:auto; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; display:none; }
@@ -150,7 +159,7 @@
 .climb-btn-left { background: linear-gradient(145deg, #8bf0a4, #2b8a3e); }
 .climb-btn-up { background: linear-gradient(145deg, #ff9fd6, #e6008a); }
 .climb-btn-right { background: linear-gradient(145deg, #ffe89e, #f5a800); }
-.climb-start-btn { width:100%; margin-top:10px; font-family: 'Mochiy Pop One', sans-serif; }
+.climb-start-btn { width:100%; margin-top:10px; font-family: 'Mochiy Pop One', 'Zen Maru Gothic', sans-serif; }
 .climb-result { text-align:center; font-weight:bold; margin-top:10px; min-height:1.2em; color:#2b3a55; }
 .climb-result-title { font-size:1em; margin-bottom:4px; }
 .climb-result-height { font-size:2.2em; font-weight:bold; margin-bottom:6px; color:#2b5a8a; }
@@ -240,7 +249,7 @@
         .scene-transition-overlay { display:none; position:fixed; inset:0; z-index:99999; align-items:center; justify-content:center; pointer-events:none; opacity:0; transition:opacity 0.25s ease; overflow:hidden; background: radial-gradient(circle at 20% 100%, #fff6c9, transparent 60%), linear-gradient(135deg, #ffd6ec, #c9a6f7); }
 .scene-transition-overlay.show { opacity:1; }
 .scene-transition-overlay canvas { width:100%; height:100%; object-fit:contain; }
-.scene-transition-star { position:absolute; left:-10%; bottom:-10%; font-size:3em; opacity:0; filter: drop-shadow(0 0 10px #fff176); }
+.scene-transition-star { position:absolute; left:-10%; bottom:-10%; font-size:3em; color:#ffe066; opacity:0; filter: drop-shadow(0 0 10px #fff176); }
 .scene-transition-overlay.show .scene-transition-star { animation: shoot-star 0.7s ease-out forwards; }
 @keyframes shoot-star { 0% { left:-10%; bottom:-10%; opacity:0; transform: rotate(0deg) scale(0.5); } 15% { opacity:1; } 100% { left:105%; bottom:105%; opacity:0; transform: rotate(320deg) scale(1.3); } }
         .tier-table { background:#fff; border-radius:8px; padding:4px; margin-bottom:6px; }
@@ -271,7 +280,7 @@
         .box.stage-mode { background: radial-gradient(circle at 50% 0%, #3a2b6d 0%, #150f2e 60%, #0a0716 100%); border-radius:20px; padding-top:10px; }
 .live-banner { background: linear-gradient(135deg,#ff6fa5,#ffd36e); color:#fff; text-align:center; font-weight:900; font-size:1.1em; padding:14px; border-radius:16px; margin-bottom:10px; box-shadow:0 4px 0 #d9436f, 0 0 16px rgba(255,111,165,0.7); cursor:pointer; animation:live-banner-pulse 1.4s ease-in-out infinite; }
 @keyframes live-banner-pulse { 0%,100% { transform:scale(1);} 50% { transform:scale(1.03);} }
-.live-cabinet { font-family:'Mochiy Pop One', sans-serif; background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15), transparent 60%), linear-gradient(180deg,#241a45,#120c26); border-radius:20px; padding:18px; text-align:center; color:#fff; box-shadow:0 0 30px rgba(255,111,165,0.4); position:relative; overflow:hidden; }
+.live-cabinet { font-family:'Mochiy Pop One', 'Zen Maru Gothic', sans-serif; background: radial-gradient(circle at 50% 20%, rgba(255,255,255,0.15), transparent 60%), linear-gradient(180deg,#241a45,#120c26); border-radius:20px; padding:18px; text-align:center; color:#fff; box-shadow:0 0 30px rgba(255,111,165,0.4); position:relative; overflow:hidden; }
 .live-cabinet::before { content:''; position:absolute; inset:0; background-image: radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1.5px); background-size:30px 30px; animation: sparkle-move 6s linear infinite; opacity:0.4; pointer-events:none; }
 .live-title { font-size:1.3em; margin-bottom:12px; text-shadow:0 0 10px #ff9ecb, 0 2px 3px rgba(0,0,0,0.5); position:relative; z-index:1; }
 .live-spotlight { position:relative; z-index:1; background:rgba(255,255,255,0.08); border:2px solid rgba(255,255,255,0.3); border-radius:16px; padding:16px; margin-bottom:12px; }
@@ -361,24 +370,24 @@ html, body {
     </style>
 </head>
 <body>
-<div id="loading" class="loading-mask">📖 アイカツシステムと通信中...</div>
+<div id="loading" class="loading-mask"><span class="mi">auto_awesome</span>アイカツシステムと通信中...</div>
 <div class="box">
     <header>
-        <h1 class="kira-text">❀ レッスン手帳</h1>
+        <h1 class="kira-text"><span class="mi">local_florist</span>レッスン手帳</h1>
     </header>
     <div class="login" id="login-box-area">
         <input type="text" id="login-in" placeholder="おなまえを入力してね" style="margin:0;">
         <div id="kumi-box-container" style="width:100%;">
-            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 所属する組を選んでね</div>
+            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">所属する組を選んでね</div>
             <div class="kumi-selector">
-                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana">花の歌組🌸</label>
-                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori">鳥の劇組🕊‎</label>
-                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze">風の舞組🍃</label>
-                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
+                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana"><span class="mi">local_florist</span>花の歌組</label>
+                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori"><span class="mi">flutter_dash</span>鳥の劇組</label>
+                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze"><span class="mi">air</span>風の舞組</label>
+                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki"><span class="mi">bedtime</span>月の美組</label>
             </div>
         </div>
         <div id="suit-box-container" style="width:100%;">
-            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 タイプを選んでね</div>
+            <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">タイプを選んでね</div>
             <div class="kumi-selector">
                 <input type="radio" name="suit-choice" id="suit-cute" value="cute" checked><label for="suit-cute">キュート ♡</label>
                 <input type="radio" name="suit-choice" id="suit-cool" value="cool"><label for="suit-cool">クール ♢</label>
@@ -387,7 +396,7 @@ html, body {
             </div>
         </div>
        <div id="icon-box-container" style="width:100%;">
-    <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">👇 自分の画像を選んでね</div>
+    <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">自分の画像を選んでね</div>
     <input type="file" id="icon-file-input" accept="image/*" style="margin-top:4px;">
     <div id="icon-preview-wrap" style="text-align:center; margin-top:6px;"></div>
 </div>
@@ -397,20 +406,20 @@ html, body {
         </div>
     </div>
     <div class="admin" style="text-align: right; margin-bottom: 10px;">
-        <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;">⚙️ メニュー</button>
+        <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;"><span class="mi">settings</span>メニュー</button>
     </div>
     <div id="menu" class="menu">
-        <h3>🎨 設定</h3>
+        <h3><span class="mi">palette</span>設定</h3>
         <label>テーマ色</label>
         <select id="theme" onchange="changeTheme()">
-            <option value="pink">🌸 ピンク</option><option value="blue">💎 ブルー</option><option value="teal">🌿 グリーン</option>
+            <option value="pink">ピンク</option><option value="blue">ブルー</option><option value="teal">グリーン</option>
         </select>
-        <label>🔑 暗証番号</label><input type="password" id="pw" onchange="upPw()">
-        <label>⏳ 1日のレッスン上限回数</label>
+        <label><span class="mi">key</span>暗証番号</label><input type="password" id="pw" onchange="upPw()">
+        <label><span class="mi">hourglass_empty</span>1日のレッスン上限回数</label>
         <input type="number" id="limit-input" min="1" max="10" onchange="upLimit()" style="width:80px; text-align:center;"> 回
-        <h3>📢 掲示板のお知らせ編集</h3>
+        <h3><span class="mi">campaign</span>掲示板のお知らせ編集</h3>
         <textarea id="admin-bbs-text" rows="4" placeholder="運営からのお知らせを入力してね" onchange="upBbsText()"></textarea>
-        <h3>🎯 確率・ポイント設定（学園関係者専用）</h3>
+        <h3><span class="mi">tune</span>確率・ポイント設定（学園関係者専用）</h3>
         <div id="cfg-con"></div>
         <h3 onclick="toggleMeigenList()" style="cursor:pointer;"> 格言リスト管理 <span id="meigen-list-arrow">▶</span></h3>
         <div id="meigen-con" style="display:none;"></div>
@@ -423,36 +432,36 @@ html, body {
         <textarea id="admin-run-desc" rows="3" placeholder="ランニングの説明文を入力してね" onchange="upRunDesc()"></textarea>
         <h3 onclick="toggleMusicList()" style="cursor:pointer;"> 音感レッスン ポイント設定 <span id="music-list-arrow">▶</span></h3>
         <div id="music-con" style="display:none;"></div>
-        <h3 onclick="toggleMusicStagesList()" style="cursor:pointer;">🎹 音感 光る数（段階）設定 <span id="music-stages-arrow">▶</span></h3>
+        <h3 onclick="toggleMusicStagesList()" style="cursor:pointer;"><span class="mi">piano</span>音感 光る数（段階）設定 <span id="music-stages-arrow">▶</span></h3>
         <div id="music-stages-con" style="display:none;"></div>
         <textarea id="admin-music-desc" rows="3" placeholder="音感レッスンの説明文を入力してね" onchange="upMusicDesc()"></textarea>
         <h3 onclick="toggleKintoreList()" style="cursor:pointer;"> 筋トレレッスン ポイント設定 <span id="kintore-list-arrow">▶</span></h3>
         <div id="kintore-con" style="display:none;"></div>
         <textarea id="admin-kintore-desc" rows="3" placeholder="筋トレレッスンの説明文を入力してね" onchange="upKintoreDesc()"></textarea>
-        <h3 onclick="toggleLessonVisList()" style="cursor:pointer;">🎛 レッスン表示設定 <span id="lesson-vis-arrow">▶</span></h3>
+        <h3 onclick="toggleLessonVisList()" style="cursor:pointer;"><span class="mi">visibility</span>レッスン表示設定 <span id="lesson-vis-arrow">▶</span></h3>
         <div id="lesson-vis-con" style="display:none;"></div>
-        <h3 onclick="toggleTrampolineList()" style="cursor:pointer;">🤸 トランポリン設定 <span id="trampoline-list-arrow">▶</span></h3>
+        <h3 onclick="toggleTrampolineList()" style="cursor:pointer;"><span class="mi">sports_gymnastics</span>トランポリン設定 <span id="trampoline-list-arrow">▶</span></h3>
         <div id="trampoline-con" style="display:none;"></div>
         <textarea id="admin-trampoline-desc" rows="2" placeholder="トランポリンの説明文" onchange="upTrampolineDesc()"></textarea>
-        <h3 onclick="toggleDanceList()" style="cursor:pointer;">💃 ダンス設定 <span id="dance-list-arrow">▶</span></h3>
+        <h3 onclick="toggleDanceList()" style="cursor:pointer;"><span class="mi">music_note</span>ダンス設定 <span id="dance-list-arrow">▶</span></h3>
         <div id="dance-con" style="display:none;"></div>
         <textarea id="admin-dance-desc" rows="2" placeholder="ダンスの説明文" onchange="upDanceDesc()"></textarea>
-        <h3 onclick="toggleModelList()" style="cursor:pointer;">👠 モデル設定 <span id="model-list-arrow">▶</span></h3>
+        <h3 onclick="toggleModelList()" style="cursor:pointer;"><span class="mi">checkroom</span>モデル設定 <span id="model-list-arrow">▶</span></h3>
         <div id="model-con" style="display:none;"></div>
         <textarea id="admin-model-desc" rows="2" placeholder="モデルの説明文" onchange="upModelDesc()"></textarea>
-        <h3 onclick="toggleActressList()" style="cursor:pointer;">🎬 女優設定 <span id="actress-list-arrow">▶</span></h3>
+        <h3 onclick="toggleActressList()" style="cursor:pointer;"><span class="mi">theater_comedy</span>女優設定 <span id="actress-list-arrow">▶</span></h3>
         <div id="actress-con" style="display:none;"></div>
         <textarea id="admin-actress-desc" rows="2" placeholder="女優の説明文" onchange="upActressDesc()"></textarea>
-        <h3 onclick="toggleUnitList()" style="cursor:pointer;">👯 ユニット設定 <span id="unit-list-arrow">▶</span></h3>
+        <h3 onclick="toggleUnitList()" style="cursor:pointer;"><span class="mi">group</span>ユニット設定 <span id="unit-list-arrow">▶</span></h3>
         <div id="unit-con" style="display:none;"></div>
         <button onclick="addUnit()" style="width:100%;background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-bottom:10px;">＋ ユニットを追加</button>
-        <h3>💾 バックアップ（手動）</h3>
-        <h3 onclick="toggleLiveList()" style="cursor:pointer;">🎤 ライブ設定 <span id="live-list-arrow">▶</span></h3>
+        <h3><span class="mi">save</span>バックアップ（手動）</h3>
+        <h3 onclick="toggleLiveList()" style="cursor:pointer;"><span class="mi">mic</span>ライブ設定 <span id="live-list-arrow">▶</span></h3>
         <div id="live-con" style="display:none;">
             <button id="live-tab-toggle-btn" onclick="toggleLiveTabVisibility()" style="width:100%; margin-bottom:8px;">タブ表示切替</button>
-            <div style="font-size:0.85em; font-weight:bold; margin-bottom:4px;">👇 出演者を選んでね（3〜5人推奨）</div>
+            <div style="font-size:0.85em; font-weight:bold; margin-bottom:4px;">出演者を選んでね（3〜5人推奨）</div>
             <div id="live-performer-checks"></div>
-            <button onclick="createLive()" style="width:100%; background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-top:8px;">🎤 このメンバーでライブ作成</button>
+            <button onclick="createLive()" style="width:100%; background:#4c6ef5; box-shadow:0 3px 0 #364fc7; margin-top:8px;"><span class="mi">mic</span>このメンバーでライブ作成</button>
             <div id="live-admin-summary" style="font-size:0.85em; margin-top:8px; background:#fff; padding:6px; border-radius:8px;"></div>
         </div>
         <button onclick="expData()" style="background:#2b8a3e; box-shadow:0 3px 0 #216f30;">書き出し</button>
@@ -460,26 +469,26 @@ html, body {
     </div>
     <div id="view-my" class="view-section active"><div id="my-card-space"></div></div>
     <div id="view-bbs" class="view-section">
-        <div id="live-banner" class="live-banner" onclick="switchView('live')" style="display:none;">🎤✨ ただいまライブ開催中！タップして参加 ✨🎤</div>
+        <div id="live-banner" class="live-banner" onclick="switchView('live')" style="display:none;"><span class="mi">mic</span>ただいまライブ開催中！タップして参加</div>
       <div class="bbs-card" style="border:2px dashed #ff9aa9; background:#fffaf0;">
-            <div class="bbs-title">🎴 今日のアイカツ格言</div>
+            <div class="bbs-title"><span class="mi">format_quote</span>今日のアイカツ格言</div>
             <div id="meigen-body" class="bbs-body" style="font-weight:bold; text-align:center; font-size:1.1em;"></div>
       </div>
         <div class="bbs-card">
-            <div class="bbs-title">🔮 今日のいいこと占い</div>
+            <div class="bbs-title"><span class="mi">auto_awesome</span>今日のいいこと占い</div>
             <div id="fortune-body" class="bbs-body"></div>
         </div>
         <div class="bbs-card">
-            <div class="bbs-title">📝 学園からのお知らせ</div>
+            <div class="bbs-title"><span class="mi">edit_note</span>学園からのお知らせ</div>
             <div id="bbs-body-text" class="bbs-body"></div>
-        <button id="lock-btn" class="lock" onclick="goAdmin()" style="width:100%; margin-top:10px;">🔒 管理画面</button>
+        <button id="lock-btn" class="lock" onclick="goAdmin()" style="width:100%; margin-top:10px;"><span class="mi">lock</span>管理画面</button>
         </div>
  </div>
     <div id="view-run" class="view-section">
         <div class="run-cabinet">
-           <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;">🚪 やめる</button>
+           <button id="run-exit-btn" class="game-exit-btn" onclick="exitRunGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
            <div id="run-title" class="run-title kira-text"> START DASH !!</div>
-            <div class="run-stats">📏 距離: <span id="run-distance">0m</span></div>
+            <div class="run-stats"><span class="mi">straighten</span>距離: <span id="run-distance">0m</span></div>
             <div id="run-desc" class="climb-desc"></div>
             <div id="run-play-area">
                 <div id="run-lives" class="lives-row"></div>
@@ -488,7 +497,7 @@ html, body {
                     <div id="run-obstacles"></div>
                     <div id="run-countdown" class="climb-countdown"></div>
                 </div>
-                <button id="run-jump-btn" class="run-jump-btn" onclick="runJump()">⬆ ジャンプ</button>
+                <button id="run-jump-btn" class="run-jump-btn" onclick="runJump()"><span class="mi">arrow_upward</span>ジャンプ</button>
             </div>
             <div id="run-result" class="climb-result" style="display:none;"></div>
             <button id="run-start-btn" class="climb-start-btn" onclick="startRun()">スタート（レッスン1回分消費）</button>
@@ -496,7 +505,7 @@ html, body {
     </div>
     <div id="view-music" class="view-section">
         <div class="climb-cabinet">
-            <button id="music-exit-btn" class="game-exit-btn" onclick="exitMusicGame()" style="display:none;">🚪 やめる</button>
+            <button id="music-exit-btn" class="game-exit-btn" onclick="exitMusicGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="music-title" class="climb-title kira-text"> 音感レッスン</div>
             <div id="music-desc" class="climb-desc"></div>
             <div id="music-play-area">
@@ -512,12 +521,12 @@ html, body {
     </div>
     <div id="view-kintore" class="view-section">
         <div class="run-cabinet">
-            <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;">🚪 やめる</button>
+            <button id="kintore-exit-btn" class="game-exit-btn" onclick="exitKintoreGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="kintore-title" class="run-title kira-text"> きんとれレッスン</div>
             <div id="kintore-desc" class="climb-desc"></div>
             <div id="kintore-play-area">
                 <div id="kintore-char-stage" class="mini-char-stage"><img id="kintore-char-img" class="mini-char-img" src="mascot1.png" onerror="this.style.visibility='hidden'"></div>
-                <div class="run-stats">✅ タップ数: <span id="kintore-count">0</span></div>
+                <div class="run-stats"><span class="mi">touch_app</span>タップ数: <span id="kintore-count">0</span></div>
                 <div id="kintore-lives" class="lives-row"></div>
                 <div class="climb-progress-track"><div id="kintore-progress-fill" class="climb-progress-fill"></div><div id="kintore-progress-dot" class="climb-progress-dot"></div></div>
                 <div class="climb-time-row"><span id="kintore-elapsed">0:00</span><span id="kintore-total">0:30</span></div>
@@ -580,12 +589,12 @@ html, body {
     </div>
    <div id="view-climb" class="view-section">
         <div class="climb-cabinet">
-            <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;">🚪 やめる</button>
+            <button id="climb-exit-btn" class="game-exit-btn" onclick="exitClimbGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="climb-title" class="climb-title kira-text"> Let's Climbing!!</div>
             <div id="climb-desc" class="climb-desc"></div>
             <div id="climb-play-area">
                 <div class="climb-track" id="climb-track">
-                    <div class="climb-height-badge">📏 <span id="climb-height">0m</span></div>
+                    <div class="climb-height-badge"><span class="mi">straighten</span><span id="climb-height">0m</span></div>
                     <div id="climb-char" class="climb-char"><img id="climb-char-img" src="mascot1.png" alt="idol"></div>
                     <div id="climb-countdown" class="climb-countdown"></div>
                 </div>
@@ -604,8 +613,8 @@ html, body {
     </div>
     <div id="view-trampoline" class="view-section">
         <div class="climb-cabinet">
-            <button id="trampoline-exit-btn" class="game-exit-btn" onclick="exitTrampolineGame()" style="display:none;">🚪 やめる</button>
-            <div id="trampoline-title" class="climb-title kira-text">🤸 トランポリンチャレンジ</div>
+            <button id="trampoline-exit-btn" class="game-exit-btn" onclick="exitTrampolineGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
+            <div id="trampoline-title" class="climb-title kira-text"><span class="mi">sports_gymnastics</span>トランポリンチャレンジ</div>
             <div id="trampoline-desc" class="climb-desc"></div>
             <div class="climb-track trampoline-track-bg" id="trampoline-track">
                 <img id="trampoline-mat-img" class="trampoline-mat" src="trampoline-mat.png" onload="window.keyOutTrampolineMat && keyOutTrampolineMat(this)" onerror="this.style.display='none'">
@@ -618,29 +627,29 @@ html, body {
             </div>
             <div class="trampoline-jump-label">ジャンプ <span id="trampoline-jump-num">1</span>/3</div>
             <div class="trampoline-bar-wrap" id="trampoline-bar-wrap" style="display:none;"><div class="trampoline-bar-track"><div id="trampoline-sweet" class="trampoline-sweet"></div><div id="trampoline-marker" class="trampoline-marker"></div></div></div>
-            <button id="trampoline-tap-btn" class="run-jump-btn" onclick="trampolineTap()" style="display:none;">🤸 ジャンプ！</button>
+            <button id="trampoline-tap-btn" class="run-jump-btn" onclick="trampolineTap()" style="display:none;"><span class="mi">sports_gymnastics</span>ジャンプ！</button>
             <div id="trampoline-result" class="climb-result" style="display:none;"></div>
             <button id="trampoline-start-btn" class="climb-start-btn" onclick="startTrampoline()">スタート（体力-1）</button>
         </div>
     </div>
     <div id="view-dance" class="view-section">
         <div class="climb-cabinet">
-            <button id="dance-exit-btn" class="game-exit-btn" onclick="exitDanceGame()" style="display:none;">🚪 やめる</button>
-            <div id="dance-title" class="climb-title kira-text">💃 ダンスレッスン</div>
+            <button id="dance-exit-btn" class="game-exit-btn" onclick="exitDanceGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
+            <div id="dance-title" class="climb-title kira-text"><span class="mi">music_note</span>ダンスレッスン</div>
             <div id="dance-desc" class="climb-desc"></div>
-            <div class="dance-stats">⏱️ 残り: <span id="dance-time">--</span>秒　🎯 ヒット: <span id="dance-hits">0</span></div>
+            <div class="dance-stats"><span class="mi">timer</span>残り: <span id="dance-time">--</span>秒　<span class="mi">target</span>ヒット: <span id="dance-hits">0</span></div>
             <div class="dance-track" id="dance-track"><div class="dance-target"></div><div id="dance-countdown" class="climb-countdown"></div></div>
-            <button id="dance-tap-btn" class="run-jump-btn" onclick="danceTap()" style="display:none;">💃 タップ！</button>
+            <button id="dance-tap-btn" class="run-jump-btn" onclick="danceTap()" style="display:none;"><span class="mi">touch_app</span>タップ！</button>
             <div id="dance-result" class="climb-result" style="display:none;"></div>
             <button id="dance-start-btn" class="climb-start-btn" onclick="startDance()">スタート（体力-1）</button>
         </div>
     </div>
     <div id="view-model" class="view-section">
         <div class="climb-cabinet">
-            <button id="model-exit-btn" class="game-exit-btn" onclick="exitModelGame()" style="display:none;">🚪 やめる</button>
-            <div id="model-title" class="climb-title kira-text">👠 モデルレッスン</div>
+            <button id="model-exit-btn" class="game-exit-btn" onclick="exitModelGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
+            <div id="model-title" class="climb-title kira-text"><span class="mi">checkroom</span>モデルレッスン</div>
             <div id="model-desc" class="climb-desc"></div>
-            <div class="model-stats">⏱️ キープ時間: <span id="model-seconds">0.0</span>秒</div>
+            <div class="model-stats"><span class="mi">timer</span>キープ時間: <span id="model-seconds">0.0</span>秒</div>
             <div class="model-track" id="model-track"><div class="model-safe-zone"></div><div id="model-needle" class="model-needle"></div><div id="model-countdown" class="climb-countdown"></div></div>
             <div class="model-btns" id="model-btns" style="display:none;">
                 <button class="climb-btn climb-btn-left" onmousedown="modelPress('left')" ontouchstart="modelPress('left')" onmouseup="modelRelease()" ontouchend="modelRelease()">←</button>
@@ -652,8 +661,8 @@ html, body {
     </div>
     <div id="view-actress" class="view-section">
         <div class="climb-cabinet">
-            <button id="actress-exit-btn" class="game-exit-btn" onclick="exitActressGame()" style="display:none;">🚪 やめる</button>
-            <div id="actress-title" class="climb-title kira-text">🎬 女優レッスン</div>
+            <button id="actress-exit-btn" class="game-exit-btn" onclick="exitActressGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
+            <div id="actress-title" class="climb-title kira-text"><span class="mi">theater_comedy</span>女優レッスン</div>
             <div id="actress-desc" class="climb-desc"></div>
             <div class="actress-round">ラウンド: <span id="actress-round">0</span></div>
             <div id="actress-prompt" class="actress-prompt"></div>
@@ -664,22 +673,22 @@ html, body {
         </div>
     </div>
     <div id="view-live" class="view-section">
-        <button class="live-exit-btn" onclick="exitLiveView()">🚪 退出する</button>
+        <button class="live-exit-btn" onclick="exitLiveView()"><span class="mi">logout</span>退出する</button>
         <div class="live-cabinet">
-            <div class="live-title">🎤 ライブ会場</div>
+            <div class="live-title"><span class="mi">mic</span>ライブ会場</div>
             <div id="live-body">準備中です…</div>
         </div>
     </div>
     <div id="view-all" class="view-section">
-        <div class="kira-text" style="font-size:1.2em; font-weight:bold; text-align:center; margin-bottom:8px;">📖 アイドル図鑑！</div>
+        <div class="kira-text" style="font-size:1.2em; font-weight:bold; text-align:center; margin-bottom:8px;"><span class="mi">menu_book</span>アイドル図鑑！</div>
         <div style="margin-bottom:8px;">
-            <label style="font-size:0.85em; font-weight:bold;">🔍 組でしぼりこむ:</label>
-            <select id="filter-kumi" onchange="render()"><option value="all">🌟 すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
+            <label style="font-size:0.85em; font-weight:bold;"><span class="mi">search</span>組でしぼりこむ:</label>
+            <select id="filter-kumi" onchange="render()"><option value="all">すべての組を表示</option><option value="花の歌組🌸">花の歌組</option><option value="鳥の劇組🕊‎">鳥の劇組</option><option value="風の舞組🍃">風の舞組</option><option value="月の美組🌙">月の美組</option></select>
         </div>
         <div style="margin-bottom:8px;">
-    <label style="font-size:0.85em; font-weight:bold;">💎 タイプでしぼりこむ:</label>
+    <label style="font-size:0.85em; font-weight:bold;"><span class="mi">diamond</span>タイプでしぼりこむ:</label>
     <select id="filter-suit" onchange="render()">
-        <option value="all">🌟 すべてのタイプを表示</option>
+        <option value="all">すべてのタイプを表示</option>
         <option value="cute">キュート ♡</option>
         <option value="cool">クール ♢</option>
         <option value="sexy">セクシー ♤</option>
@@ -687,14 +696,14 @@ html, body {
     </select>
 </div>
 
-        <input type="text" id="search" placeholder="🔍 なまえ検索..." oninput="render()">
+        <input type="text" id="search" placeholder="なまえ検索..." oninput="render()">
        <div id="grid" class="plaza-grid"></div>
     </div>
 </div>
     <div id="view-member" class="view-section">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <button class="game-exit-btn" onclick="closeMemberProfile()" style="margin-bottom:0;">🚪 もどる</button>
-            <button id="member-edit-toggle-btn" class="edit-btn" onclick="toggleMemberEditMode()" style="display:none;">✏️ 編集</button>
+            <button class="game-exit-btn" onclick="closeMemberProfile()" style="margin-bottom:0;"><span class="mi">arrow_back</span>もどる</button>
+            <button id="member-edit-toggle-btn" class="edit-btn" onclick="toggleMemberEditMode()" style="display:none;"><span class="mi">edit</span>編集</button>
         </div>
         <div class="member-profile-card">
             <div class="member-profile-header">
@@ -704,14 +713,14 @@ html, body {
                 <span id="member-profile-kumi" class="kumi-tag"></span>
             </div>
             <div class="member-profile-section">
-                <div class="member-profile-section-title">📷 しょうかい画像</div>
+                <div class="member-profile-section-title"><span class="mi">photo_camera</span>しょうかい画像</div>
                 <div id="member-profile-img-wrap"></div>
                 <div id="member-profile-img-edit" style="display:none;margin-top:6px;">
                     <input type="file" id="member-profile-img-input" accept="image/*">
                 </div>
             </div>
             <div class="member-profile-section">
-                <div class="member-profile-section-title">🎬 YouTube</div>
+                <div class="member-profile-section-title"><span class="mi">smart_display</span>YouTube</div>
                 <div id="member-profile-yt-wrap"></div>
                 <div id="member-profile-yt-edit" style="display:none;margin-top:6px;">
                     <input type="text" id="member-profile-yt-input" placeholder="YouTubeのURLを貼ってね">
@@ -719,7 +728,7 @@ html, body {
                 </div>
             </div>
             <div class="member-profile-section" id="member-profile-suit-section" style="display:none;">
-                <div class="member-profile-section-title">🃏 タイプ</div>
+                <div class="member-profile-section-title"><span class="mi">style</span>タイプ</div>
                 <div id="member-profile-suit-picker" style="display:flex; gap:6px; flex-wrap:wrap;"></div>
             </div>
             <div id="member-profile-admin-ctrl" style="display:none; gap:6px; margin-top:14px;">
@@ -735,7 +744,7 @@ html, body {
             <button class="cal-nav-btn" onclick="calChangeMonth(-1)">◀</button>
             <b id="cal-month-label"></b>
             <button class="cal-nav-btn" onclick="calChangeMonth(1)">▶</button>
-            <button class="cal-close-btn" onclick="closeCalendar()">✕ 閉じる</button>
+            <button class="cal-close-btn" onclick="closeCalendar()"><span class="mi">close</span>閉じる</button>
         </div>
         <div class="calendar-weekrow"><div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div></div>
         <div id="calendar-gridbody" class="calendar-gridbody"></div>
@@ -768,7 +777,12 @@ html, body {
         sexy: { label: 'セクシー', symbol: '♤', color: '#8a4fe0' },
         pop:  { label: 'ポップ', symbol: '♧', color: '#f5c400' }
       };
-    const KUMI_EMOJI_LIST = ['🌸', '🕊', '🍃', '🌙'];
+    const KUMI_EMOJI_LIST = ['<span class="mi mi-solo">local_florist</span>', '<span class="mi mi-solo">flutter_dash</span>', '<span class="mi mi-solo">air</span>', '<span class="mi mi-solo">bedtime</span>'];
+    // 画面表示用：絵文字を除いて Material Symbols アイコンを使う（保存データの組名などはそのまま）
+    const EMOJI_RE = /[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}\u{200E}]/gu;
+    function noEmoji(str) { return String(str == null ? '' : str).replace(EMOJI_RE, '').trim(); }
+    function mi(name, cls) { return `<span class="mi${cls ? ' ' + cls : ''}">${name}</span>`; }
+    function kumiLabelHtml(k) { if (!k) return '無所属'; const i = KUMI_LIST.indexOf(k); return (i >= 0 ? mi(['local_florist','flutter_dash','air','bedtime'][i]) : '') + noEmoji(k); }
     const KUMI_EMOJI_MAP = {};
     KUMI_LIST.forEach((k, i) => { KUMI_EMOJI_MAP[k] = KUMI_EMOJI_LIST[i]; });
     const TIER_CONFIGS = {
@@ -1295,7 +1309,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function updateBbsDisplay() {
         const fortune = getFortuneData();
         document.getElementById('meigen-body').innerText = getMeigenData();
-        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${fortune.kumi}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？✨<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+1されます！</span>`;
+        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${kumiLabelHtml(fortune.kumi)}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+1されます！</span>`;
         document.getElementById('bbs-body-text').innerText = state.bbsText || "お知らせはまだありません。";
         document.getElementById('admin-bbs-text').value = state.bbsText || "";
     }
@@ -1463,7 +1477,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (checks.length < 2) { alert("出演者を2人以上選んでください"); return; }
         const performers = Array.from(checks).map(c => {
             const m = state.members.find(x => x.id === c.value);
-            return { id: m.id, name: m.name, icon: m.icon || '👤', cheers: 0, votes: 0 };
+            return { id: m.id, name: m.name, icon: m.icon || '', cheers: 0, votes: 0 };
         });
         if (!confirm(`${performers.length}人でライブを作成しますか？`)) return;
         state.live = { showTab: state.live ? state.live.showTab : false, status: 'idle', performers: performers, currentIndex: -1, voters: [], gimmick: null };
@@ -1501,21 +1515,21 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'live') {
             const cur = lv.performers[lv.currentIndex];
-            html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">💗 応援: ${cur.cheers||0}</div></div>`;
-            html += `<button class="live-cheer-btn" onclick="liveCheer()">💗 応援する！</button>`;
+            html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">${mi('favorite','mi-heart')}応援: ${cur.cheers||0}</div></div>`;
+            html += `<button class="live-cheer-btn" onclick="liveCheer()">${mi('favorite')}応援する！</button>`;
             if (me && me.name === cur.name) {
-                html += `<button class="live-gimmick-btn" onclick="liveGimmick()">✨ アピールを発動！</button>`;
+                html += `<button class="live-gimmick-btn" onclick="liveGimmick()">${mi('auto_awesome')}アピールを発動！</button>`;
             }
             html += `<div class="live-queue">` + lv.performers.map((p,i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
         } else if (lv.status === 'voting') {
-            html += `<div class="live-spotlight"><div style="font-weight:bold;">🗳 投票タイム！好きな演者に投票してね</div></div>`;
+            html += `<div class="live-spotlight"><div style="font-weight:bold;">${mi('how_to_vote')}投票タイム！好きな演者に投票してね</div></div>`;
             const voted = (lv.voters||[]).includes(me ? me.id : '');
             lv.performers.forEach(p => {
                 html += `<div class="live-vote-row"><span>${getIconHtml(p.icon,'1.2em')} ${p.name}（${p.votes||0}票）</span><button ${voted?'disabled':''} onclick="liveVote('${p.id}')" style="padding:4px 12px;">投票</button></div>`;
             });
             if (voted) html += `<div style="font-size:0.85em; opacity:0.85; margin-top:6px;">投票ありがとう！結果発表をお待ちください</div>`;
         } else if (lv.status === 'result') {
-            html += `<div class="live-spotlight"><div style="font-weight:bold;">🏆 結果発表 🏆</div></div>`;
+            html += `<div class="live-spotlight"><div style="font-weight:bold;">${mi('emoji_events','mi-gold')}結果発表</div></div>`;
             html += `<div id="live-result-list"></div>`;
         }
         if (state.isAdmin) {
@@ -1524,11 +1538,11 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 html += `<button onclick="liveAdvance()">▶ ライブ開始</button>`;
             } else if (lv.status === 'live') {
                 const isLast = lv.currentIndex >= lv.performers.length - 1;
-                html += `<button onclick="liveAdvance()">${isLast ? '🗳 投票を開始' : '⏭ 次の出演者へ'}</button>`;
+                html += `<button onclick="liveAdvance()">${isLast ? mi('how_to_vote') + '投票を開始' : mi('skip_next') + '次の出演者へ'}</button>`;
             } else if (lv.status === 'voting') {
-                html += `<button onclick="liveReveal()">🏆 結果発表する</button>`;
+                html += `<button onclick="liveReveal()">${mi('emoji_events')}結果発表する</button>`;
             } else if (lv.status === 'result') {
-                html += `<button onclick="liveResetAll()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">🔚 ライブを終了してリセット</button>`;
+                html += `<button onclick="liveResetAll()" style="background:#c92a2a; box-shadow:0 3px 0 #a61e1e;">${mi('stop_circle')}ライブを終了してリセット</button>`;
             }
             html += `</div>`;
         }
@@ -1546,7 +1560,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 const rank = sorted.length - i;
                 const row = document.createElement('div');
                 row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
-                row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? '👑' : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
+                row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? mi('workspace_premium','mi-gold mi-solo') : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
                 list.appendChild(row);
             }, i * 900);
         });
@@ -1652,7 +1666,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 <input type="number" value="${t.pl}" onchange="upTierField('${containerId}',${idx},'pl',this.value)">
                 <input type="number" value="${t.da}" onchange="upTierField('${containerId}',${idx},'da',this.value)">
                 <input type="number" value="${t.vi}" onchange="upTierField('${containerId}',${idx},'vi',this.value)">
-                <button class="edit-btn" onclick="delTierRow('${containerId}',${idx})">✕</button>
+                <button class="edit-btn" onclick="delTierRow('${containerId}',${idx})">${mi('close','mi-solo')}</button>
             </div>`;
         });
         html += `</div><button onclick="addTierRow('${containerId}')" style="width:100%;margin-top:6px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
@@ -1694,7 +1708,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             html += `<div class="tier-row" style="grid-template-columns:60px 1fr 26px;">
                 <div style="font-weight:bold;text-align:center;">${idx+1}</div>
                 <input type="number" min="1" value="${v}" onchange="upMusicStage(${idx},this.value)">
-                <button class="edit-btn" onclick="delMusicStage(${idx})">✕</button>
+                <button class="edit-btn" onclick="delMusicStage(${idx})">${mi('close','mi-solo')}</button>
             </div>`;
         });
         html += `</div><div style="font-size:0.75em;color:#8a787b;margin:4px 0;">※リストの最後を超えたラウンドは、最後の値がそのまま繰り返されます</div><button onclick="addMusicStage()" style="width:100%;margin-top:2px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
@@ -1785,8 +1799,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         max = max || 3;
         const el = document.getElementById(elId); if (!el) return;
         let h = '';
-        for (let i = 0; i < max; i++) h += (i < n ? '💗' : '🤍');
-        el.innerText = h;
+        for (let i = 0; i < max; i++) h += (i < n ? mi('favorite', 'mi-heart mi-solo') : mi('favorite', 'mi-heart mi-o mi-solo'));
+        el.innerHTML = h;
     }
     function startClimb() {
         const me = state.members.find(m => m.name === user);
@@ -1947,7 +1961,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             startBtn.style.display = 'none';
             const ms2 = MASCOTS.find(x => x.id === me.mascotId) || MASCOTS[0];
             resultBox.style.display = 'block';
-            resultBox.innerHTML = buildResultHtml('climb-result-canvas', ms2, '🏆 今日の結果！', (me.climbHeight||0) + 'm', {vo:0,pl:0,da:0,vi:0}) + `<div style="font-size:0.85em;opacity:0.85;margin-top:4px;">また明日挑戦してね！</div>`;
+            resultBox.innerHTML = buildResultHtml('climb-result-canvas', ms2, mi('emoji_events','mi-gold') + '今日の結果！', (me.climbHeight||0) + 'm', {vo:0,pl:0,da:0,vi:0}) + `<div style="font-size:0.85em;opacity:0.85;margin-top:4px;">また明日挑戦してね！</div>`;
             renderResultChar('climb-result', 'climb-result-canvas', ms2, 'climb');
         } else {
             startBtn.style.display = 'block';
@@ -2027,14 +2041,14 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function goAdmin() { if (state.isAdmin) { state.isAdmin = false; } else { if (prompt("暗証番号:") === state.password) state.isAdmin = true; } updateUI(); render(); }
     function updateUI() {
         const b = document.body;
-        if (state.isAdmin) { b.classList.add('is-admin'); const lb = document.getElementById('lock-btn'); if (lb) lb.innerText = "🔓 ロック"; }
-        else { b.classList.remove('is-admin'); const menuEl = document.getElementById('menu'); if (menuEl) menuEl.style.display = 'none'; const lb = document.getElementById('lock-btn'); if (lb) lb.innerText = "🔒 ひみつ"; }
+        if (state.isAdmin) { b.classList.add('is-admin'); const lb = document.getElementById('lock-btn'); if (lb) lb.innerHTML = mi('lock_open') + 'ロック'; }
+        else { b.classList.remove('is-admin'); const menuEl = document.getElementById('menu'); if (menuEl) menuEl.style.display = 'none'; const lb = document.getElementById('lock-btn'); if (lb) lb.innerHTML = mi('lock') + 'ひみつ'; }
     }
     function editProfile(id) {
         const m = state.members.find(m => m.id === id); if(!m) return;
         const newName = prompt(`【管理者編集】新しい名前を入力してください:`, m.name); if (newName === null) return;
         const finalName = newName.trim(); if (!finalName) { alert("名前を空にできません。"); return; }
-        let kumiMsg = `【管理者編集】新しい所属組の番号を入力してください:\n`; KUMI_LIST.forEach((k, i) => { kumiMsg += `${i + 1} : ${k}\n`; });
+        let kumiMsg = `【管理者編集】新しい所属組の番号を入力してください:\n`; KUMI_LIST.forEach((k, i) => { kumiMsg += `${i + 1} : ${noEmoji(k)}\n`; });
         const currentIdx = KUMI_LIST.indexOf(m.kumi) !== -1 ? KUMI_LIST.indexOf(m.kumi) + 1 : 1;
         const kumiInput = prompt(kumiMsg, currentIdx); if (kumiInput === null) return;
         const idx = parseInt(kumiInput) - 1;
@@ -2052,7 +2066,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function upEmoji(l, v) { state.emojis[l] = v || "🏃‍♂️"; saveLocal(); render(); }
     function addProb(l) {
-        const name = prompt("新しい判定の名前を入力してください（例: 💎 超大成功）", "💎 超大成功");
+        const name = prompt("新しい判定の名前を入力してください（例: 超大成功）", "超大成功");
         if (!name) return;
         state.probs[l].unshift({ name: name, prob: 5, pts: { vo: 5, pl: 5, da: 5, vi: 5 } });
         saveLocal(); syncProbs(); initForm(); updatePreviewTableAll(); render();
@@ -2706,7 +2720,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 <img src="${ms.img}" onerror="this.style.opacity=0.2">
                 <div class="mascot-name">${ms.name}</div>
                 ${!ms.available ? '<div class="mascot-lock">近日公開</div>' : ''}
-                ${selected ? '<div class="mascot-check">✔ 使用中</div>' : ''}
+                ${selected ? `<div class="mascot-check">${mi('check_circle')}使用中</div>` : ''}
             </div>
         `;
     }).join('');
@@ -2758,13 +2772,13 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const l = selEl.value; const box = document.getElementById(`pre-box-${id}`); if(!box) return;
         const outcomes = state.probs[l];
         let html = `<div class="preview-table"><div class="preview-row preview-head"><div>判定</div><div>確率</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div></div>`;
-        outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${o.name}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
+        outcomes.forEach(o => { html += `<div class="preview-row" style="font-weight:bold;"><div style="font-size:0.9em; text-align:left;">${noEmoji(o.name)}</div><div>${o.prob}%</div><div>+${o.pts.vo}</div><div>+${o.pts.pl}</div><div>+${o.pts.da}</div><div>+${o.pts.vi}</div></div>`; });
         html += `</div>`; box.innerHTML = html;
     }
     function updatePreviewTableAll() { state.members.forEach(m => { if(document.getElementById(`sel-${m.id}`)) changePreview(m.id); }); }
       function getIconHtml(icon, size) {
         size = size || '1.5em';
-        if (!icon) return '👤';
+        if (!icon) return `<span class="mi mi-solo" style="font-size:${size};color:#d8b4e2;">person</span>`;
         if (/\.(png|jpg|jpeg|gif|webp)$/i.test(icon) || icon.indexOf('http') === 0) {
             return `<img src="${icon}" style="width:${size};height:${size};object-fit:cover;border-radius:50%;vertical-align:middle;">`;
         }
@@ -2794,9 +2808,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     tempInput.click();
 }
     function buildCardHtml(m, isMe) {
-        let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${item.replace(':', '：')}<br>`; }); }
+        let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${noEmoji(item.replace(':', '：'))}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
-        const iconBtn = (isMe || state.isAdmin) ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">🎀 アイコン変更</button>` : '';
+        const iconBtn = (isMe || state.isAdmin) ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">${mi('add_a_photo')}アイコン変更</button>` : '';
         const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const remain = Math.max(0, (state.limit||2) - (m.r||0));
         const unit = (state.units||[]).find(u => (u.memberIds||[]).includes(m.id));
@@ -2810,7 +2824,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <div class="head-icon-big">${getIconHtml(m.icon,'86px')}</div>
             <div class="head-info-big">
                 <div class="head-name-big">${m.name}${isMe?'<span class="my-tag">わたし</span>':''}</div>
-                <div class="head-tags-big"><span class="kumi-tag ${getKumiClass(m.kumi)}">${m.kumi||'無所属'}</span> ${suitTag}</div>
+                <div class="head-tags-big"><span class="kumi-tag ${getKumiClass(m.kumi)}">${kumiLabelHtml(m.kumi)}</span> ${suitTag}</div>
                 <div>${iconBtn}${adminProfileBtns}</div>
             </div>
         </div>
@@ -2824,10 +2838,10 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         <div class="history">${hHtml||'履歴なし'}</div>`;
     }
       const LESSON_LIST = [
-        { key:'climb', label:'🧗 崖登り' }, { key:'run', label:'🏃 ランニング' },
-        { key:'music', label:'🎹 音感' }, { key:'kintore', label:'💪 筋トレ' },
-        { key:'trampoline', label:'🤸 トランポリン' }, { key:'dance', label:'💃 ダンス' },
-        { key:'model', label:'👠 モデル' }, { key:'actress', label:'🎬 女優' }
+        { key:'climb', label:mi('hiking') + '崖登り' }, { key:'run', label:mi('directions_run') + 'ランニング' },
+        { key:'music', label:mi('piano') + '音感' }, { key:'kintore', label:mi('fitness_center') + '筋トレ' },
+        { key:'trampoline', label:mi('sports_gymnastics') + 'トランポリン' }, { key:'dance', label:mi('music_note') + 'ダンス' },
+        { key:'model', label:mi('checkroom') + 'モデル' }, { key:'actress', label:mi('theater_comedy') + '女優' }
     ];
     function toggleLessonVisList() {
         const con = document.getElementById('lesson-vis-con');
@@ -2864,9 +2878,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         });
     }
       const ACTRESS_EMOTIONS = [
-        {key:'smile', label:'😊 嬉しい顔'}, {key:'cry', label:'😢 泣き顔'}, {key:'angry', label:'😠 怒った顔'},
-        {key:'surprise', label:'😲 驚いた顔'}, {key:'wink', label:'😉 ウインク顔'}, {key:'shy', label:'😳 照れ顔'},
-        {key:'sleepy', label:'😴 眠い顔'}, {key:'excited', label:'🤩 興奮した顔'}, {key:'confused', label:'😕 困った顔'}, {key:'cool', label:'😎 クールな顔'}
+        {key:'smile', icon:'sentiment_very_satisfied', label:'嬉しい顔'}, {key:'cry', icon:'sentiment_sad', label:'泣き顔'}, {key:'angry', icon:'sentiment_extremely_dissatisfied', label:'怒った顔'},
+        {key:'surprise', icon:'sentiment_stressed', label:'驚いた顔'}, {key:'wink', icon:'mood', label:'ウインク顔'}, {key:'shy', icon:'sentiment_content', label:'照れ顔'},
+        {key:'sleepy', icon:'bedtime', label:'眠い顔'}, {key:'excited', icon:'sentiment_excited', label:'興奮した顔'}, {key:'confused', icon:'sentiment_worried', label:'困った顔'}, {key:'cool', icon:'sentiment_calm', label:'クールな顔'}
     ];
     let trampoline = { active:false, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:null, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
     let dance = { active:false, hits:0, timeLeft:30, totalTime:30, notes:[], targetId:null, spawnTimer:0, tick:null, _timeAcc:0 };
@@ -3082,10 +3096,10 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function triggerTrampolineSparkles() {
         const layer = document.getElementById('trampoline-sparkle-layer');
         layer.innerHTML = ''; layer.classList.add('show');
-        const emojis = ['✨', '⭐', '💫', '🌟'];
+        const emojis = ['auto_awesome', 'star', 'auto_awesome', 'star'];
         for (let i = 0; i < 8; i++) {
             const s = document.createElement('div');
-            s.className = 'trampoline-sparkle'; s.innerText = emojis[i % emojis.length];
+            s.className = 'trampoline-sparkle'; s.innerHTML = mi(emojis[i % emojis.length], 'mi-gold mi-solo');
             s.style.left = (30 + Math.random() * 40) + '%'; s.style.top = (30 + Math.random() * 30) + '%';
             s.style.animationDelay = (i * 0.05) + 's';
             layer.appendChild(s);
@@ -3111,7 +3125,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         (state.trampolineTiers || []).forEach(t => { if (trampoline.totalHeight >= t.height) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++; ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, '🤸 結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
+        showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, mi('sports_gymnastics') + '結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
         document.getElementById('trampoline-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -3224,7 +3238,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         (state.danceTiers || []).forEach(t => { if (dance.hits >= t.hits) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        showLessonResult('dance-result', 'dance-result-canvas', ms, '💃 結果！', dance.hits + 'ヒット', earned, 'dance');
+        showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', dance.hits + 'ヒット', earned, 'dance');
         document.getElementById('dance-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -3312,7 +3326,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         (state.modelTiers || []).forEach(t => { if (seconds >= t.seconds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        showLessonResult('model-result', 'model-result-canvas', ms, '👠 結果！', seconds + '秒', earned, 'model');
+        showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
         document.getElementById('model-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -3373,7 +3387,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const choices = actressPickEmotions();
         const correct = choices[Math.floor(Math.random()*4)];
         actress.current = correct.key;
-        document.getElementById('actress-prompt').innerText = `お題: ${correct.label}`;
+        document.getElementById('actress-prompt').innerHTML = `お題: ${mi(correct.icon)}${correct.label}`;
         const box = document.getElementById('actress-choices');
         box.innerHTML = choices.map(c => `<div class="actress-choice" onclick="actressPick('${c.key}', this)"><img src="${actress.ms.id}_face_${c.key}.png" onerror="this.src='${actress.ms.img}'"></div>`).join('');
         actress.timer = setTimeout(() => actressFail(), actress.timeLimit);
@@ -3400,7 +3414,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         (state.actressTiers || []).forEach(t => { if (actress.round >= t.rounds) { earned.vo += t.vo; earned.pl += t.pl; earned.da += t.da; earned.vi += t.vi; } });
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
-        showLessonResult('actress-result', 'actress-result-canvas', ms, '🎬 結果！', actress.round + '問正解', earned, 'actress');
+        showLessonResult('actress-result', 'actress-result-canvas', ms, mi('theater_comedy') + '結果！', actress.round + '問正解', earned, 'actress');
         document.getElementById('actress-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -3512,7 +3526,7 @@ state.members.forEach(m => {
         document.getElementById('member-profile-icon-wrap').innerHTML = getIconHtml(m.icon, '100%');
         document.getElementById('member-profile-name').innerText = m.name + (isMe ? '（わたし）' : '');
         const kumiEl = document.getElementById('member-profile-kumi');
-        kumiEl.innerText = m.kumi || '無所属';
+        kumiEl.innerHTML = kumiLabelHtml(m.kumi);
         kumiEl.className = 'kumi-tag ' + getKumiClass(m.kumi);
 
         const imgWrap = document.getElementById('member-profile-img-wrap');
@@ -3530,7 +3544,7 @@ state.members.forEach(m => {
         const ytInput = document.getElementById('member-profile-yt-input');
         if (ytInput) ytInput.value = m.youtubeUrl || '';
         const editToggleBtn = document.getElementById('member-edit-toggle-btn');
-        if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerText = memberEditMode ? '✅ 完了' : '✏️ 編集'; }
+        if (editToggleBtn) { editToggleBtn.style.display = canEdit ? 'inline-block' : 'none'; editToggleBtn.innerHTML = memberEditMode ? mi('check') + '完了' : mi('edit') + '編集'; }
         const adminCtrl = document.getElementById('member-profile-admin-ctrl');
         if (adminCtrl) adminCtrl.style.display = state.isAdmin ? 'flex' : 'none';
         const suitSection = document.getElementById('member-profile-suit-section');
@@ -3670,7 +3684,7 @@ state.members.forEach(m => {
         const k = calState.selectedDate;
         const [yy, mm, dd] = k.split('-');
         const evs = calState.events.filter(ev => ev.date === k);
-        let html = `<div style="font-weight:bold; color:#ff758f; margin-bottom:6px;">🗓️ ${mm}月${dd}日 の予定</div>`;
+        let html = `<div style="font-weight:bold; color:#ff758f; margin-bottom:6px;">${mi('event')}${mm}月${dd}日 の予定</div>`;
         if (evs.length === 0) { html += `<div style="font-size:0.85em; color:#baabb0; margin-bottom:6px;">まだ予定はありません</div>`; }
         else {
             evs.forEach(ev => {
@@ -3742,7 +3756,7 @@ state.members.forEach(m => {
     </div>
    <div id="icon-crop-modal" class="icon-crop-modal">
         <div class="icon-crop-panel">
-            <div class="icon-crop-title">✂️ 四角の中がアイコンになるよ</div>
+            <div class="icon-crop-title"><span class="mi">crop</span>四角の中がアイコンになるよ</div>
             <div class="icon-crop-hint">四角をドラッグで移動、右下の●で大きさを変えられるよ</div>
             <div id="icon-crop-stage" class="icon-crop-stage">
                 <img id="icon-crop-img" alt="">
@@ -3756,7 +3770,7 @@ state.members.forEach(m => {
         </div>
     </div>
    <div id="scene-transition-overlay" class="scene-transition-overlay">
-        <div class="scene-transition-star">🌟</div>
+        <div class="scene-transition-star"><span class="mi mi-solo">auto_awesome</span></div>
         <canvas id="scene-transition-canvas"></canvas>
     </div>
 </body>
