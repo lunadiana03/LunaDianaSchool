@@ -906,11 +906,6 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
                 <div class="lm-label kira-text">ランニング</div>
                 <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
             </div>
-            <div id="lm-item-music"class="lesson-menu-item lm-music" onclick="switchViewWithTransition('music')">
-                <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M9 3v10.55A4 4 0 1 0 11 17V7h6V3z"/></svg></div>
-                <div class="lm-label kira-text">音感</div>
-                <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
-            </div>
             <div id="lm-item-kintore"class="lesson-menu-item lm-kintore" onclick="switchViewWithTransition('kintore')">
                 <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M2 9h2v6H2zm3 1h2v4H5zm3-3h8v10H8zm11 2h2v6h-2zm-3-1h2v4h-2z"/></svg></div>
                 <div class="lm-label kira-text">筋トレ</div>
@@ -921,14 +916,19 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
                 <div class="lm-label kira-text">トランポリン</div>
                 <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
             </div>
-            <div id="lm-item-dance"class="lesson-menu-item lm-dance" onclick="switchViewWithTransition('dance')">
-                <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M13 2l-2 2v6l-4 4v8h2v-6l3-3 3 3v6h2v-8l-4-4V6z"/></svg></div>
-                <div class="lm-label kira-text">ダンスレッスン</div>
+            <div id="lm-item-music"class="lesson-menu-item lm-music" onclick="switchViewWithTransition('music')">
+                <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M9 3v10.55A4 4 0 1 0 11 17V7h6V3z"/></svg></div>
+                <div class="lm-label kira-text">音感</div>
                 <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
             </div>
             <div id="lm-item-model"class="lesson-menu-item lm-model" onclick="switchViewWithTransition('model')">
                 <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 1 3 3v2a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zM6 21c1-4 3-6 6-6s5 2 6 6z"/></svg></div>
                 <div class="lm-label kira-text">モデルレッスン</div>
+                <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
+            </div>
+            <div id="lm-item-dance"class="lesson-menu-item lm-dance" onclick="switchViewWithTransition('dance')">
+                <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M13 2l-2 2v6l-4 4v8h2v-6l3-3 3 3v6h2v-8l-4-4V6z"/></svg></div>
+                <div class="lm-label kira-text">ダンスレッスン</div>
                 <div class="lesson-badge"><svg viewBox="0 0 24 24"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.1 1.5 6.6 4.4 5.1 6.6 4 9 4.7 12 7.6 15 4.7 17.4 4 19.6 5.1c2.9 1.5 3.4 5 1.7 7.8C18.7 16.65 12 21 12 21z"/></svg>体力-1</div>
             </div>
             <div id="lm-item-actress"class="lesson-menu-item lm-actress" onclick="switchViewWithTransition('actress')">
@@ -3690,9 +3690,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
       const LESSON_LIST = [
         { key:'climb', label:mi('hiking') + '崖登り' }, { key:'run', label:mi('directions_run') + 'ランニング' },
-        { key:'music', label:mi('piano') + '音感' }, { key:'kintore', label:mi('fitness_center') + '筋トレ' },
-        { key:'trampoline', label:mi('sports_gymnastics') + 'トランポリン' }, { key:'dance', label:mi('music_note') + 'ダンス' },
-        { key:'model', label:mi('checkroom') + 'モデル' }, { key:'actress', label:mi('theater_comedy') + '女優' }
+        { key:'kintore', label:mi('fitness_center') + '筋トレ' }, { key:'trampoline', label:mi('sports_gymnastics') + 'トランポリン' },
+        { key:'music', label:mi('piano') + '音感' }, { key:'model', label:mi('checkroom') + 'モデル' },
+        { key:'dance', label:mi('music_note') + 'ダンス' }, { key:'actress', label:mi('theater_comedy') + '女優' }
     ];
     function toggleLessonVisList() {
         const con = document.getElementById('lesson-vis-con');
