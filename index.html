@@ -828,9 +828,33 @@ html, body {
         keys.map((k, i) => [k, raw[i] - earned[k]]).sort((a, b) => b[1] - a[1]).forEach(([k]) => { if (rest > 0) { earned[k]++; rest--; } });
         return earned;
     }
-    function lessonEarned(key, tiers, isAchieved) {
-        tiers = tiers || [];
-        return lessonEarnedByCount(key, tiers.length, tiers.filter(isAchieved).length);
+    // 20段階制：「20段階目に届く値(max)」と「それを超えたら何ごとに各ステータス+1(over)」をレッスンごとに設定
+    const LESSON_STEPS = 20;
+    const LESSON_STEP_DEFAULTS = {
+        run:        { max: 1200, over: 200 },
+        music:      { max: 14,   over: 2 },
+        kintore:    { max: 60,   over: 10 },
+        trampoline: { max: 90,   over: 15 },
+        dance:      { max: 25,   over: 5 },
+        model:      { max: 25,   over: 5 },
+        actress:    { max: 5,    over: 1 }
+    };
+    function lessonStepCfg(key) {
+        const v = state[key + 'Tiers'];
+        const d = LESSON_STEP_DEFAULTS[key];
+        // 旧形式（段階の配列）のときは初期値を使う
+        if (!v || Array.isArray(v) || !(v.max > 0)) return { max: d.max, over: d.over };
+        return { max: v.max, over: v.over > 0 ? v.over : 0 };
+    }
+    function lessonStepOf(key, value) { const c = lessonStepCfg(key); return Math.max(0, Math.min(LESSON_STEPS, Math.floor(value / c.max * LESSON_STEPS + 1e-9))); }
+    function lessonEarnedByValue(key, value) {
+        const c = lessonStepCfg(key);
+        const e = lessonEarnedByCount(key, LESSON_STEPS, lessonStepOf(key, value));
+        if (value > c.max && c.over > 0) {
+            const extra = Math.floor((value - c.max) / c.over + 1e-9);
+            ['vo', 'pl', 'da', 'vi'].forEach(k => { e[k] += extra; });
+        }
+        return e;
     }
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
@@ -1717,18 +1741,14 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const tiers = cfg.getArr();
         const lessonKey = TIER_LESSON_KEYS[containerId];
         if (lessonKey) {
-            // 崖登り以外は配分比から自動計算（ここでは段階の基準値だけ編集）
-            let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:4px;">ポイントは崖登りの約1/3（満点合計 ${lessonFullTotal()}）を自動で配分します（到達時の累計）</div>`;
-            h += `<div class="tier-table"><div class="tier-row tier-head"><div>${cfg.keyLabel}</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>`;
-            tiers.forEach((t, idx) => {
-                const e = lessonEarnedByCount(lessonKey, tiers.length, idx + 1);
-                h += `<div class="tier-row">
-                    <input type="number" value="${t[cfg.keyProp]}" onchange="upTierField('${containerId}',${idx},'${cfg.keyProp}',this.value)">
-                    <div>${e.vo}</div><div>${e.pl}</div><div>${e.da}</div><div>${e.vi}</div>
-                    <button class="edit-btn" onclick="delTierRow('${containerId}',${idx})">${mi('close','mi-solo')}</button>
-                </div>`;
-            });
-            h += `</div><button onclick="addTierRow('${containerId}')" style="width:100%;margin-top:6px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
+            // 崖登り以外：20段階目の値と、その後の刻みだけを設定（ポイントは自動配分）
+            const c = lessonStepCfg(lessonKey);
+            const unit = { run: 'm', music: '音', kintore: '回', trampoline: 'm', dance: 'ヒット', model: '秒', actress: '問' }[lessonKey] || '';
+            const row = st => { const e = lessonEarnedByCount(lessonKey, LESSON_STEPS, st); const v = Math.round(c.max * st / LESSON_STEPS * 10) / 10; return `<div class="tier-row"><div>${st}段階(${v})</div><div>${e.vo}</div><div>${e.pl}</div><div>${e.da}</div><div>${e.vi}</div><div></div></div>`; };
+            let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:6px;">全${LESSON_STEPS}段階。ポイントは崖登りの約1/3（満点合計 ${lessonFullTotal()}）を自動で配分します</div>`;
+            h += `<label style="font-size:0.85em;">20段階目に届く${cfg.keyLabel}</label><input type="number" min="1" value="${c.max}" onchange="upLessonStep('${containerId}','max',this.value)">`;
+            h += `<label style="font-size:0.85em;">それを超えたら、何${unit}ごとに各ステータス+1</label><input type="number" min="0" value="${c.over}" onchange="upLessonStep('${containerId}','over',this.value)">`;
+            h += `<div class="tier-table"><div class="tier-row tier-head"><div>段階</div><div>Vo</div><div>Pl</div><div>Da</div><div>Vi</div><div></div></div>${[5, 10, 15, 20].map(row).join('')}</div>`;
             con.innerHTML = h;
             return;
         }
@@ -1746,6 +1766,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         });
         html += `</div><button onclick="addTierRow('${containerId}')" style="width:100%;margin-top:6px;background:#4c6ef5;box-shadow:0 3px 0 #364fc7;">＋ 段階を追加</button>`;
         con.innerHTML = html;
+    }
+    function upLessonStep(containerId, field, val) {
+        const key = TIER_LESSON_KEYS[containerId]; if (!key) return;
+        const c = lessonStepCfg(key);
+        const n = parseFloat(val);
+        if (field === 'max') c.max = n > 0 ? n : c.max;
+        else c.over = n >= 0 ? n : 0;
+        state[key + 'Tiers'] = c;
+        TIER_CONFIGS[containerId].sync(); renderTierAdmin(containerId);
     }
     function upTierField(containerId, idx, field, val) {
         const cfg = TIER_CONFIGS[containerId];
@@ -2363,7 +2392,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === run.targetId);
         if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        Object.assign(earned, lessonEarned('run', state.runTiers, t => run.distance >= t.distance));
+        Object.assign(earned, lessonEarnedByValue('run', run.distance));
         m.r++;
         ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2557,7 +2586,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!m) return;
         const achieved = music.sequence.length;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        Object.assign(earned, lessonEarned('music', state.musicTiers, t => achieved >= t.rounds));
+        Object.assign(earned, lessonEarnedByValue('music', achieved));
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2729,7 +2758,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === kintore.targetId);
         if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        Object.assign(earned, lessonEarned('kintore', state.kintoreTiers, t => kintore.totalTaps >= t.count));
+        Object.assign(earned, lessonEarnedByValue('kintore', kintore.totalTaps));
         m.r++;
         ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -3258,7 +3287,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
-        Object.assign(earned, lessonEarned('trampoline', state.trampolineTiers, t => trampoline.totalHeight >= t.height));
+        Object.assign(earned, lessonEarnedByValue('trampoline', trampoline.totalHeight));
         m.r++; ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, mi('sports_gymnastics') + '結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
@@ -3371,7 +3400,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === dance.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        Object.assign(earned, lessonEarned('dance', state.danceTiers, t => dance.hits >= t.hits));
+        Object.assign(earned, lessonEarnedByValue('dance', dance.hits));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', dance.hits + 'ヒット', earned, 'dance');
@@ -3459,7 +3488,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === model.targetId); if (!m) return;
         const seconds = Math.round(model.seconds * 10) / 10;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        Object.assign(earned, lessonEarned('model', state.modelTiers, t => seconds >= t.seconds));
+        Object.assign(earned, lessonEarnedByValue('model', seconds));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
@@ -3547,7 +3576,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('timeup');
         const m = state.members.find(x => x.id === actress.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
-        Object.assign(earned, lessonEarned('actress', state.actressTiers, t => actress.round >= t.rounds));
+        Object.assign(earned, lessonEarnedByValue('actress', actress.round));
         m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('actress-result', 'actress-result-canvas', ms, mi('theater_comedy') + '結果！', actress.round + '問正解', earned, 'actress');
