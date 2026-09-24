@@ -1889,7 +1889,7 @@ setTimeout(() => {
         const d = entryDraft;
         let h = '';
         if (entryStep === 'welcome') {
-            h = `<div class="entry-kicker">WELCOME</div><div class="entry-title">アイドル学園へ<br>ようこそ！</div>
+            h = `<div class="entry-kicker">WELCOME</div><div class="entry-title">ルナディアーナ学園へ<br>ようこそ！</div>
                 <p class="entry-text">まずは入学願書を書こう。<br>名前・組・タイプ・アイコン・パートナーを<br>ひとつずつ決めていくよ。</p>
                 <button type="button" class="entry-main-btn" onclick="entryGo('name')">${mi('edit_note')}入学願書を書く</button>
                 <button type="button" class="entry-sub-link" onclick="entryGo('login')">もう入学している人はこちら</button>`;
@@ -1950,7 +1950,7 @@ setTimeout(() => {
             startWaitCountdown();
         } else if (entryStep === 'celebrate') {
             h = `<div class="celebrate-burst"></div><div class="entry-kicker">CONGRATULATIONS</div><div class="entry-title big">入学<br>おめでとう！</div>
-                <p class="entry-text">今日からあなたもアイドル学園の生徒です。<br>レッスンをがんばろう！</p>
+                <p class="entry-text">今日からあなたもルナディアーナ学園の生徒です。<br>レッスンをがんばろう！</p>
                 <button type="button" class="entry-main-btn" onclick="entryFinish()">${mi('auto_awesome')}レッスン手帳をひらく</button>`;
         }
         card.innerHTML = h;
