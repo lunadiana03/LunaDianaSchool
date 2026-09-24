@@ -832,9 +832,9 @@ html, body {
     const LESSON_STEPS = 20;
     const LESSON_STEP_DEFAULTS = {
         run:        { max: 1200, over: 200 },
-        music:      { max: 14,   over: 2 },
+        music:      { max: 10,   over: 1 },
         kintore:    { max: 60,   over: 10 },
-        trampoline: { max: 90,   over: 15 },
+        trampoline: { max: 75,   over: 5 },
         dance:      { max: 25,   over: 5 },
         model:      { max: 25,   over: 5 },
         actress:    { max: 5,    over: 1 }
@@ -859,7 +859,7 @@ html, body {
     const TIER_CONFIGS = {
         'climb-con': { getArr: () => state.climbTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncClimbTiers() },
         'run-con': { getArr: () => state.runTiers, keyProp: 'distance', keyLabel: '距離(m)', sync: () => syncRunTiers() },
-        'music-con': { getArr: () => state.musicTiers, keyProp: 'rounds', keyLabel: '達成音数', sync: () => syncMusicTiers() },
+        'music-con': { getArr: () => state.musicTiers, keyProp: 'rounds', keyLabel: 'クリア回数', sync: () => syncMusicTiers() },
         'kintore-con': { getArr: () => state.kintoreTiers, keyProp: 'count', keyLabel: 'タップ数', sync: () => syncKintoreTiers() },
         'trampoline-con': { getArr: () => state.trampolineTiers, keyProp: 'height', keyLabel: '高さ(m)', sync: () => syncTrampolineTiers() },
         'dance-con': { getArr: () => state.danceTiers, keyProp: 'hits', keyLabel: 'ヒット数', sync: () => syncDanceTiers() },
@@ -1743,7 +1743,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (lessonKey) {
             // 崖登り以外：20段階目の値と、その後の刻みだけを設定（ポイントは自動配分）
             const c = lessonStepCfg(lessonKey);
-            const unit = { run: 'm', music: '音', kintore: '回', trampoline: 'm', dance: 'ヒット', model: '秒', actress: '問' }[lessonKey] || '';
+            const unit = { run: 'm', music: '回', kintore: '回', trampoline: 'm', dance: 'ヒット', model: '秒', actress: '問' }[lessonKey] || '';
             const row = st => { const e = lessonEarnedByCount(lessonKey, LESSON_STEPS, st); const v = Math.round(c.max * st / LESSON_STEPS * 10) / 10; return `<div class="tier-row"><div>${st}段階(${v})</div><div>${e.vo}</div><div>${e.pl}</div><div>${e.da}</div><div>${e.vi}</div><div></div></div>`; };
             let h = `<div style="font-size:0.8em;color:#8a7a7e;margin-bottom:6px;">全${LESSON_STEPS}段階。ポイントは崖登りの約1/3（満点合計 ${lessonFullTotal()}）を自動で配分します</div>`;
             h += `<label style="font-size:0.85em;">20段階目に届く${cfg.keyLabel}</label><input type="number" min="1" value="${c.max}" onchange="upLessonStep('${containerId}','max',this.value)">`;
@@ -2518,7 +2518,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function actuallyStartMusic(me) {
         playSound('start');
         const initLen = (state.musicStages && state.musicStages[0]) ? state.musicStages[0] : 5;
-        music = { active: true, sequence: [], round: 0, awaitingInput: false, playerIdx: 0, targetId: me.id, tempo: 700, lives: 3, initLen: initLen, peakLen: initLen };
+        music = { active: true, sequence: [], round: 0, clears: 0, awaitingInput: false, playerIdx: 0, targetId: me.id, tempo: 700, lives: 3, initLen: initLen, peakLen: initLen };
         for (let i = 0; i < initLen; i++) music.sequence.push(Math.floor(Math.random() * MUSIC_NOTES.length));
         document.getElementById('music-round').innerText = '0';
         renderLives('music-lives', music.lives);
@@ -2546,6 +2546,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             music.playerIdx++;
             if (music.playerIdx >= music.sequence.length) {
                 music.round++;
+                music.clears++; // クリアできた回数（ミスしてもリセットしない）
                 document.getElementById('music-round').innerText = String(music.round);
                 const stages = state.musicStages && state.musicStages.length ? state.musicStages : [music.sequence.length + 1];
                 const stageIdx = Math.min(music.round, stages.length - 1);
@@ -2584,7 +2585,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('music-play-area').style.display = 'none';
         const m = state.members.find(x => x.id === music.targetId);
         if (!m) return;
-        const achieved = music.sequence.length;
+        const achieved = music.clears || 0;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('music', achieved));
         m.r++;
@@ -2596,7 +2597,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     'music-result-canvas',
     musicMs,
     ' 結果！',
-    achieved + '音',
+    achieved + '回クリア',
     earned,
     'music'
 );
