@@ -3672,7 +3672,8 @@ state.members.forEach(m => {
     function importData() { const r = prompt("ローカル設定貼り付け:"); if (r) { try { const p = JSON.parse(r); if (p.password) { state.theme = p.theme; state.password = p.password; state.emojis = p.emojis; state.probs = p.probs; saveLocal(); location.reload(); } } catch(e) { alert("失敗"); } } }
 
     // ===================== 📅 カレンダー機能 =====================
-    let calState = { events: [], viewDate: new Date(), selectedDate: null, loaded: false };
+    let calState = { events: [], viewDate: new Date(), selectedDate: null, loaded: false, error: '', fetchTimer: null };
+    function escapeHtml(str) { return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
     function pad2(n) { return (n < 10 ? '0' : '') + n; }
     function dateKey(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
@@ -3682,20 +3683,31 @@ state.members.forEach(m => {
         calState.viewDate = new Date();
         calState.selectedDate = dateKey(new Date());
         renderCalendarGrid();
+        renderCalDayPanel();
         fetchCalendarEvents();
     }
     function closeCalendar() { document.getElementById('calendar-modal').classList.remove('open'); }
 
+    function calFetchFailed(msg) {
+        clearTimeout(calState.fetchTimer);
+        calState.loaded = true; calState.error = msg;
+        document.querySelectorAll('script[src*="action=getEvents"]').forEach(x => x.remove());
+        renderCalDayPanel();
+    }
     function fetchCalendarEvents() {
-        const con = document.getElementById('calendar-day-panel');
+        calState.loaded = false; calState.error = '';
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=getEvents&callback=handleCalendarEvents`;
-        script.onerror = function() { con.innerHTML = '<div style="text-align:center;color:#f03e3e;font-size:0.85em;">予定の取得に失敗しました</div>'; };
+        script.src = `${API_URL}?action=getEvents&callback=handleCalendarEvents&_=${Date.now()}`;
+        script.onerror = function() { calFetchFailed('予定の取得に失敗しました'); };
+        clearTimeout(calState.fetchTimer);
+        calState.fetchTimer = setTimeout(() => { if (!calState.loaded) calFetchFailed('予定の取得に時間がかかっています'); }, 12000);
         document.body.appendChild(script);
     }
     window.handleCalendarEvents = function(data) {
+        clearTimeout(calState.fetchTimer);
+        if (data && data.error) { calFetchFailed('予定の取得に失敗しました'); console.error(data.error); return; }
         calState.events = (data && data.events) ? data.events : [];
-        calState.loaded = true;
+        calState.loaded = true; calState.error = '';
         renderCalendarGrid();
         renderCalDayPanel();
         const s = document.querySelectorAll('script[src*="action=getEvents"]');
@@ -3743,11 +3755,13 @@ state.members.forEach(m => {
         const [yy, mm, dd] = k.split('-');
         const evs = calState.events.filter(ev => ev.date === k);
         let html = `<div style="font-weight:bold; color:#ff758f; margin-bottom:6px;">${mi('event')}${mm}月${dd}日 の予定</div>`;
-        if (evs.length === 0) { html += `<div style="font-size:0.85em; color:#baabb0; margin-bottom:6px;">まだ予定はありません</div>`; }
+        if (calState.error) { html += `<div style="font-size:0.85em; color:#f03e3e; margin-bottom:6px;">${calState.error}　<button class="edit-btn" onclick="fetchCalendarEvents(); renderCalDayPanel();">再読み込み</button></div>`; }
+        else if (!calState.loaded) { html += `<div style="font-size:0.85em; color:#baabb0; margin-bottom:6px;">予定を読み込み中…</div>`; }
+        else if (evs.length === 0) { html += `<div style="font-size:0.85em; color:#baabb0; margin-bottom:6px;">まだ予定はありません</div>`; }
         else {
             evs.forEach(ev => {
-                const delBtn = state.isAdmin ? `<button class="edit-btn" onclick="deleteCalEvent('${ev.id}')" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>` : '';
-                html += `<div class="cal-event-item"><span class="txt">${ev.text}</span>${delBtn}</div>`;
+                const delBtn = state.isAdmin ? `<button class="edit-btn" onclick="deleteCalEvent('${escapeHtml(ev.id)}')" style="color:#f03e3e;border-color:#ffc9c9;">削除</button>` : '';
+                html += `<div class="cal-event-item"><span class="txt">${escapeHtml(ev.text)}</span>${delBtn}</div>`;
             });
         }
         html += `<div class="cal-add-row"><input type="text" id="cal-new-text" placeholder="例）10:00〜 ダンスレッスン会場A" style="margin:0;"><button onclick="addCalEvent()">追加</button></div>`;
@@ -3773,7 +3787,9 @@ state.members.forEach(m => {
     const s = document.querySelectorAll('script[src*="action=addEvent"]');
     s.forEach(x => x.remove());
     const input = document.getElementById('cal-new-text');
-    if (input) { input.disabled = false; input.value = ''; }
+    if (input) input.disabled = false;
+    if (r && r.error) { alert("予定の追加に失敗しました。"); console.error(r.error); return; }
+    if (input) input.value = '';
     fetchCalendarEvents();
 };
 
