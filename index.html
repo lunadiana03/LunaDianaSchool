@@ -492,6 +492,97 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .plaza-card, .mascot-card { transition: transform .2s cubic-bezier(.34,1.56,.64,1); }
 .plaza-card:active, .mascot-card:active { transform:scale(.95); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+
+/* =====================================================================
+   レッスン中のUI（アイカツ風）
+   ===================================================================== */
+/* ---- 共通：数値チップ・カウントダウン・結果 ---- */
+.run-stats, .dance-stats, .model-stats, .actress-round, .climb-time-row { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; font-weight:700; color:var(--ak-mag); }
+.run-stats, .dance-stats, .model-stats, .actress-round { width:max-content; max-width:100%; margin:0 auto 10px; padding:4px 14px; background:#fff; border-radius:999px; box-shadow:0 0 0 2px #ffc2e0; }
+.climb-countdown { background:radial-gradient(circle, rgba(234,63,147,.35), rgba(234,63,147,.15)); color:#fff; text-shadow:0 3px 0 var(--ak-mag), 0 0 12px rgba(234,63,147,.6); font-family:'Mochiy Pop One', sans-serif; }
+.climb-result { color:var(--ak-ink); }
+.climb-result-title { color:var(--ak-mag); font-family:'Mochiy Pop One', sans-serif; }
+.climb-result-height { color:var(--ak-mag); text-shadow:2px 2px 0 #fff, -2px 2px 0 #fff, 0 4px 0 #ffc2e0; font-family:'Mochiy Pop One', sans-serif; }
+.climb-result-stats div { background:#fff; box-shadow:0 0 0 1.5px #ffc2e0; border-radius:999px; font-weight:700; }
+.climb-result-stats div:nth-child(1) { color:#ff5c7a; } .climb-result-stats div:nth-child(2) { color:#339af0; } .climb-result-stats div:nth-child(3) { color:#f0a500; } .climb-result-stats div:nth-child(4) { color:#9061f9; }
+.lives-row .mi-heart { font-size:1.25em; }
+
+/* ---- 崖登り ---- */
+.climb-height-badge { background:#fff; color:var(--ak-mag); box-shadow:0 0 0 2px #ffc2e0; border-radius:999px; }
+.climb-progress-track { height:10px; background:#fff; box-shadow:0 0 0 2px #ffc2e0; border-radius:999px; }
+.climb-progress-fill { background:linear-gradient(90deg, #ffb3d9, var(--ak-mag)); border-radius:999px; }
+.climb-progress-dot { width:18px; height:18px; border:3px solid var(--ak-mag); background:#fff; box-shadow:0 2px 4px rgba(234,63,147,.3); }
+.climb-time-row { justify-content:space-between; }
+.climb-prompt { color:var(--ak-mag); box-shadow:0 0 0 3px #fff, 0 0 0 6px #ffb3d9, 0 4px 10px rgba(234,63,147,.3); }
+.climb-btn { box-shadow: 0 0 0 3px #fff, 0 0 0 5px #a9e2f8, 0 5px 0 5px rgba(0,0,0,.08); }
+
+/* ---- 空（ランニング・トランポリン共通） ---- */
+.run-track { background:radial-gradient(circle at 82% 16%, rgba(255,252,230,1) 0 16px, rgba(255,236,200,.55) 17px 30px, rgba(255,220,235,0) 58px), linear-gradient(180deg, #8ecfff 0%, #b9e3ff 30%, #e3ecff 52%, #ffe3f1 72%, #fff1e4 100%) !important; }
+.run-track::before { display:none; }
+.run-layer { position:absolute; left:0; right:0; pointer-events:none; z-index:0; background-repeat:repeat-x; }
+.run-clouds { top:4%; height:40%; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 120'%3E%3Cg opacity='.95'%3E%3Cg fill='white'%3E%3Ccircle cx='38' cy='40' r='12'/%3E%3Ccircle cx='50' cy='32.8' r='16.200000000000003'/%3E%3Ccircle cx='63.2' cy='40' r='12'/%3E%3Crect x='26' y='40' width='49.199999999999996' height='12' rx='6.0'/%3E%3C/g%3E%3C/g%3E%3Cg opacity='.8'%3E%3Cg fill='white'%3E%3Ccircle cx='132' cy='88' r='8'/%3E%3Ccircle cx='140' cy='83.2' r='10.8'/%3E%3Ccircle cx='148.8' cy='88' r='8'/%3E%3Crect x='124' y='88' width='32.8' height='8' rx='4.0'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 130 90'%3E%3Cg opacity='.85'%3E%3Cg fill='white'%3E%3Ccircle cx='31' cy='50' r='9'/%3E%3Ccircle cx='40' cy='44.6' r='12.15'/%3E%3Ccircle cx='49.9' cy='50' r='9'/%3E%3Crect x='22' y='50' width='36.9' height='9' rx='4.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); background-size:180px 120px, 130px 90px; background-position:0 0, 60px 20px; }
+.run-hills { bottom:16%; height:26%; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 80'%3E%3Cpath d='M0 60 Q40 18 80 50 T160 44 T240 60 V80 H0Z' fill='%23c8b4f0' opacity='.55'/%3E%3Cpath d='M0 70 Q60 36 120 62 T240 70 V80 H0Z' fill='%23a8e3c4'/%3E%3C/svg%3E"); background-size:240px 100%; background-position:0 100%; }
+.run-ground { bottom:0; height:17%; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 40'%3E%3Crect width='48' height='40' fill='%239ee0a8'/%3E%3Crect width='24' height='40' fill='%238fd89a'/%3E%3Crect y='0' width='48' height='4' fill='%237ccf8a'/%3E%3Ccircle cx='10' cy='16' r='2.2' fill='%23fff'/%3E%3Ccircle cx='10' cy='16' r='1' fill='%23ffd86b'/%3E%3Ccircle cx='34' cy='28' r='2.2' fill='%23ffc2e0'/%3E%3Ccircle cx='34' cy='28' r='1' fill='%23fff'/%3E%3C/svg%3E"); background-size:48px 100%; box-shadow: inset 0 3px 0 rgba(255,255,255,.5); }
+.run-track.running .run-clouds { animation: run-clouds 26s linear infinite; }
+.run-track.running .run-hills { animation: run-hills 9s linear infinite; }
+.run-track.running .run-ground { animation: run-ground .6s linear infinite; }
+@keyframes run-clouds { to { background-position:-360px 0, -200px 20px; } }
+@keyframes run-hills { to { background-position:-240px 100%; } }
+@keyframes run-ground { to { background-position:-48px 0; } }
+.run-char { z-index:2; }
+#run-obstacles { position:absolute; inset:0; z-index:1; pointer-events:none; }
+.run-obstacle { background:none; border-radius:0; background-repeat:no-repeat; background-size:100% 100%; filter:drop-shadow(0 2px 1px rgba(90,40,70,.25)); }
+.run-obstacle.ob-hurdle { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 32'%3E%3Crect x='4' y='8' width='3.5' height='24' rx='1.6' fill='%23fff' stroke='%23e8388a' stroke-width='1.2'/%3E%3Crect x='22.5' y='8' width='3.5' height='24' rx='1.6' fill='%23fff' stroke='%23e8388a' stroke-width='1.2'/%3E%3Crect x='1' y='4' width='28' height='9' rx='3.5' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cpath d='M8 4.6l-4 7.8M14 4.6l-4 7.8M20 4.6l-4 7.8M26 4.6l-4 7.8' stroke='%23fff' stroke-width='2.2'/%3E%3C/svg%3E"); }
+.run-obstacle.ob-cone { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 28'%3E%3Cpath d='M12 2 L20 25 H4Z' fill='%23ffb366' stroke='%23e8388a' stroke-width='1.2' stroke-linejoin='round'/%3E%3Cpath d='M9.3 10h5.4l1.4 4.4H7.9zM6.8 17.6h10.4l1.2 3.6H5.6z' fill='%23fff'/%3E%3Crect x='1' y='24' width='22' height='4' rx='2' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3C/svg%3E"); }
+.run-obstacle.ob-present { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='10' width='28' height='21' rx='3' fill='%23ff9fd0' stroke='%23e8388a' stroke-width='1.2'/%3E%3Crect x='1' y='7' width='30' height='7' rx='2.5' fill='%23ffb8dc' stroke='%23e8388a' stroke-width='1.2'/%3E%3Crect x='13.5' y='7' width='5' height='24' fill='%23ffd86b'/%3E%3Cpath d='M16 7C11 1 5 2 7 6.5 8.5 9 16 7 16 7zM16 7c5-6 11-5 9-.5C23.5 9 16 7 16 7z' fill='%23ffd86b' stroke='%23f0a93a' stroke-width='1'/%3E%3C/svg%3E"); }
+.run-obstacle.ob-puddle { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'%3E%3Cellipse cx='20' cy='5' rx='19' ry='4.2' fill='%239fdcf7' stroke='%235bbfe8' stroke-width='1'/%3E%3Cellipse cx='13' cy='4' rx='5' ry='1.2' fill='white' opacity='.8'/%3E%3C/svg%3E"); filter:none; }
+.run-obstacle.ob-balloon { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 44'%3E%3Cpath d='M14 30 C15 34 12 36 14 42' fill='none' stroke='%23c98bd9' stroke-width='1.2'/%3E%3Cpath d='M14 29.5s-11-6.5-12.6-13C0 11 3 5.5 8 5.5c2.7 0 4.6 1.5 6 3.6 1.4-2.1 3.3-3.6 6-3.6 5 0 8 5.5 6.6 11-1.6 6.5-12.6 13-12.6 13z' fill='%23ff8cc6' stroke='%23e8388a' stroke-width='1.2'/%3E%3Cellipse cx='8.5' cy='11.5' rx='2.4' ry='1.5' fill='white' opacity='.8' transform='rotate(-35 8.5 11.5)'/%3E%3C/svg%3E"); animation: ob-bob 1.2s ease-in-out infinite alternate; }
+@keyframes ob-bob { from { transform:translateY(0); } to { transform:translateY(-6px); } }
+.run-jump-btn { font-size:1.15em; padding:14px; }
+
+.trampoline-track-bg { background:radial-gradient(circle at 82% 16%, rgba(255,252,230,1) 0 16px, rgba(255,236,200,.55) 17px 30px, rgba(255,220,235,0) 58px), linear-gradient(180deg, #8ecfff 0%, #b9e3ff 30%, #e3ecff 52%, #ffe3f1 72%, #fff1e4 100%) !important; }
+.trampoline-track-bg::before { background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 120'%3E%3Cg opacity='.95'%3E%3Cg fill='white'%3E%3Ccircle cx='38' cy='40' r='12'/%3E%3Ccircle cx='50' cy='32.8' r='16.200000000000003'/%3E%3Ccircle cx='63.2' cy='40' r='12'/%3E%3Crect x='26' y='40' width='49.199999999999996' height='12' rx='6.0'/%3E%3C/g%3E%3C/g%3E%3Cg opacity='.8'%3E%3Cg fill='white'%3E%3Ccircle cx='132' cy='88' r='8'/%3E%3Ccircle cx='140' cy='83.2' r='10.8'/%3E%3Ccircle cx='148.8' cy='88' r='8'/%3E%3Crect x='124' y='88' width='32.8' height='8' rx='4.0'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 130 90'%3E%3Cg opacity='.85'%3E%3Cg fill='white'%3E%3Ccircle cx='31' cy='50' r='9'/%3E%3Ccircle cx='40' cy='44.6' r='12.15'/%3E%3Ccircle cx='49.9' cy='50' r='9'/%3E%3Crect x='22' y='50' width='36.9' height='9' rx='4.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); background-size:180px 120px, 130px 90px; background-position:0 0, 60px 30px; opacity:.95; }
+.trampoline-track-bg.tramp-flying::before { animation: tramp-sky-scroll2 0.9s linear infinite; }
+@keyframes tramp-sky-scroll2 { from { background-position:0 0, 60px 30px; } to { background-position:0 240px, 60px 210px; } }
+.trampoline-bar-track { border:0; box-shadow:0 0 0 2px #f06aa8; background:#fff; }
+.trampoline-sweet { background:linear-gradient(90deg, #ffe08a, #ffd86b); }
+.trampoline-marker { background:var(--ak-mag); box-shadow:0 0 0 2px #fff; }
+.trampoline-jump-label { color:var(--ak-mag); }
+
+/* ---- 音感：パステルのピアノ ---- */
+.piano-wrap { border:0; border-radius:16px; box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; background:#fff; padding-top:6px; }
+.piano-key { border-color:#f3b5d3; }
+.piano-white { background:linear-gradient(#fff, #fff5fa); }
+.piano-black { background:linear-gradient(#b884d6, #8a57b0); border-color:#7a4a9e; }
+.piano-key.lit { background:linear-gradient(#ffe7a6, #ffd86b) !important; box-shadow:0 0 14px rgba(255,216,107,.9); }
+.piano-key.wrong { background:linear-gradient(#ffb3c4, #ff6b8b) !important; }
+
+/* ---- 筋トレ ---- */
+.kintore-cell { border:2px solid #f06aa8; color:var(--ak-mag); border-radius:12px; box-shadow:0 3px 0 #ffc2e0; transition:transform .15s; }
+.kintore-cell:active { transform:scale(.92); }
+.kintore-cell.done { background:#ffe6f2; opacity:.35; }
+.kintore-cell.wrong { background:#ff6b8b; border-color:#e8388a; }
+
+/* ---- ミニステージ（音感・筋トレのキャラ） ---- */
+.mini-char-stage { border:0; background: radial-gradient(ellipse at 50% 100%, rgba(255,255,255,.95) 0 30%, transparent 31%), radial-gradient(circle at 50% 20%, #fff, #ffe3f1 70%); box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; }
+
+/* ---- ダンス ---- */
+.dance-track { border:0; box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; background: repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 2px, transparent 2px 40px), linear-gradient(180deg, #ffd9ee, #e9d4ff); }
+.dance-target { background:var(--ak-mag); box-shadow:0 0 10px rgba(234,63,147,.7); border-radius:4px; }
+.dance-note { background:radial-gradient(circle at 35% 30%, #fff 0 12%, #ffe08a 13%, #f5b43a); box-shadow:0 0 0 2px #fff, 0 3px 6px rgba(234,63,147,.35); }
+.dance-note.judged-perfect { background:radial-gradient(circle at 35% 30%, #fff 0 12%, #ffb3d9 13%, var(--ak-mag)); }
+
+/* ---- モデル：ランウェイ ---- */
+.model-track { border:0; box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; background: linear-gradient(90deg, transparent 49.6%, rgba(255,255,255,.8) 49.6% 50.4%, transparent 50.4%), linear-gradient(180deg, #fff3fa, #ffe0ef); }
+.model-safe-zone { background:rgba(169,226,248,.45); border-left:2px dashed #7fd6f7; border-right:2px dashed #7fd6f7; }
+.model-needle { background:var(--ak-mag); border-radius:3px; box-shadow:0 0 8px rgba(234,63,147,.6); }
+
+/* ---- 女優 ---- */
+.actress-prompt { color:var(--ak-mag); box-shadow:0 0 0 2px #ffc2e0; border-radius:999px; }
+.actress-choice { border:2px solid #f06aa8; box-shadow:0 4px 0 #ffc2e0; transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+.actress-choice:active { transform:scale(.95); }
+.actress-choice.correct { border-color:#3cbf7a; background:#eafff2; }
+.actress-choice.wrong { border-color:#ff6b8b; background:#fff0f3; }
     </style>
 </head>
 <body>
@@ -620,6 +711,9 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
             <div id="run-play-area">
                 <div id="run-lives" class="lives-row"></div>
                 <div class="run-track" id="run-track">
+                    <div class="run-layer run-clouds"></div>
+                    <div class="run-layer run-hills"></div>
+                    <div class="run-layer run-ground"></div>
                     <div id="run-char" class="run-char"><img id="run-char-img" src="mascot1.png"></div>
                     <div id="run-obstacles"></div>
                     <div id="run-countdown" class="climb-countdown"></div>
@@ -2157,6 +2251,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     function exitRunGame() {
         if (!confirm('ランニングをやめますか？（記録は保存されません）')) return;
+        setRunScrolling(false);
         run.active = false;
         clearInterval(run.tick);
         document.getElementById('run-obstacles').innerHTML = '';
@@ -2343,6 +2438,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         syncToSheet(m);
     }
       function refreshRunGateUI() {
+        setRunScrolling(false);
         if (run.active) return;
           setGameMode(false);
         const runExitBtn = document.getElementById('run-exit-btn'); if (runExitBtn) runExitBtn.style.display = 'none';
@@ -2400,7 +2496,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             else { clearInterval(iv); cd.style.display = 'none'; actuallyStartRun(me); }
         }, 1200);
     }
+    function setRunScrolling(on) { const t = document.getElementById('run-track'); if (t) t.classList.toggle('running', !!on); }
     function actuallyStartRun(me) {
+        setRunScrolling(true);
         playSound('start');
         setGameMode(true);
         document.getElementById('run-exit-btn').style.display = 'block';
@@ -2430,15 +2528,33 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (img && url) img.src = url;
         else loadSprite(frames[idx]);
     }
+    // 障害物の種類。clear＝この高さ以上ジャンプしていれば当たらない / air＝空中にあり、ジャンプすると当たる
+    const RUN_OBSTACLES = {
+        hurdle:  { w: 30, h: 32, clear: 28, from: 0 },
+        cone:    { w: 24, h: 28, clear: 24, from: 0 },
+        present: { w: 32, h: 32, clear: 30, from: 120 },
+        puddle:  { w: 44, h: 10, clear: 6,  from: 200 },
+        balloon: { w: 28, h: 44, air: true, from: 300 }
+    };
     function spawnObstacle() {
         const track = document.getElementById('run-track');
         const con = document.getElementById('run-obstacles'); if (!track || !con) return;
+        const kinds = Object.keys(RUN_OBSTACLES).filter(k => run.distance >= RUN_OBSTACLES[k].from);
+        // 風船（ジャンプしちゃダメ）が連続しすぎないように
+        let kind = kinds[Math.floor(Math.random() * kinds.length)];
+        if (kind === 'balloon' && run.lastKind === 'balloon') kind = 'hurdle';
+        run.lastKind = kind;
+        const def = RUN_OBSTACLES[kind];
         const el = document.createElement('div');
-        el.className = 'run-obstacle';
+        el.className = 'run-obstacle ob-' + kind;
+        el.style.width = def.w + 'px'; el.style.height = def.h + 'px';
+        let bottom = 0;
+        if (def.air) bottom = Math.round(track.clientHeight * 0.25 * 0.9 + 14); // 立っているキャラの頭の少し上
+        el.style.bottom = bottom + 'px';
         con.appendChild(el);
         const x = track.clientWidth;
         el.style.left = x + 'px';
-        run.obstacles.push({ x: x, el: el });
+        run.obstacles.push({ x: x, el: el, kind: kind, w: def.w, bottom: bottom });
     }
     function runLoop() {
         if (!run.active) return;
@@ -2475,7 +2591,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             o.el.style.left = o.x + 'px';
         });
         run.obstacles = run.obstacles.filter(o => {
-            if (o.x < -30) { o.el.remove(); return false; }
+            if (o.x < -(o.w || 30) - 10) { o.el.remove(); return false; }
             return true;
         });
 
@@ -2485,11 +2601,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             const charWidthPx = trackW * 0.25;
             const hitboxLeft = charLeftPx + charWidthPx * 0.4;
             const hitboxRight = charLeftPx + charWidthPx * 0.6;
+            const charH = (document.getElementById('run-track').clientHeight || 300) * 0.25;
             for (const o of run.obstacles) {
-                const obsLeft = o.x + 6;
-                const obsRight = obsLeft + 6;
+                const w = o.w || 18;
+                const obsLeft = o.x + w * 0.3;
+                const obsRight = o.x + w * 0.7;
                 if (obsLeft < hitboxRight && obsRight > hitboxLeft) {
-                    if (jumpHeight < 30) {
+                    const def = RUN_OBSTACLES[o.kind] || { clear: 30 };
+                    const hit = def.air ? (jumpHeight + charH * 0.9 > o.bottom + 4) : (jumpHeight < def.clear);
+                    if (hit) {
                         run.lives--;
                         renderLives('run-lives', run.lives);
                         playSound('runFail');
@@ -2506,6 +2626,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
     }
     function endRun() {
+        setRunScrolling(false);
         run.active = false;
         clearInterval(run.tick);
         document.getElementById('run-obstacles').innerHTML = '';
