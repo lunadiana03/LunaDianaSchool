@@ -801,6 +801,10 @@ body.entry-open { overflow:hidden; }
 .entry-card > *:not(.celebrate-burst) { position:relative; z-index:1; }
 .celebrate-burst { position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:26px; overflow:hidden; background-image: radial-gradient(circle, #ffd86b 0 3px, transparent 4px), radial-gradient(circle, #ff8cc6 0 3px, transparent 4px), radial-gradient(circle, #7fd6f7 0 2.5px, transparent 3.5px); background-size:60px 70px, 80px 60px, 50px 55px; animation: confetti 3s linear infinite; opacity:.45; -webkit-mask-image:linear-gradient(#000 0 18%, transparent 30% 78%, #000 90%); mask-image:linear-gradient(#000 0 18%, transparent 30% 78%, #000 90%); }
 @keyframes confetti { from { background-position:0 -70px, 20px -60px, 10px -55px; } to { background-position:0 70px, 20px 60px, 10px 55px; } }
+
+/* タップしたときの青い点滅（ブラウザ標準のハイライト）や長押しの選択を出さない */
+html { -webkit-tap-highlight-color: transparent; }
+.dance-stage, .dance-stage * { -webkit-tap-highlight-color: transparent; -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
     </style>
 </head>
 <body>
@@ -4015,21 +4019,30 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
       // 女優レッスンのお題（場面）。表情の画像が無くても遊べるよう、場面から表情を選ぶ
     const ACTRESS_SCENES = {
-        smile: ['ずっと欲しかったステージ衣装をもらった！', 'ライブ大成功！客席のみんなも笑顔！'],
-        cry: ['大切な仲間が転校することに…', 'オーディションに落ちてしまった'],
-        angry: ['楽屋のケーキを勝手に食べられた！', '約束をすっぽかされた！'],
-        surprise: ['楽屋を開けたらサプライズパーティー！', 'いきなりセンターに大抜擢！'],
-        wink: ['客席のファンに決めポーズ！', 'カメラさんにアピールのサイン'],
-        shy: ['憧れの先輩にほめられた', 'はじめてのサイン会で名前を呼ばれた'],
-        sleepy: ['朝5時からの早朝ロケ…', '夜遅くまで続いたレッスンのあと'],
-        excited: ['明日はいよいよ初ステージ！', '大好きなアイドルのライブに行ける！'],
-        confused: ['台本がぜんぶ英語になっていた…', '同じ衣装が2着届いてどっちか分からない'],
-        cool: ['ライバルに宣戦布告！', 'クールなキャラでポスター撮影']
+        smile: ['ずっと欲しかったステージ衣装をもらった！', 'ライブ大成功！客席もみんな笑顔', 'お誕生日をみんなにお祝いしてもらった', '先生に「よくできました」とほめられた'],
+        excited: ['明日はいよいよ初ステージ！', '大好きなアイドルのライブに行ける！', '新しい衣装の試着の日！', 'はじめての遠征ロケに出発！'],
+        love: ['憧れの先輩が名前を覚えてくれていた', 'かわいい子犬が駆け寄ってきた', '一目ぼれしたアクセサリーを見つけた', '推しのサイン入りカードが当たった'],
+        relief: ['なくしたと思ったお守りが見つかった', 'ぎりぎりでレッスンに間に合った', 'テストの結果、赤点じゃなかった', '迷子になっていたマスコットが帰ってきた'],
+        cool: ['ライバルに宣戦布告！', 'クールなキャラでポスター撮影', 'ファッションショーのランウェイを歩く', '「任せて」と頼もしく答える場面'],
+        cry: ['大切な仲間が転校することに…', '感動の映画のラストシーン', '最後のステージで涙のお別れ', '大事にしていたリボンがちぎれてしまった'],
+        angry: ['楽屋のケーキを勝手に食べられた！', '約束をすっぽかされた！', '練習を何度もサボる子がいる', '大切なノートに落書きされた'],
+        surprise: ['楽屋を開けたらサプライズパーティー！', 'いきなりセンターに大抜擢！', 'ステージの床から急に紙吹雪！', '転校生がまさかの幼なじみだった'],
+        confused: ['台本がぜんぶ英語になっていた…', '同じ衣装が2着届いてどっちか分からない', '道を聞かれたけど答えが分からない', 'ダンスの振りを急に全部変えられた'],
+        shock: ['本番直前に衣装がやぶれた！', '買ったばかりのアイスを落とした', '鏡を見たら寝ぐせが大爆発', 'テストの点数がまさかの一桁'],
+        panic: ['本番5分前なのにメイクがまだ！', '目覚ましが鳴らずに寝坊した！', 'ステージで歌詞が飛んでしまった', '集合時間を1時間まちがえていた！'],
+        sleepy: ['朝5時からの早朝ロケ…', '夜遅くまで続いたレッスンのあと', 'ぽかぽか陽気のお昼休み', '長い移動のバスの中'],
+        sick: ['風邪をひいて熱っぽい…', 'ケーキを食べすぎてお腹が…', 'ジェットコースターに5回連続で乗った', '船の上でゆらゆら酔ってしまった']
     };
+    // 似ている表情は同じ問題の選択肢に並べない（正解が1つに決まるように）
+    const ACTRESS_SIMILAR = [['smile', 'excited', 'love', 'relief'], ['cry', 'shock'], ['surprise', 'confused', 'panic']];
       const ACTRESS_EMOTIONS = [
-        {key:'smile', icon:'sentiment_very_satisfied', label:'嬉しい顔'}, {key:'cry', icon:'sentiment_sad', label:'泣き顔'}, {key:'angry', icon:'sentiment_extremely_dissatisfied', label:'怒った顔'},
-        {key:'surprise', icon:'sentiment_stressed', label:'驚いた顔'}, {key:'wink', icon:'mood', label:'ウインク顔'}, {key:'shy', icon:'sentiment_content', label:'照れ顔'},
-        {key:'sleepy', icon:'bedtime', label:'眠い顔'}, {key:'excited', icon:'sentiment_excited', label:'興奮した顔'}, {key:'confused', icon:'sentiment_worried', label:'困った顔'}, {key:'cool', icon:'sentiment_calm', label:'クールな顔'}
+        {key:'smile', icon:'sentiment_very_satisfied', label:'嬉しい顔'}, {key:'excited', icon:'sentiment_excited', label:'ワクワク顔'},
+        {key:'love', icon:'mood_heart', label:'ときめき顔'}, {key:'relief', icon:'sentiment_calm', label:'ほっとした顔'},
+        {key:'cool', icon:'sentiment_neutral', label:'クールな顔'}, {key:'cry', icon:'sentiment_sad', label:'泣き顔'},
+        {key:'angry', icon:'sentiment_extremely_dissatisfied', label:'怒った顔'}, {key:'surprise', icon:'sentiment_worried', label:'びっくり顔'},
+        {key:'confused', icon:'sentiment_frustrated', label:'困った顔'}, {key:'shock', icon:'sentiment_very_dissatisfied', label:'がーん顔'},
+        {key:'panic', icon:'sentiment_stressed', label:'大あわての顔'}, {key:'sleepy', icon:'bedtime', label:'眠い顔'},
+        {key:'sick', icon:'sick', label:'具合が悪い顔'}
     ];
     let trampoline = { active:false, jumpIndex:0, heights:[0,0,0], totalHeight:0, targetId:null, barPos:0, barDir:1, barSpeed:2.2, sweetStart:0, sweetWidth:30, tick:null };
     let dance = { active:false, hits:0, notes:[], targetId:null, raf:null };
@@ -4510,6 +4523,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         danceTap(lane);
     });
     document.addEventListener('keydown', e => { const k = { d: 0, f: 1, j: 2, k: 3 }[e.key]; if (k !== undefined && dance.active) danceTap(k); });
+    // 長押しメニューや選択が出ないように
+    document.addEventListener('contextmenu', e => { if (e.target.closest && e.target.closest('#dance-track')) e.preventDefault(); });
+    document.addEventListener('selectstart', e => { if (dance.active && e.target.closest && e.target.closest('#dance-track')) e.preventDefault(); });
     function endDance() {
         LiveBGM.stop();
         dance.active = false; cancelAnimationFrame(dance.raf); setGameMode(false);
@@ -4687,19 +4703,29 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         playSound('start'); setGameMode(true);
         document.getElementById('actress-exit-btn').style.display = 'block';
         const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
-        actress = { active:true, round:0, current:null, timeLimit:7000, timer:null, targetId:me.id, ms:ms };
+        actress = { active:true, round:0, current:null, timeLimit:7000, timer:null, targetId:me.id, ms:ms, used:[] };
         document.getElementById('actress-round').innerText = '0';
         actressNextRound();
     }
-    function actressPickEmotions() { return [...ACTRESS_EMOTIONS].sort(() => Math.random()-0.5).slice(0,4); }
+    // 正解の場面（このプレイでまだ出ていないもの）を選び、似ていない表情から3つ選んで並べる
+    function actressPickRound() {
+        const all = [];
+        Object.keys(ACTRESS_SCENES).forEach(k => ACTRESS_SCENES[k].forEach(t => all.push({ key: k, text: t })));
+        let pool = all.filter(x => !(actress.used || []).includes(x.text));
+        if (!pool.length) { actress.used = []; pool = all; }
+        const q = pool[Math.floor(Math.random() * pool.length)];
+        (actress.used = actress.used || []).push(q.text);
+        const group = ACTRESS_SIMILAR.find(g => g.includes(q.key)) || [q.key];
+        const others = ACTRESS_EMOTIONS.filter(e => !group.includes(e.key)).sort(() => Math.random() - 0.5).slice(0, 3);
+        const correct = ACTRESS_EMOTIONS.find(e => e.key === q.key);
+        return { scene: q.text, correct: correct, choices: [correct, ...others].sort(() => Math.random() - 0.5) };
+    }
     function actressNextRound() {
         if (!actress.active) return;
         clearTimeout(actress.timer);
-        const choices = actressPickEmotions();
-        const correct = choices[Math.floor(Math.random()*4)];
+        const q = actressPickRound();
+        const choices = q.choices, correct = q.correct, scene = q.scene;
         actress.current = correct.key;
-        const scenes = ACTRESS_SCENES[correct.key] || [correct.label];
-        const scene = scenes[Math.floor(Math.random() * scenes.length)];
         document.getElementById('actress-prompt').innerHTML = `<div class="actress-scene-label">こんな場面、どんな表情？</div><div class="actress-scene">${scene}</div><div class="actress-timer"><div id="actress-timer-bar" style="animation-duration:${actress.timeLimit}ms;"></div></div>`;
         const box = document.getElementById('actress-choices');
         // 表情の画像（マスコットID_face_表情.png）があれば使い、無ければ表情アイコンを表示
