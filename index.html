@@ -623,6 +623,37 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 #lock-btn { display:block; width:auto !important; margin:14px 0 0 auto !important; padding:2px 6px; background:none; box-shadow:none; color:#d9b8c8; font-size:.72em; font-weight:500; letter-spacing:0; }
 #lock-btn .mi { font-size:1.1em; }
 #lock-btn:active { transform:none; box-shadow:none; color:var(--ak-mag); }
+
+/* ---- ポイント獲得のきろく ---- */
+.history-title { margin:12px 0 4px; font-weight:700; font-size:.85em; color:var(--ak-mag); }
+.history-title .mi { color:var(--ak-yel); text-shadow:0 1px 0 #f0a93a; }
+.history { max-height:none; background:#fff7fb; border:1.5px solid #ffd0e7; border-radius:14px; padding:6px 8px; font-size:.8em; }
+.gain-row { display:flex; align-items:center; gap:6px; padding:5px 2px; border-bottom:1px dashed #ffd0e7; min-height:22px; }
+.gain-date { flex:none; color:#c79ab4; font-size:.9em; width:3.2em; }
+.gain-src { flex:1; min-width:0; font-weight:700; color:var(--ak-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gain-chips { flex:none; display:flex; gap:3px; }
+.gain-chip { padding:1px 6px; border-radius:999px; font-weight:700; font-size:.9em; }
+.gain-ticker { height:132px; overflow:hidden; position:relative; -webkit-mask-image:linear-gradient(transparent, #000 12%, #000 88%, transparent); mask-image:linear-gradient(transparent, #000 12%, #000 88%, transparent); }
+.gain-track { animation: gain-scroll calc(var(--n) * 2.6s) linear infinite; }
+.gain-ticker:active .gain-track, .gain-ticker:hover .gain-track { animation-play-state:paused; }
+@keyframes gain-scroll { to { transform:translateY(-50%); } }
+.gain-empty, .history-old { color:#a08a96; padding:4px; }
+
+/* ---- 獲得モーダル ---- */
+.grant-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:16px; }
+.grant-modal.open { display:flex; }
+.grant-panel { width:100%; max-width:360px; background:#fff; border:2px solid #f06aa8; border-radius:20px; box-shadow:0 5px 0 #ffc2e0; padding:14px; animation: ak-pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+.grant-title { font-weight:700; color:var(--ak-mag); margin-bottom:10px; }
+.grant-panel > label { font-size:.85em; font-weight:700; }
+.grant-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.grant-grid label { display:flex; flex-direction:column; align-items:center; font-weight:700; font-size:.85em; border-radius:12px; padding:4px 4px 0; }
+.grant-grid input { text-align:center; margin:4px 0; }
+
+.live-bgm-btn { position:absolute; top:34px; right:52px; z-index:3; width:38px; height:38px; padding:0; margin:0; border-radius:50%; background:rgba(255,255,255,.25); color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.8); }
+.live-bgm-btn.on { background:#fff; color:var(--ak-mag); box-shadow:0 0 0 2px #ffb3d9, 0 0 14px rgba(255,140,198,.8); animation: bgm-pulse 1s ease-in-out infinite alternate; }
+@keyframes bgm-pulse { to { transform:scale(1.08); } }
+.live-cheer-heart { position:absolute; bottom:90px; z-index:4; color:#ff8cc6; font-size:26px; pointer-events:none; text-shadow:0 0 8px #fff; animation: cheer-float 1.4s ease-out forwards; }
+@keyframes cheer-float { from { opacity:1; transform:translate(0,0) scale(.6); } to { opacity:0; transform:translate(var(--dx), -160px) scale(1.2); } }
     </style>
 </head>
 <body>
@@ -938,6 +969,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
     <div id="view-live" class="view-section">
         <button class="live-exit-btn" onclick="exitLiveView()"><span class="mi">logout</span>退出する</button>
         <div class="live-cabinet">
+            <button id="live-bgm-btn" class="live-bgm-btn" onclick="LiveBGM.toggle()" aria-label="BGM"><span class="mi mi-solo">music_off</span></button>
             <div class="live-title"><span class="mi">mic</span>ライブ会場</div>
             <div id="live-body">準備中です…</div>
         </div>
@@ -1315,6 +1347,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
                 });
             }
             m.h = h;
+            m.pointLog = parsePointLog(m.pointLog);
             return m;
         });
         if (data.probs) { state.probs = data.probs; }
@@ -1530,6 +1563,59 @@ document.addEventListener('change', function(e) {
         };
         document.body.appendChild(script);
     }
+    // ===== ポイント獲得の履歴 =====
+    const POINT_LOG_MAX = 30;
+    function parsePointLog(v) {
+        if (Array.isArray(v)) return v;
+        if (!v) return [];
+        try { const a = JSON.parse(v); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+    }
+    function todayLabel() { const d = new Date(); return (d.getMonth() + 1) + '/' + d.getDate(); }
+    // ポイントを加算して履歴に残す（source は「崖登り」「イベント参加」など）
+    function addPointsWithLog(m, earned, source) {
+        const e = { vo: earned.vo || 0, pl: earned.pl || 0, da: earned.da || 0, vi: earned.vi || 0 };
+        ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = (m.p[k] || 0) + e[k]; });
+        if (!e.vo && !e.pl && !e.da && !e.vi) return;
+        m.pointLog = parsePointLog(m.pointLog);
+        m.pointLog.unshift({ d: todayLabel(), s: String(source || '').slice(0, 30), vo: e.vo, pl: e.pl, da: e.da, vi: e.vi });
+        if (m.pointLog.length > POINT_LOG_MAX) m.pointLog.length = POINT_LOG_MAX;
+    }
+    function pointLogHtml(m) {
+        const log = parsePointLog(m.pointLog);
+        if (!log.length) return '';
+        const row = x => {
+            const chips = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('');
+            return `<div class="gain-row"><span class="gain-date">${escapeHtml(x.d)}</span><span class="gain-src">${escapeHtml(x.s)}</span><span class="gain-chips">${chips}</span></div>`;
+        };
+        const rows = log.map(row).join('');
+        // 4件以上ならゆっくり流す（同じ内容を2回並べて途切れなくループ）
+        if (log.length >= 4) return `<div class="gain-ticker" style="--n:${log.length};"><div class="gain-track">${rows}${rows}</div></div>`;
+        return `<div class="gain-list">${rows}</div>`;
+    }
+    // ===== 管理画面から「獲得」させる =====
+    function openGrantPoints(id) {
+        const m = state.members.find(x => x.id === id); if (!m) return;
+        const modal = document.getElementById('grant-modal');
+        modal.dataset.id = id;
+        document.getElementById('grant-name').innerText = m.name;
+        ['grant-src', 'grant-vo', 'grant-pl', 'grant-da', 'grant-vi'].forEach(x => { document.getElementById(x).value = ''; });
+        modal.classList.add('open');
+        setTimeout(() => document.getElementById('grant-src').focus(), 50);
+    }
+    function closeGrantPoints() { document.getElementById('grant-modal').classList.remove('open'); }
+    function submitGrantPoints() {
+        if (!state.isAdmin) return;
+        const m = state.members.find(x => x.id === document.getElementById('grant-modal').dataset.id); if (!m) return;
+        const src = document.getElementById('grant-src').value.trim();
+        if (!src) { alert('何による獲得かを入力してください'); return; }
+        const e = {}; ['vo', 'pl', 'da', 'vi'].forEach(k => { e[k] = parseInt(document.getElementById('grant-' + k).value) || 0; });
+        if (!e.vo && !e.pl && !e.da && !e.vi) { alert('ポイントを入力してください'); return; }
+        if (!confirm(`${m.name} に「${src}」で Vo+${e.vo} Pl+${e.pl} Da+${e.da} Vi+${e.vi} を獲得させますか？`)) return;
+        addPointsWithLog(m, e, src);
+        closeGrantPoints();
+        syncToSheet(m);
+        render();
+    }
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
         let hStr = ""; for (let [k, v] of Object.entries(m.h || {})) { hStr += `${k}:${v},`; }
@@ -1538,6 +1624,7 @@ document.addEventListener('change', function(e) {
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
             climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
             suit: m.suit||"", profileImg: m.profileImg||"", youtubeUrl: m.youtubeUrl||"", unitId: m.unitId||"",
+            pointLog: JSON.stringify(m.pointLog || []),
             callback: "handleSyncResponse"
         });
         if (!user || user === m.name) {
@@ -1618,7 +1705,7 @@ setTimeout(() => {
     document.getElementById('view-live').classList.toggle('active', view === 'live');
            document.getElementById('view-trampoline').classList.toggle('active', view === 'trampoline'); document.getElementById('view-dance').classList.toggle('active', view === 'dance'); document.getElementById('view-model').classList.toggle('active', view === 'model'); document.getElementById('view-actress').classList.toggle('active', view === 'actress'); if (view === 'trampoline') refreshTrampolineGateUI(); if (view === 'dance') refreshDanceGateUI(); if (view === 'model') refreshModelGateUI(); if (view === 'actress') refreshActressGateUI(); 
             document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
-    if (view === 'live') { startLivePolling(); renderLiveView(); } else { stopLivePolling(); }
+    if (view === 'live') { startLivePolling(); renderLiveView(); if (LiveBGM) LiveBGM.resumeIfWanted(); } else { stopLivePolling(); if (LiveBGM) LiveBGM.stop(); }
     if (view === 'bbs') updateBbsDisplay();
     if (view === 'climb') refreshClimbGateUI();
     if (view === 'run') refreshRunGateUI();
@@ -1763,6 +1850,41 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         con.style.display = isHidden ? 'block' : 'none';
         arrow.innerText = isHidden ? '▼' : '▶';
     }
+    // ライブの操作は1つずつGAS側で処理する（全体の上書きで他の人の応援・投票が消えないように）
+    // 手元にも同じ処理をすぐ反映し、GASから返ってきた最新の状態で置き換える
+    function applyLiveOpLocal(lv, op, a) {
+        if (!lv) return;
+        const cur = () => (lv.performers || [])[lv.currentIndex];
+        if (op === 'cheer' && lv.status === 'live' && cur()) cur().cheers = (cur().cheers || 0) + (a.n || 1);
+        else if (op === 'vote' && lv.status === 'voting') {
+            lv.voters = lv.voters || [];
+            const p = (lv.performers || []).find(x => x.id === a.pid);
+            if (p && a.voter && !lv.voters.includes(a.voter)) { p.votes = (p.votes || 0) + 1; lv.voters.push(a.voter); }
+        }
+        else if (op === 'advance') {
+            if (lv.status === 'idle') { lv.currentIndex = 0; lv.status = 'live'; }
+            else if (lv.status === 'live') { if (lv.currentIndex >= lv.performers.length - 1) lv.status = 'voting'; else lv.currentIndex++; }
+        }
+        else if (op === 'reveal' && lv.status === 'voting') lv.status = 'result';
+        else if (op === 'reset') { lv.status = 'idle'; lv.currentIndex = -1; (lv.performers || []).forEach(p => { p.cheers = 0; p.votes = 0; }); lv.voters = []; lv.gimmick = null; }
+        else if (op === 'gimmick' && lv.status === 'live') lv.gimmick = { index: lv.currentIndex, ts: Date.now() };
+    }
+    let liveOpSeq = 0;
+    function liveOp(op, args) {
+        args = args || {};
+        applyLiveOpLocal(state.live, op, args);
+        renderLiveView();
+        const params = new URLSearchParams({ action: 'liveOp', op: op, callback: 'handleLiveOpResponse', _: Date.now() + '_' + (++liveOpSeq) });
+        Object.keys(args).forEach(k => params.set(k, typeof args[k] === 'object' ? JSON.stringify(args[k]) : args[k]));
+        const script = document.createElement('script');
+        script.src = `${API_URL}?${params.toString()}`;
+        document.body.appendChild(script);
+    }
+    window.handleLiveOpResponse = function(r) {
+        document.querySelectorAll('script[src*="action=liveOp"]').forEach(x => x.remove());
+        if (r && r.live) { state.live = r.live; renderLiveView(); renderLiveAdminSummary(); }
+        else if (r && r.error && /unknown action/.test(r.error)) { syncLive(); } // GASが古い場合は従来の保存方法で
+    };
     function syncLive() {
         const script = document.createElement('script');
         script.src = `${API_URL}?action=updateSettings&liveJson=${encodeURIComponent(JSON.stringify(state.live))}&callback=handleLiveResponse`;
@@ -1783,7 +1905,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function toggleLiveTabVisibility() {
         if (!state.live) state.live = { showTab:false, status:'idle', performers:[], currentIndex:-1 };
         state.live.showTab = !state.live.showTab;
-        syncLive();
+        liveOp('showTab', { v: state.live.showTab ? 1 : 0 });
         refreshLiveBannerVisibility();
         renderLiveAdminSummary();
     }
@@ -1811,7 +1933,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         });
         if (!confirm(`${performers.length}人でライブを作成しますか？`)) return;
         state.live = { showTab: state.live ? state.live.showTab : false, status: 'idle', performers: performers, currentIndex: -1, voters: [], gimmick: null };
-        syncLive();
+        liveRevealKey = '';
+        liveOp('create', { performers: performers });
         renderLiveAdminSummary();
         renderLiveView();
     }
@@ -1843,7 +1966,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (lv.status === 'idle') {
             html += `<div class="live-spotlight"><div style="font-weight:bold;">まもなく開演！</div></div>`;
             html += `<div class="live-queue">` + lv.performers.map(p => `<div class="live-queue-item">${getIconHtml(p.icon,'1.2em')} ${p.name}</div>`).join('') + `</div>`;
-        } else if (lv.status === 'live') {
+        } else if (lv.status === 'live' && lv.performers[lv.currentIndex]) {
             const cur = lv.performers[lv.currentIndex];
             html += `<div class="live-spotlight"><div class="live-current-icon">${getIconHtml(cur.icon,'3.2em')}</div><div class="live-current-name">${cur.name}</div><div class="live-cheer-count">${mi('favorite','mi-heart')}応援: ${cur.cheers||0}</div></div>`;
             html += `<button class="live-cheer-btn" onclick="liveCheer()">${mi('favorite')}応援する！</button>`;
@@ -1879,72 +2002,84 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         body.innerHTML = html;
         if (lv.status === 'result') { renderLiveResultReveal(); }
     }
+    // 結果発表の演出は1回だけ。以降の自動更新では結果をそのまま表示する
+    let liveRevealKey = '';
     function renderLiveResultReveal() {
         const list = document.getElementById('live-result-list'); if (!list) return;
-        if (list.dataset.done === '1') return;
-        list.dataset.done = '1';
         const lv = state.live;
+        const key = lv.performers.map(p => p.id).join(',');
+        const animate = liveRevealKey !== key;
+        liveRevealKey = key;
+        if (animate && LiveBGM) LiveBGM.fanfare();
         const sorted = [...lv.performers].sort((a,b) => (a.votes||0) - (b.votes||0));
         sorted.forEach((p, i) => {
-            setTimeout(() => {
+            const show = () => {
                 const rank = sorted.length - i;
                 const row = document.createElement('div');
                 row.className = 'live-result-row' + (rank === 1 ? ' gold' : '');
                 row.innerHTML = `<span style="font-size:1.3em;">${rank === 1 ? mi('workspace_premium','mi-gold mi-solo') : rank + '位'}</span><span>${getIconHtml(p.icon,'1.8em')}</span><span style="flex:1; text-align:left; font-weight:bold;">${p.name}</span><span>${p.votes||0}票</span>`;
+                if (!animate) row.style.animation = 'none', row.style.opacity = '1';
                 list.appendChild(row);
-            }, i * 900);
+            };
+            if (animate) setTimeout(show, i * 900); else show();
         });
     }
     function liveAdvance() {
-        if (!state.isAdmin) return;
-        const lv = state.live;
-        if (lv.status === 'idle') {
-            lv.currentIndex = 0; lv.status = 'live';
-        } else if (lv.status === 'live') {
-            if (lv.currentIndex >= lv.performers.length - 1) { lv.status = 'voting'; }
-            else { lv.currentIndex++; }
-        }
-        syncLive(); renderLiveView();
+        if (!state.isAdmin || !state.live) return;
+        liveOp('advance');
     }
+    // 応援は連打をまとめて送る（見た目はすぐ増える）
+    let livePendingCheers = 0, liveCheerTimer = null;
     function liveCheer() {
         const lv = state.live;
-        if (!lv || lv.status !== 'live') return;
+        if (!lv || lv.status !== 'live' || !lv.performers[lv.currentIndex]) return;
         const cur = lv.performers[lv.currentIndex];
-        cur.cheers = (cur.cheers||0) + 1;
-        syncLive(); renderLiveView();
+        cur.cheers = (cur.cheers || 0) + 1;
+        livePendingCheers++;
+        const cnt = document.querySelector('.live-cheer-count'); if (cnt) cnt.innerHTML = `${mi('favorite','mi-heart')}応援: ${cur.cheers}`;
+        spawnCheerHeart();
+        if (!liveCheerTimer) liveCheerTimer = setTimeout(flushLiveCheers, 900);
+    }
+    function flushLiveCheers() {
+        liveCheerTimer = null;
+        const n = livePendingCheers; livePendingCheers = 0;
+        if (!n || !state.live) return;
+        state.live.performers[state.live.currentIndex].cheers -= n; // liveOp 側で足し直す
+        liveOp('cheer', { n: n, idx: state.live.currentIndex });
+    }
+    function spawnCheerHeart() {
+        const cab = document.querySelector('.live-cabinet'); if (!cab) return;
+        const h = document.createElement('div');
+        h.className = 'live-cheer-heart';
+        h.innerHTML = mi('favorite', 'mi-solo');
+        h.style.left = (35 + Math.random() * 30) + '%';
+        h.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px');
+        cab.appendChild(h);
+        setTimeout(() => h.remove(), 1400);
     }
     function liveGimmick() {
         const lv = state.live;
         if (!lv || lv.status !== 'live') return;
-        lv.gimmick = { index: lv.currentIndex, ts: Date.now() };
-        syncLive();
+        liveOp('gimmick');
+        liveLastGimmickTs = state.live.gimmick ? state.live.gimmick.ts : null;
         triggerGimmickFlash();
     }
     function liveVote(pid) {
         const lv = state.live;
         const me = state.members.find(m => m.name === user);
         if (!me) { alert("先にログインしてください"); return; }
-        if (!lv.voters) lv.voters = [];
-        if (lv.voters.includes(me.id)) { alert("投票済みです"); return; }
-        const p = lv.performers.find(x => x.id === pid); if (!p) return;
-        p.votes = (p.votes||0) + 1;
-        lv.voters.push(me.id);
-        syncLive(); renderLiveView();
+        if ((lv.voters || []).includes(me.id)) { alert("投票済みです"); return; }
+        liveOp('vote', { pid: pid, voter: me.id });
     }
     function liveReveal() {
-        if (!state.isAdmin) return;
-        state.live.status = 'result';
-        syncLive(); renderLiveView();
+        if (!state.isAdmin || !state.live) return;
+        liveOp('reveal');
     }
     function liveResetAll() {
-        if (!state.isAdmin) return;
+        if (!state.isAdmin || !state.live) return;
         if (!confirm("ライブをリセットしますか？")) return;
-        state.live.status = 'idle';
-        state.live.currentIndex = -1;
-        state.live.performers.forEach(p => { p.cheers = 0; p.votes = 0; });
-        state.live.voters = [];
-        state.live.gimmick = null;
-        syncLive(); renderLiveView(); renderLiveAdminSummary();
+        liveRevealKey = '';
+        liveOp('reset');
     }
     function triggerGimmickFlash() {
         const cab = document.querySelector('.live-cabinet'); if (!cab) return;
@@ -1953,26 +2088,136 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         cab.appendChild(flash);
         setTimeout(() => flash.remove(), 650);
     }
+
+    // ===================== ライブBGM（ブラウザで演奏するオリジナル曲） =====================
+    // 音源ファイルは使わず Web Audio でその場で鳴らす。C→G→Am→F のアイドルポップ風ループ（BPM132）
+    var LiveBGM = (() => {
+        const BPM = 132, BEAT = 60 / BPM, BAR = BEAT * 4;
+        // [MIDIノート, 拍数]（null は休符）
+        const MELODY = [
+            [76,.5],[79,.5],[81,.5],[79,.5],[76,1],[72,1],
+            [74,.5],[74,.5],[79,.5],[74,.5],[71,1],[74,1],
+            [72,.5],[76,.5],[81,.5],[79,.5],[76,1],[74,.5],[72,.5],
+            [72,1],[77,.5],[76,.5],[74,1.5],[null,.5],
+            [76,.5],[79,.5],[84,.5],[83,.5],[81,1],[79,1],
+            [79,.5],[77,.5],[76,.5],[74,.5],[71,1],[74,1],
+            [76,.5],[77,.5],[79,1],[81,.5],[79,.5],[76,1],
+            [77,.5],[76,.5],[74,.5],[71,.5],[72,2]
+        ];
+        const CHORDS = [[48,52,55],[43,47,50],[45,48,52],[41,45,48],[48,52,55],[43,47,50],[45,48,52],[41,45,48]];
+        let ctx = null, master = null, noiseBuf = null, timer = null, playing = false, nextBarTime = 0, barIdx = 0;
+        const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+        function wanted() { try { return localStorage.getItem('live_bgm') !== 'off'; } catch (e) { return true; } }
+        function setWanted(v) { try { localStorage.setItem('live_bgm', v ? 'on' : 'off'); } catch (e) {} }
+        function ensureCtx() {
+            if (ctx) return true;
+            const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+            ctx = new AC();
+            master = ctx.createGain(); master.gain.value = 0.16; master.connect(ctx.destination);
+            noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate);
+            const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+            return true;
+        }
+        function tone(freq, t, dur, type, vol, attack) {
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.type = type; o.frequency.setValueAtTime(freq, t);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(vol, t + (attack || 0.01));
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.05);
+        }
+        function noise(t, dur, vol, hp) {
+            const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+            src.buffer = noiseBuf; f.type = 'highpass'; f.frequency.value = hp;
+            g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + dur + 0.02);
+        }
+        function kick(t) {
+            const o = ctx.createOscillator(), g = ctx.createGain();
+            o.frequency.setValueAtTime(140, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
+            g.gain.setValueAtTime(0.9, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+            o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.22);
+        }
+        function scheduleBar(i, t) {
+            const ch = CHORDS[i % 8];
+            for (let b = 0; b < 4; b++) {
+                const bt = t + b * BEAT;
+                kick(bt);
+                if (b % 2 === 1) noise(bt, 0.16, 0.35, 1500);             // スネア
+                noise(bt, 0.04, 0.12, 7000); noise(bt + BEAT / 2, 0.04, 0.08, 7000); // ハイハット
+                tone(hz(ch[0] - 12), bt, BEAT * 0.45, 'triangle', 0.5);   // ベース
+                tone(hz(ch[0]), bt + BEAT / 2, BEAT * 0.4, 'triangle', 0.35);
+            }
+            for (let k = 0; k < 16; k++) {                                  // キラキラのアルペジオ
+                const n = ch[k % 3] + 24 + (k % 6 >= 3 ? 12 : 0);
+                tone(hz(n), t + k * BEAT / 4, BEAT / 4 * 0.9, 'square', 0.035);
+            }
+            let beat = 0, startIdx = 0;                                     // メロディ（該当する小節の分だけ）
+            for (let m = 0, acc = 0; m < MELODY.length; m++) { if (acc >= (i % 8) * 4) { startIdx = m; break; } acc += MELODY[m][1]; }
+            for (let m = startIdx; m < MELODY.length && beat < 4; m++) {
+                const [n, len] = MELODY[m];
+                if (n !== null) { tone(hz(n), t + beat * BEAT, len * BEAT * 0.92, 'triangle', 0.4, 0.015); tone(hz(n + 12), t + beat * BEAT, len * BEAT * 0.5, 'sine', 0.08); }
+                beat += len;
+            }
+        }
+        function loop() {
+            while (nextBarTime < ctx.currentTime + 0.3) { scheduleBar(barIdx++, nextBarTime); nextBarTime += BAR; }
+        }
+        function updateBtn() {
+            const b = document.getElementById('live-bgm-btn');
+            if (b) { b.innerHTML = `<span class="mi mi-solo">${playing ? 'music_note' : 'music_off'}</span>`; b.classList.toggle('on', playing); }
+        }
+        function start() {
+            if (playing || !ensureCtx()) return;
+            if (ctx.state === 'suspended') ctx.resume();
+            playing = true; barIdx = 0; nextBarTime = ctx.currentTime + 0.1;
+            master.gain.cancelScheduledValues(ctx.currentTime); master.gain.setValueAtTime(0.16, ctx.currentTime);
+            loop(); timer = setInterval(loop, 100);
+            updateBtn();
+        }
+        function stop() {
+            if (!playing) { updateBtn(); return; }
+            playing = false; clearInterval(timer); timer = null;
+            const now = ctx.currentTime;
+            master.gain.cancelScheduledValues(now); master.gain.setValueAtTime(master.gain.value, now); master.gain.linearRampToValueAtTime(0.0001, now + 0.3);
+            setTimeout(() => { if (!playing) { try { ctx.suspend(); } catch (e) {} } }, 400);
+            updateBtn();
+        }
+        return {
+            toggle() { if (playing) { setWanted(false); stop(); } else { setWanted(true); start(); } },
+            stop,
+            // ブラウザの制限で、最初の1回はボタンを押したときに鳴り始める
+            resumeIfWanted() { if (wanted() && ctx) start(); else updateBtn(); },
+            fanfare() {
+                if (!ctx || !playing) return;
+                const t = ctx.currentTime + 0.05;
+                [[72,0],[76,.12],[79,.24],[84,.36]].forEach(([n, d]) => tone(hz(n), t + d, 0.5, 'square', 0.12));
+                [72,76,79,84].forEach(n => tone(hz(n), t + 0.5, 1.2, 'triangle', 0.25));
+            }
+        };
+    })();
     let livePollTimer = null;
     function startLivePolling() {
         stopLivePolling();
-        livePollTimer = setInterval(fetchLiveOnly, 4000);
+        livePollTimer = setInterval(fetchLiveOnly, 3000);
     }
     function stopLivePolling() {
         if (livePollTimer) { clearInterval(livePollTimer); livePollTimer = null; }
     }
+    let liveUseReadAll = false, liveLastGimmickTs = null;
     function fetchLiveOnly() {
+        if (livePendingCheers) return; // 送信待ちの応援があるときは上書きしない
         const script = document.createElement('script');
-        script.src = `${API_URL}?action=readAll&callback=handleLiveOnlyData`;
+        script.src = `${API_URL}?action=${liveUseReadAll ? 'readAll' : 'getLive'}&callback=handleLiveOnlyData&_=${Date.now()}`;
         document.body.appendChild(script);
     }
     window.handleLiveOnlyData = function(data) {
-        if (data && data.live) {
-            const prevTs = state.live && state.live.gimmick ? state.live.gimmick.ts : null;
+        if (data && data.error && /unknown action/.test(data.error)) liveUseReadAll = true; // GASが古い場合
+        if (data && data.live && !livePendingCheers) {
             state.live = data.live;
             renderLiveView();
             const newTs = state.live.gimmick ? state.live.gimmick.ts : null;
-            if (newTs && newTs !== prevTs) { triggerGimmickFlash(); }
+            if (newTs && newTs !== liveLastGimmickTs) { liveLastGimmickTs = newTs; triggerGimmickFlash(); }
         }
       const scripts = document.querySelectorAll('script[src*="callback=handleLiveOnlyData"]');
         scripts.forEach(s => s.remove());
@@ -2348,7 +2593,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo:0, pl:0, da:0, vi:0 };
         const heightM = climb.height * 5;
         (state.climbTiers || []).forEach(t => { if (heightM >= t.height) { earned.vo += t.vo * POINT_SCALE; earned.pl += t.pl * POINT_SCALE; earned.da += t.da * POINT_SCALE; earned.vi += t.vi * POINT_SCALE; } });
-        ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        addPointsWithLog(m, earned, '崖登り');
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
         const climbMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -2681,7 +2926,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('run', run.distance));
         m.r++;
-        ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        addPointsWithLog(m, earned, 'ランニング');
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const runResultBox = document.getElementById('run-result');
         showLessonResult(
@@ -2876,7 +3121,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('music', achieved));
         m.r++;
-        ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        addPointsWithLog(m, earned, '音感');
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const musicResultBox = document.getElementById('music-result');
         showLessonResult(
@@ -3048,7 +3293,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('kintore', kintore.totalTaps));
         m.r++;
-        ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        addPointsWithLog(m, earned, '筋トレ');
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const kintoreResultBox = document.getElementById('kintore-result');
         showLessonResult(
@@ -3159,7 +3404,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
         m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
         const fortune = getFortuneData();
-        ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } m.p[k] += addPt; });
+        const rollGain = {}; ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } rollGain[k] = addPt; });
+        addPointsWithLog(m, rollGain, noEmoji(l) + ' ' + noEmoji(f.name));
         syncToSheet(m);
     }
     function changePreview(id) {
@@ -3203,7 +3449,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let hHtml = ""; if(m.hStr) { const arr = m.hStr.split(','); arr.forEach(item => { if(item) hHtml += `• ${noEmoji(item.replace(':', '：'))}<br>`; }); }
         const edit = state.isAdmin ? (k) => `<button class="edit-btn" onclick="editPt('${m.id}','${k}')">改</button>` : (k) => '';
         const iconBtn = (isMe || state.isAdmin) ? `<button class="icon-change-btn" onclick="editIcon('${m.id}')">${mi('add_a_photo')}アイコン変更</button>` : '';
-        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
+        const adminProfileBtns = state.isAdmin ? `<button class="edit-btn" onclick="openGrantPoints('${m.id}')" style="margin-right:4px; color:#e8388a; border-color:#ffc2e0;">獲得</button><button class="edit-btn" onclick="editProfile('${m.id}')" style="margin-right:4px; color:#1c7ed6; border-color:#a5d8ff;">名/組</button><button class="edit-btn" onclick="adminDeleteMember('${m.id}')" style="color:#f03e3e; border-color:#ffc9c9;">除名</button>` : '';
         const remain = Math.max(0, (state.limit||2) - (m.r||0));
         const unit = (state.units||[]).find(u => (u.memberIds||[]).includes(m.id));
         let unitHtml = '<div style="opacity:0.5;">まだいません</div>';
@@ -3227,7 +3473,8 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <div class="home-cell home-stamina">体力<br><span class="home-num">${remain}/${state.limit||2}</span></div>
             <div class="home-cell home-unit">ユニット<br>${unitHtml}</div>
         </div>
-        <div class="history">${hHtml||'履歴なし'}</div>`;
+        <div class="history-title">${mi('auto_awesome')}ポイント獲得のきろく</div>
+        <div class="history">${pointLogHtml(m) || (hHtml ? `<div class="history-old">${hHtml}</div>` : '<div class="gain-empty">まだ獲得したポイントはありません。レッスンを受けてみよう！</div>')}</div>`;
     }
       const LESSON_LIST = [
         { key:'climb', label:mi('hiking') + '崖登り' }, { key:'run', label:mi('directions_run') + 'ランニング' },
@@ -3576,7 +3823,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('trampoline', trampoline.totalHeight));
-        m.r++; ['vo', 'pl', 'da', 'vi'].forEach(k => m.p[k] += earned[k]);
+        m.r++; addPointsWithLog(m, earned, 'トランポリン');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, mi('sports_gymnastics') + '結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
         document.getElementById('trampoline-start-btn').style.display = 'block';
@@ -3689,7 +3936,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === dance.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('dance', dance.hits));
-        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        m.r++; addPointsWithLog(m, earned, 'ダンス');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', dance.hits + 'ヒット', earned, 'dance');
         document.getElementById('dance-start-btn').style.display = 'block';
@@ -3777,7 +4024,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const seconds = Math.round(model.seconds * 10) / 10;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('model', seconds));
-        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        m.r++; addPointsWithLog(m, earned, 'モデル');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
         document.getElementById('model-start-btn').style.display = 'block';
@@ -3865,7 +4112,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === actress.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('actress', actress.round));
-        m.r++; ['vo','pl','da','vi'].forEach(k => m.p[k] += earned[k]);
+        m.r++; addPointsWithLog(m, earned, '女優');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('actress-result', 'actress-result-canvas', ms, mi('theater_comedy') + '結果！', actress.round + '問正解', earned, 'actress');
         document.getElementById('actress-start-btn').style.display = 'block';
@@ -4227,6 +4474,23 @@ state.members.forEach(m => {
             <div class="bn-icon"><svg viewBox="0 0 24 24"><path d="M3 4h18v13H7l-4 4z"/></svg></div>
             <span class="bn-label kira-text">掲示板</span>
         </button>
+    </div>
+   <div id="grant-modal" class="grant-modal">
+        <div class="grant-panel">
+            <div class="grant-title"><span class="mi">redeem</span><span id="grant-name"></span> にポイントを獲得させる</div>
+            <label>何による獲得？</label>
+            <input type="text" id="grant-src" maxlength="30" placeholder="例）春のライブ出演、イベント優勝 など">
+            <div class="grant-grid">
+                <label class="vo">Vo<input type="number" id="grant-vo" inputmode="numeric" placeholder="0"></label>
+                <label class="pl">Pl<input type="number" id="grant-pl" inputmode="numeric" placeholder="0"></label>
+                <label class="da">Da<input type="number" id="grant-da" inputmode="numeric" placeholder="0"></label>
+                <label class="vi">Vi<input type="number" id="grant-vi" inputmode="numeric" placeholder="0"></label>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+                <button type="button" onclick="closeGrantPoints()" style="flex:1;background:#eee4e8;color:#8a7a7e;">キャンセル</button>
+                <button type="button" onclick="submitGrantPoints()" style="flex:1;">獲得させる</button>
+            </div>
+        </div>
     </div>
    <div id="icon-crop-modal" class="icon-crop-modal">
         <div class="icon-crop-panel">
