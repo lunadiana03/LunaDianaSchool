@@ -380,10 +380,10 @@ html, body {
         <div id="kumi-box-container" style="width:100%;">
             <div style="font-size:0.8em; margin-top:4px; font-weight:bold; color:#ff758f;">所属する組を選んでね</div>
             <div class="kumi-selector">
-                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana"><span class="mi">local_florist</span>花の歌組</label>
-                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori"><span class="mi">flutter_dash</span>鳥の劇組</label>
-                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze"><span class="mi">air</span>風の舞組</label>
-                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki"><span class="mi">bedtime</span>月の美組</label>
+                <input type="radio" name="kumi-choice" id="choice-hana" value="花の歌組🌸" checked><label for="choice-hana">花の歌組🌸</label>
+                <input type="radio" name="kumi-choice" id="choice-tori" value="鳥の劇組🕊‎"><label for="choice-tori">鳥の劇組🕊‎</label>
+                <input type="radio" name="kumi-choice" id="choice-kaze" value="風の舞組🍃"><label for="choice-kaze">風の舞組🍃</label>
+                <input type="radio" name="kumi-choice" id="choice-tsuki" value="月の美組🌙"><label for="choice-tsuki">月の美組🌙</label>
             </div>
         </div>
         <div id="suit-box-container" style="width:100%;">
@@ -683,7 +683,7 @@ html, body {
         <div class="kira-text" style="font-size:1.2em; font-weight:bold; text-align:center; margin-bottom:8px;"><span class="mi">menu_book</span>アイドル図鑑！</div>
         <div style="margin-bottom:8px;">
             <label style="font-size:0.85em; font-weight:bold;"><span class="mi">search</span>組でしぼりこむ:</label>
-            <select id="filter-kumi" onchange="render()"><option value="all">すべての組を表示</option><option value="花の歌組🌸">花の歌組</option><option value="鳥の劇組🕊‎">鳥の劇組</option><option value="風の舞組🍃">風の舞組</option><option value="月の美組🌙">月の美組</option></select>
+            <select id="filter-kumi" onchange="render()"><option value="all">すべての組を表示</option><option value="花の歌組🌸">花の歌組🌸</option><option value="鳥の劇組🕊‎">鳥の劇組🕊‎</option><option value="風の舞組🍃">風の舞組🍃</option><option value="月の美組🌙">月の美組🌙</option></select>
         </div>
         <div style="margin-bottom:8px;">
     <label style="font-size:0.85em; font-weight:bold;"><span class="mi">diamond</span>タイプでしぼりこむ:</label>
@@ -777,12 +777,12 @@ html, body {
         sexy: { label: 'セクシー', symbol: '♤', color: '#8a4fe0' },
         pop:  { label: 'ポップ', symbol: '♧', color: '#f5c400' }
       };
-    const KUMI_EMOJI_LIST = ['<span class="mi mi-solo">local_florist</span>', '<span class="mi mi-solo">flutter_dash</span>', '<span class="mi mi-solo">air</span>', '<span class="mi mi-solo">bedtime</span>'];
-    // 画面表示用：絵文字を除いて Material Symbols アイコンを使う（保存データの組名などはそのまま）
+    const KUMI_EMOJI_LIST = ['🌸', '🕊', '🍃', '🌙'];
+    // 画面表示用：絵文字を除いて Material Symbols アイコンを使う（組の🌸🕊🍃🌙だけは絵文字のまま）
     const EMOJI_RE = /[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{2300}-\u{23FF}\u{FE0F}\u{200D}\u{200E}]/gu;
     function noEmoji(str) { return String(str == null ? '' : str).replace(EMOJI_RE, '').trim(); }
     function mi(name, cls) { return `<span class="mi${cls ? ' ' + cls : ''}">${name}</span>`; }
-    function kumiLabelHtml(k) { if (!k) return '無所属'; const i = KUMI_LIST.indexOf(k); return (i >= 0 ? mi(['local_florist','flutter_dash','air','bedtime'][i]) : '') + noEmoji(k); }
+    function kumiLabelHtml(k) { return k || '無所属'; }
     const KUMI_EMOJI_MAP = {};
     KUMI_LIST.forEach((k, i) => { KUMI_EMOJI_MAP[k] = KUMI_EMOJI_LIST[i]; });
     const TIER_CONFIGS = {
@@ -2048,7 +2048,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(m => m.id === id); if(!m) return;
         const newName = prompt(`【管理者編集】新しい名前を入力してください:`, m.name); if (newName === null) return;
         const finalName = newName.trim(); if (!finalName) { alert("名前を空にできません。"); return; }
-        let kumiMsg = `【管理者編集】新しい所属組の番号を入力してください:\n`; KUMI_LIST.forEach((k, i) => { kumiMsg += `${i + 1} : ${noEmoji(k)}\n`; });
+        let kumiMsg = `【管理者編集】新しい所属組の番号を入力してください:\n`; KUMI_LIST.forEach((k, i) => { kumiMsg += `${i + 1} : ${k}\n`; });
         const currentIdx = KUMI_LIST.indexOf(m.kumi) !== -1 ? KUMI_LIST.indexOf(m.kumi) + 1 : 1;
         const kumiInput = prompt(kumiMsg, currentIdx); if (kumiInput === null) return;
         const idx = parseInt(kumiInput) - 1;
