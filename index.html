@@ -727,10 +727,93 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .member-admin-item .nm { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .member-admin-item .ps { display:flex; gap:4px; font-size:.8em; }
 .member-admin-item .ps span { padding:1px 5px; border-radius:999px; }
+
+/* =====================================================================
+   入学受付・入学式待ち（全画面、真ん中にカード1枚ずつ）
+   ===================================================================== */
+body.entry-open { overflow:hidden; }
+.entry { position:fixed; inset:0; z-index:8000; overflow-y:auto; -webkit-overflow-scrolling:touch; background-color:#fde9f3; background-image: conic-gradient(from 45deg, #fbd6e8 25%, #fdeaf4 0 50%, #fbd6e8 0 75%, #fdeaf4 0); background-size:46px 46px; }
+.entry::before { content:''; position:fixed; left:0; right:0; top:0; height:10px; background:#ff9ad0; }
+.entry-inner { min-height:100%; max-width:420px; margin:0 auto; padding:28px 18px 40px; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; }
+.entry-logo { text-align:center; font:1.3em 'Mochiy Pop One', sans-serif; color:var(--ak-mag); text-shadow:2px 2px 0 #fff, -2px 2px 0 #fff, 2px -2px 0 #fff, -2px -2px 0 #fff; margin-bottom:10px; }
+.entry-logo-sub { font:700 .5em 'Zen Maru Gothic', sans-serif; letter-spacing:4px; color:#f59ac6; text-shadow:none; }
+.entry-dots { display:flex; justify-content:center; gap:8px; min-height:10px; margin-bottom:12px; }
+.entry-dots span { width:10px; height:10px; border-radius:50%; background:#fff; box-shadow:0 0 0 2px #ffc2e0; transition:all .3s; }
+.entry-dots span.done { background:#ffb3d9; }
+.entry-dots span.cur { background:var(--ak-mag); width:26px; border-radius:999px; }
+.entry-card { position:relative; background:#fff; border:2px solid #f06aa8; border-radius:26px; box-shadow:0 6px 0 #ffc2e0; padding:26px 20px 22px; text-align:center; }
+.entry-card::before { content:''; position:absolute; inset:-14px -8px auto auto; width:60px; height:44px; background-image: var(--deco-a, none); pointer-events:none; }
+.entry-card.entry-in { animation: entry-in .45s cubic-bezier(.22,1,.36,1) both; }
+@keyframes entry-in { from { opacity:0; transform:translateY(16px) scale(.97); } to { opacity:1; transform:none; } }
+.entry-kicker { font:700 .72em 'Zen Maru Gothic', sans-serif; letter-spacing:4px; color:#f59ac6; }
+.entry-title { font:1.45em/1.35 'Mochiy Pop One', sans-serif; color:var(--ak-mag); margin:6px 0 14px; }
+.entry-title.big { font-size:2em; }
+.entry-text { color:var(--ak-ink); line-height:1.7; margin:0 0 16px; }
+.entry-hint { font-size:.78em; color:#a08a96; margin:8px 0 0; }
+.entry-note { margin-top:16px; display:inline-block; padding:4px 14px; border-radius:999px; background:#fff0f7; color:var(--ak-mag); font-weight:700; font-size:.85em; }
+.entry-input { font-size:1.2em; text-align:center; padding:12px; border-radius:16px; border:2px solid #ffc2e0; margin:0; }
+.entry-main-btn { width:100%; margin:4px 0 0; padding:14px; font-size:1.1em; font-family:'Mochiy Pop One', sans-serif; font-weight:normal; }
+.entry-sub-link { display:block; margin:14px auto 0; background:none; box-shadow:none; color:#c79ab4; font-size:.85em; font-weight:500; text-decoration:underline; padding:4px; }
+.entry-sub-link:active { transform:none; box-shadow:none; }
+.entry-foot { display:flex; justify-content:space-between; margin-top:10px; }
+.entry-foot .entry-sub-link { margin:0; text-decoration:none; font-size:.78em; }
+.entry-nav { display:flex; gap:8px; margin-top:18px; }
+.entry-nav .entry-back { flex:0 0 auto; background:#fff; color:var(--ak-mag); box-shadow:0 0 0 2px #ffc2e0, 0 3px 0 2px #ffd9ea; }
+.entry-nav .entry-next { flex:1; }
+.entry-options { display:grid; gap:10px; }
+.entry-options.two { grid-template-columns:1fr 1fr; }
+.entry-opt { display:flex; flex-direction:column; align-items:center; gap:2px; margin:0; padding:12px 8px; background:#fff; color:var(--ak-ink); border-radius:18px; box-shadow:0 0 0 2px #ffd0e7, 0 3px 0 2px #ffe3f0; font-weight:700; transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+.entry-opt.sel { background:#fff0f7; box-shadow:0 0 0 3px var(--ak-mag), 0 4px 0 3px #ffc2e0; transform:scale(1.03); }
+.entry-opt-main { font-size:1.05em; }
+.entry-opt-sub { font-size:.72em; color:#a08a96; font-weight:500; }
+.entry-suit-sym { font-size:2em; color:var(--c); line-height:1.1; }
+.entry-mascot img { width:84px; height:84px; object-fit:contain; }
+.entry-icon-pick { width:170px; height:170px; margin:0 auto; border-radius:50%; padding:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:#fff7fb; color:var(--ak-mag); box-shadow:0 0 0 3px #fff, 0 0 0 6px #ffb3d9, 0 6px 14px rgba(234,63,147,.2); overflow:hidden; font-size:.95em; }
+.entry-icon-pick .mi { font-size:2.6em; }
+.entry-icon-pick img { width:100%; height:100%; object-fit:cover; }
+/* 入学願書 */
+.application { text-align:left; background:#fffdf8; border:2px solid #e8c9d9; border-radius:10px; padding:14px 12px; margin-bottom:16px; box-shadow:inset 0 0 0 4px #fff, inset 0 0 0 5px #f3dbe7; background-image:repeating-linear-gradient(0deg, transparent 0 27px, rgba(240,106,168,.06) 27px 28px); }
+.app-head { text-align:center; border-bottom:2px double #f0a8cb; padding-bottom:8px; margin-bottom:10px; }
+.app-title { font:1.35em 'Mochiy Pop One', sans-serif; letter-spacing:8px; color:var(--ak-mag); }
+.app-en { font-size:.6em; letter-spacing:2px; color:#c79ab4; }
+.app-body { display:flex; gap:10px; }
+.app-photo { position:relative; flex:none; width:86px; height:108px; border:1.5px solid #e8c9d9; background:#fff; cursor:pointer; overflow:hidden; }
+.app-photo img { width:100%; height:100%; object-fit:cover; }
+.app-photo span { position:absolute; left:0; right:0; bottom:0; font-size:.65em; text-align:center; background:rgba(234,63,147,.75); color:#fff; }
+.app-rows { flex:1; min-width:0; }
+.app-row { display:flex; align-items:center; gap:6px; border-bottom:1px dashed #f0c6db; padding:6px 0; }
+.app-lbl { flex:none; width:5.4em; font-size:.68em; color:#b08aa0; white-space:nowrap; }
+.app-val { flex:1; min-width:0; font-weight:700; color:var(--ak-ink); font-size:.92em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.app-mascot { width:22px; height:22px; object-fit:contain; vertical-align:-6px; margin-right:2px; }
+.app-edit { flex:none; margin:0; padding:2px 8px; font-size:.7em; background:#fff; color:var(--ak-mag); box-shadow:0 0 0 1.5px #ffc2e0; }
+.app-foot { margin-top:10px; font-size:.75em; color:#b08aa0; text-align:right; }
+.entry-stamp { display:inline-block; margin:4px 0 8px; padding:10px 18px; border:4px double #e5484d; border-radius:50%; color:#e5484d; font:1.4em 'Mochiy Pop One', sans-serif; transform:rotate(-12deg); animation: stamp .5s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes stamp { from { opacity:0; transform:rotate(-12deg) scale(2.2); } to { opacity:1; transform:rotate(-12deg) scale(1); } }
+/* 入学式待ち */
+.wait-me { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:14px; text-align:left; }
+.wait-me img { border:3px solid #fff; box-shadow:0 0 0 2px #ffb3d9; }
+.wait-name { font-weight:700; font-size:1.1em; color:var(--ak-ink); }
+.wait-sub { font-size:.8em; color:#a08a96; }
+.wait-count { display:flex; justify-content:center; gap:6px; margin:0 0 16px; }
+.wait-count span { display:flex; flex-direction:column; align-items:center; min-width:58px; padding:8px 4px; background:#fff0f7; border-radius:16px; box-shadow:0 0 0 2px #ffc2e0; font-size:.75em; color:#b08aa0; }
+.wait-count b { font:1.8em 'Mochiy Pop One', sans-serif; color:var(--ak-mag); font-weight:normal; }
+/* 入学おめでとう */
+.entry-card > *:not(.celebrate-burst) { position:relative; z-index:1; }
+.celebrate-burst { position:absolute; inset:0; z-index:0; pointer-events:none; border-radius:26px; overflow:hidden; background-image: radial-gradient(circle, #ffd86b 0 3px, transparent 4px), radial-gradient(circle, #ff8cc6 0 3px, transparent 4px), radial-gradient(circle, #7fd6f7 0 2.5px, transparent 3.5px); background-size:60px 70px, 80px 60px, 50px 55px; animation: confetti 3s linear infinite; opacity:.45; -webkit-mask-image:linear-gradient(#000 0 18%, transparent 30% 78%, #000 90%); mask-image:linear-gradient(#000 0 18%, transparent 30% 78%, #000 90%); }
+@keyframes confetti { from { background-position:0 -70px, 20px -60px, 10px -55px; } to { background-position:0 70px, 20px 60px, 10px 55px; } }
     </style>
 </head>
 <body>
 <div id="loading" class="loading-mask"><span class="mi">auto_awesome</span>アイカツシステムと通信中...</div>
+<div id="entry" class="entry" style="display:none;">
+    <div class="entry-inner">
+        <div class="entry-logo"><span class="mi">local_florist</span>レッスン手帳<div class="entry-logo-sub">IDOL LESSON NOTE</div></div>
+        <div id="entry-dots" class="entry-dots"></div>
+        <div id="entry-card" class="entry-card"></div>
+        <div id="entry-foot" class="entry-foot"></div>
+    </div>
+    <input type="file" id="entry-icon-input" accept="image/*" style="display:none;">
+</div>
 <div class="box">
     <header>
         <h1 class="kira-text"><span class="mi">local_florist</span>レッスン手帳</h1>
@@ -1750,7 +1833,181 @@ setTimeout(() => {
 
     function saveLocal() { localStorage.setItem('lesson_kumi_v21_local', JSON.stringify({ theme: state.theme, password: state.password, emojis: state.emojis, probs: state.probs })); }
     function checkReset() { const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(); state.members.forEach(m => { if (m.d !== todayKey) { m.d = todayKey; m.r = 0; } }); }
-    function updateLoginBoxUI() { const box = document.getElementById('login-box-area'); const isRegistered = state.members.some(m => m.name === user); const show = !(user && isRegistered); box.style.display = show ? 'flex' : 'none'; const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = show ? 'none' : 'flex'; }
+
+    // ===================== 入学受付（初期設定）と入学式までの待機 =====================
+    // 入学式（この時刻まではサイト本体に入れない。管理者は「ひみつ」から入れる）
+    const OPEN_AT = new Date('2026-09-26T08:00:00+09:00').getTime();
+    const OPEN_LABEL = '9月26日（土）朝8:00';
+    function beforeOpen() { return Date.now() < OPEN_AT; }
+    const ENTRY_STEPS = ['name', 'kumi', 'suit', 'icon', 'mascot'];
+    const KUMI_INFO = {
+        '花の歌組🌸': { good: 'Vo', text: '歌が大好き。ボーカルが伸びやすい' },
+        '鳥の劇組🕊‎': { good: 'Pl', text: 'お芝居が得意。アピールが伸びやすい' },
+        '風の舞組🍃': { good: 'Da', text: '踊るのが大好き。ダンスが伸びやすい' },
+        '月の美組🌙': { good: 'Vi', text: '美しさを磨く。ビジュアルが伸びやすい' }
+    };
+    let entryDraft = { name: '', kumi: '', suit: '', icon: '', mascotId: 'mascot1' };
+    let entryStep = 'welcome', entryReturnToReview = false, entryWaitTimer = null;
+    function isRegisteredUser() { return !!user && state.members.some(m => m.name === user); }
+    // どの画面を出すか決める（受付／入学式待ち／本体）
+    function updateLoginBoxUI() {
+        const box = document.getElementById('login-box-area'); if (box) box.style.display = 'none';
+        let mode = null;
+        if (!isRegisteredUser()) mode = 'entry';
+        else if (beforeOpen() && !state.isAdmin) mode = 'wait';
+        const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = mode ? 'none' : 'flex';
+        const el = document.getElementById('entry');
+        if (!mode) { el.style.display = 'none'; clearInterval(entryWaitTimer); document.body.classList.remove('entry-open'); return; }
+        el.style.display = 'block'; document.body.classList.add('entry-open');
+        if (mode === 'wait') { if (entryStep !== 'celebrate' && entryStep !== 'submitted' && entryStep !== 'wait') entryGo('wait'); }
+        else if (entryStep === 'wait' || entryStep === 'celebrate') entryGo('welcome');
+        else if (entryStep === 'submitted') return;
+        else renderEntry();
+    }
+    function entryGo(step) { entryStep = step; renderEntry(true); window.scrollTo(0, 0); }
+    function entryNext() {
+        if (entryReturnToReview && ENTRY_STEPS.includes(entryStep)) { entryReturnToReview = false; entryGo('review'); return; }
+        const i = ENTRY_STEPS.indexOf(entryStep);
+        entryGo(i < ENTRY_STEPS.length - 1 ? ENTRY_STEPS[i + 1] : 'review');
+    }
+    function entryBack() {
+        if (entryReturnToReview) { entryReturnToReview = false; entryGo('review'); return; }
+        const i = ENTRY_STEPS.indexOf(entryStep);
+        entryGo(i > 0 ? ENTRY_STEPS[i - 1] : 'welcome');
+    }
+    function entryEdit(step) { entryReturnToReview = true; entryGo(step); }
+    function entryNavHtml(canNext, nextLabel) {
+        return `<div class="entry-nav"><button type="button" class="entry-back" onclick="entryBack()">${mi('arrow_back')}もどる</button>
+            <button type="button" class="entry-next" onclick="entryNext()" ${canNext ? '' : 'disabled'}>${entryReturnToReview ? '願書にもどる' : (nextLabel || 'つぎへ')}${mi('arrow_forward','mi-solo')}</button></div>`;
+    }
+    function kumiEmojiOf(k) { const i = KUMI_LIST.indexOf(k); return i >= 0 ? KUMI_EMOJI_LIST[i] : ''; }
+    function renderEntry(animate) {
+        const card = document.getElementById('entry-card'), dots = document.getElementById('entry-dots'), foot = document.getElementById('entry-foot');
+        const idx = ENTRY_STEPS.indexOf(entryStep);
+        dots.innerHTML = idx >= 0 ? ENTRY_STEPS.map((x, i) => `<span class="${i < idx ? 'done' : i === idx ? 'cur' : ''}"></span>`).join('') : '';
+        foot.innerHTML = '';
+        const d = entryDraft;
+        let h = '';
+        if (entryStep === 'welcome') {
+            h = `<div class="entry-kicker">WELCOME</div><div class="entry-title">アイドル学園へ<br>ようこそ！</div>
+                <p class="entry-text">まずは入学願書を書こう。<br>名前・組・タイプ・アイコン・パートナーを<br>ひとつずつ決めていくよ。</p>
+                <button type="button" class="entry-main-btn" onclick="entryGo('name')">${mi('edit_note')}入学願書を書く</button>
+                <button type="button" class="entry-sub-link" onclick="entryGo('login')">もう入学している人はこちら</button>`;
+            if (beforeOpen()) h += `<div class="entry-note">${mi('event')}入学式は ${OPEN_LABEL}</div>`;
+        } else if (entryStep === 'login') {
+            h = `<div class="entry-kicker">LOGIN</div><div class="entry-title">おかえりなさい</div>
+                <p class="entry-text">入学したときの名前を入れてね</p>
+                <input type="text" id="entry-login-name" class="entry-input" maxlength="20" placeholder="おなまえ">
+                <button type="button" class="entry-main-btn" onclick="entryLogin()">${mi('login')}ログイン</button>
+                <button type="button" class="entry-sub-link" onclick="entryGo('welcome')">もどる</button>`;
+        } else if (entryStep === 'name') {
+            h = `<div class="entry-kicker">STEP 1</div><div class="entry-title">あなたの名前は？</div>
+                <input type="text" id="entry-name" class="entry-input" maxlength="20" placeholder="おなまえ" value="${escapeHtml(d.name)}" oninput="entryDraft.name=this.value.trim(); document.querySelector('.entry-next').disabled=!entryDraft.name;">
+                <p class="entry-hint">なりきりで使う名前を入れてね</p>` + entryNavHtml(!!d.name);
+        } else if (entryStep === 'kumi') {
+            h = `<div class="entry-kicker">STEP 2</div><div class="entry-title">所属する組は？</div>
+                <div class="entry-options">${KUMI_LIST.map(k => `<button type="button" class="entry-opt ${d.kumi === k ? 'sel' : ''} ${getKumiClass(k)}" onclick="entryDraft.kumi='${k}'; renderEntry();"><span class="entry-opt-main">${escapeHtml(k)}</span><span class="entry-opt-sub">${KUMI_INFO[k] ? KUMI_INFO[k].text : ''}</span></button>`).join('')}</div>
+                <p class="entry-hint">${mi('info')}組はあとから変えられません</p>` + entryNavHtml(!!d.kumi);
+        } else if (entryStep === 'suit') {
+            h = `<div class="entry-kicker">STEP 3</div><div class="entry-title">あなたのタイプは？</div>
+                <div class="entry-options two">${Object.keys(SUITS).map(k => `<button type="button" class="entry-opt ${d.suit === k ? 'sel' : ''}" style="--c:${SUITS[k].color};" onclick="entryDraft.suit='${k}'; renderEntry();"><span class="entry-suit-sym">${SUITS[k].symbol}</span><span class="entry-opt-main">${SUITS[k].label}</span></button>`).join('')}</div>` + entryNavHtml(!!d.suit);
+        } else if (entryStep === 'icon') {
+            h = `<div class="entry-kicker">STEP 4</div><div class="entry-title">アイコンを決めよう</div>
+                <button type="button" class="entry-icon-pick" onclick="document.getElementById('entry-icon-input').click()">${d.icon ? `<img src="${d.icon}" alt="">` : `${mi('add_a_photo','mi-solo')}<span>画像をえらぶ</span>`}</button>
+                <p class="entry-hint">${d.icon ? 'タップすると選び直せるよ' : '選んだあと、好きな部分を四角く切り取れるよ'}</p>` + entryNavHtml(!!d.icon);
+        } else if (entryStep === 'mascot') {
+            const list = MASCOTS.filter(ms => ms.available !== false);
+            h = `<div class="entry-kicker">STEP 5</div><div class="entry-title">パートナーをえらぼう</div>
+                <div class="entry-options two">${list.map(ms => `<button type="button" class="entry-opt entry-mascot ${d.mascotId === ms.id ? 'sel' : ''}" onclick="entryDraft.mascotId='${ms.id}'; renderEntry();"><img src="${ms.img}" alt=""><span class="entry-opt-main">${ms.name}</span></button>`).join('')}</div>
+                <p class="entry-hint">レッスンで一緒にがんばるマスコットだよ<br>${mi('info')}パートナーはいつでも変更できます</p>` + entryNavHtml(!!d.mascotId, '願書をかくにん');
+        } else if (entryStep === 'review') {
+            const ms = MASCOTS.find(x => x.id === d.mascotId) || MASCOTS[0];
+            const row = (label, val, step) => `<div class="app-row"><div class="app-lbl">${label}</div><div class="app-val">${val}</div><button type="button" class="app-edit" onclick="entryEdit('${step}')">変更</button></div>`;
+            h = `<div class="application">
+                    <div class="app-head"><div class="app-title">入学願書</div><div class="app-en">APPLICATION FOR ADMISSION</div></div>
+                    <div class="app-body">
+                        <div class="app-photo" onclick="entryEdit('icon')"><img src="${d.icon}" alt=""><span>変更</span></div>
+                        <div class="app-rows">
+                            ${row('氏名', escapeHtml(d.name), 'name')}
+                            ${row('所属', escapeHtml(d.kumi), 'kumi')}
+                            ${row('タイプ', d.suit && SUITS[d.suit] ? `<span style="color:${SUITS[d.suit].color}">${SUITS[d.suit].symbol}</span> ${SUITS[d.suit].label}` : '', 'suit')}
+                            ${row('パートナー', `<img class="app-mascot" src="${ms.img}" alt="">${ms.name}`, 'mascot')}
+                        </div>
+                    </div>
+                    <div class="app-foot">上記のとおり、入学を希望します。</div>
+                </div>
+                <button type="button" class="entry-main-btn" onclick="entrySubmit()">${mi('send')}提出する</button>
+                <p class="entry-hint">${mi('info')}組は提出後に変えられません</p>`;
+        } else if (entryStep === 'submitted') {
+            h = `<div class="entry-stamp">受理</div><div class="entry-title">入学願書を<br>受け付けました！</div><p class="entry-text">${escapeHtml(entryDraft.name || user)}さん、ようこそ！</p>`;
+        } else if (entryStep === 'wait') {
+            const me = state.members.find(m => m.name === user);
+            h = `<div class="entry-kicker">ENTRANCE CEREMONY</div><div class="entry-title">入学式まで<br>あと少し！</div>
+                <div class="wait-me">${me ? getIconHtml(me.icon, '72px') : ''}<div><div class="wait-name">${escapeHtml(user)}</div><div class="wait-sub">${me ? escapeHtml(me.kumi) : ''} 入学予定</div></div></div>
+                <div class="wait-count" id="wait-count"></div>
+                <p class="entry-text">入学式は <b>${OPEN_LABEL}</b><br>時間になったら、このページを開いてね！<br><span class="entry-hint">開いたままでも、時間になると自動で入学できるよ</span></p>`;
+            foot.innerHTML = `<button type="button" class="entry-sub-link" onclick="entryLogout()">別の名前で入る</button><button type="button" class="entry-sub-link" onclick="entryAdmin()">${mi('lock','mi-solo')}ひみつ</button>`;
+            startWaitCountdown();
+        } else if (entryStep === 'celebrate') {
+            h = `<div class="celebrate-burst"></div><div class="entry-kicker">CONGRATULATIONS</div><div class="entry-title big">入学<br>おめでとう！</div>
+                <p class="entry-text">今日からあなたもアイドル学園の生徒です。<br>レッスンをがんばろう！</p>
+                <button type="button" class="entry-main-btn" onclick="entryFinish()">${mi('auto_awesome')}レッスン手帳をひらく</button>`;
+        }
+        card.innerHTML = h;
+        if (animate) { card.classList.remove('entry-in'); void card.offsetWidth; card.classList.add('entry-in'); }
+        const nameInput = document.getElementById('entry-name'); if (nameInput) { setTimeout(() => nameInput.focus(), 50); nameInput.onkeydown = e => { if (e.key === 'Enter' && entryDraft.name) entryNameNext(); }; }
+        if (entryStep === 'name') document.querySelector('.entry-next').onclick = entryNameNext;
+    }
+    // 名前：すでにいる名前ならログインをすすめる
+    function entryNameNext() {
+        const n = (entryDraft.name || '').trim(); if (!n) return;
+        if (state.members.some(m => m.name === n)) {
+            if (confirm(`「${n}」はもう入学しています。この名前でログインしますか？`)) { user = n; localStorage.setItem('lesson_user_v21', user); render(); updateLoginBoxUI(); }
+            return;
+        }
+        entryNext();
+    }
+    function entryLogin() {
+        const n = (document.getElementById('entry-login-name').value || '').trim(); if (!n) return;
+        if (!state.members.some(m => m.name === n)) { alert('その名前は見つかりませんでした。入学願書を書いてね'); return; }
+        user = n; localStorage.setItem('lesson_user_v21', user); render(); updateLoginBoxUI();
+    }
+    document.getElementById('entry-icon-input').addEventListener('change', e => {
+        const f = e.target.files[0]; if (!f) return;
+        openSquareCropper(f).then(b64 => { e.target.value = ''; if (b64) { entryDraft.icon = b64; renderEntry(); } });
+    });
+    function entrySubmit() {
+        const d = entryDraft;
+        if (!d.name || !d.kumi || !d.suit || !d.icon) { alert('まだ入力していないところがあります'); return; }
+        if (state.members.some(m => m.name === d.name)) { alert('その名前はもう使われています。名前を変えてね'); entryEdit('name'); return; }
+        if (!confirm('この内容で入学願書を提出しますか？')) return;
+        LiveBGM.sfx('unlock', true);
+        document.getElementById('loading').style.display = 'flex';
+        uploadIcon(d.icon, d.name).then(url => {
+            const m = { id: 'id_' + Date.now() + Math.random().toString(36).substr(2, 2), name: d.name, kumi: d.kumi, icon: url, mascotId: d.mascotId || 'mascot1', r: 0, d: new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString(), h: {}, p: { vo: 0, pl: 0, da: 0, vi: 0 }, last: '', climbDate: '', climbHeight: 0, suit: d.suit, profileImg: '', youtubeUrl: '', unitId: '', pointLog: [] };
+            if (!state.members.some(x => x.name === m.name)) state.members.push(m);
+            user = m.name; localStorage.setItem('lesson_user_v21', user);
+            syncToSheet(m);
+            entryGo('submitted');
+            LiveBGM.sfx('voteStart');
+            setTimeout(() => { entryDraft = { name: '', kumi: '', suit: '', icon: '', mascotId: 'mascot1' }; render(); entryStep = 'welcome'; if (beforeOpen() && !state.isAdmin) entryGo('wait'); updateLoginBoxUI(); }, 2400);
+        }).catch(uploadErrorAlert);
+    }
+    function startWaitCountdown() {
+        clearInterval(entryWaitTimer);
+        const tick = () => {
+            const el = document.getElementById('wait-count'); if (!el) { clearInterval(entryWaitTimer); return; }
+            const ms = OPEN_AT - Date.now();
+            if (ms <= 0) { clearInterval(entryWaitTimer); entryGo('celebrate'); LiveBGM.sfx('fanfare'); return; }
+            const s = Math.floor(ms / 1000), dd = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), mm = Math.floor(s % 3600 / 60), ss = s % 60;
+            const p2 = n => String(n).padStart(2, '0');
+            el.innerHTML = (dd ? `<span><b>${dd}</b>日</span>` : '') + `<span><b>${p2(hh)}</b>時間</span><span><b>${p2(mm)}</b>分</span><span><b>${p2(ss)}</b>秒</span>`;
+        };
+        tick(); entryWaitTimer = setInterval(tick, 1000);
+    }
+    function entryFinish() { entryStep = 'welcome'; updateLoginBoxUI(); switchView('my'); }
+    function entryLogout() { if (!confirm('別の名前で入りますか？')) return; user = ''; localStorage.removeItem('lesson_user_v21'); clearInterval(entryWaitTimer); entryGo('welcome'); updateLoginBoxUI(); }
+    function entryAdmin() { goAdmin(); updateLoginBoxUI(); }
       function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
     function getFortuneData() {
