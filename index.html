@@ -129,7 +129,19 @@
    .climb-desc { font-size:0.8em; margin-bottom:10px; opacity:0.9; white-space:pre-wrap; position:relative; z-index:1; }   
     .climb-track { background: linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%); background-size: 100% 400%; border-radius:20px; aspect-ratio:1/1; height:auto; position:relative; margin-bottom:10px; overflow:hidden; border:4px solid #fff; box-shadow:0 4px 10px rgba(0,0,0,0.25); transition: background-position-y 0.15s linear; display:none; }
 .climb-track.show { display:block; }    
-.climb-track::before { content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 20px), repeating-linear-gradient(65deg, rgba(0,0,0,0.08) 0 4px, transparent 4px 26px); pointer-events:none; }
+/* 岩壁レイヤー：登るたびに下へ流れて上昇感を出す */
+.climb-wall { position:absolute; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    radial-gradient(circle at 50% 45%, #ffd6ec 0 7px, #ff8fc4 8px 10px, transparent 11px),
+    radial-gradient(circle at 50% 50%, #fff3b0 0 6px, #f5c400 7px 9px, transparent 10px),
+    radial-gradient(circle at 50% 50%, #d9c8ff 0 6px, #9775fa 7px 9px, transparent 10px),
+    radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.14) 0 22px, transparent 23px),
+    radial-gradient(ellipse at 70% 60%, rgba(0,0,0,0.10) 0 28px, transparent 29px),
+    repeating-linear-gradient(115deg, rgba(255,255,255,0.08) 0 6px, transparent 6px 20px),
+    repeating-linear-gradient(65deg, rgba(0,0,0,0.08) 0 4px, transparent 4px 26px);
+  background-size: 150px 170px, 130px 210px, 170px 150px, 190px 160px, 230px 200px, 100% 240px, 100% 260px;
+  background-position: 20px 30px, 95px 110px, 60px 0px, 0 0, 40px 80px, 0 0, 0 0;
+  transition: background-position 0.3s ease-out; }
     .climb-track { 
     background-image: url('climb-bg.png'), linear-gradient(160deg, #d8c39a 0%, #b89a6d 30%, #8c6f4a 55%, #6b5236 80%, #4d3a26 100%);
     background-size: cover, 100% 400%;
@@ -608,6 +620,7 @@ html, body {
             <div id="climb-desc" class="climb-desc"></div>
             <div id="climb-play-area">
                 <div class="climb-track" id="climb-track">
+                    <div class="climb-wall" id="climb-wall"></div>
                     <div class="climb-height-badge"><span class="mi">straighten</span><span id="climb-height">0m</span></div>
                     <div id="climb-char" class="climb-char"><img id="climb-char-img" src="mascot1.png" alt="idol"></div>
                     <div id="climb-countdown" class="climb-countdown"></div>
@@ -1953,7 +1966,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('climb-char').style.bottom = CLIMB_START_BOTTOM + 'px';
         const climbCharImg = document.getElementById('climb-char-img');
         if (climbCharImg) { const ms = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg.src = ms.climbImg || ms.img; }
-        document.getElementById('climb-track').style.backgroundPositionY = '0px';
+        document.getElementById('climb-track').style.backgroundPositionY = '0px'; setClimbWallShift(0);
         clearInterval(climb.gameTimer);
         climb.gameTimer = setInterval(climbTick, 1000);
         climbNextArrow();
@@ -1985,12 +1998,23 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         clearTimeout(climb.reactTimer);
         climb.reactTimer = setTimeout(() => { if (climb.active) { climbMiss(); climbNextArrow(); } }, 1600);
     }
+    // 壁の模様を shift px だけ下へずらす（模様は繰り返しなので、どれだけずらしても途切れない）
+    function setClimbWallShift(shift) {
+        const wall = document.getElementById('climb-wall'); if (!wall) return;
+        const y = shift;
+        wall.style.backgroundPositionY = [30, 110, 0, 0, 80, 0, 0].map(o => (o + y) + 'px').join(', ');
+    }
       function updateClimbVisual() {
         const char = document.getElementById('climb-char');
         const track = document.getElementById('climb-track');
         const trackH = track.clientHeight || 300;
         const midBottom = trackH * 0.75;
         const perTap = (midBottom - CLIMB_START_BOTTOM) / CLIMB_CAP_TAPS;
+        // 壁は毎回少しずつ下へ流れる（キャラが上限まで来たら大きく流す）
+        const wallShift = climb.height <= CLIMB_CAP_TAPS
+            ? climb.height * trackH * 0.04
+            : CLIMB_CAP_TAPS * trackH * 0.04 + (climb.height - CLIMB_CAP_TAPS) * trackH * 0.1;
+        setClimbWallShift(wallShift);
         if (climb.height <= CLIMB_CAP_TAPS) {
             char.style.bottom = (CLIMB_START_BOTTOM + climb.height * perTap) + 'px';
             track.style.backgroundPositionY = '0px';
@@ -2059,7 +2083,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
           const climbCharImg2 = document.getElementById('climb-char-img');
           showTitleDesc('climb-title','climb-desc');
         if (climbCharImg2) { const ms2 = (me && MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; climbCharImg2.src = ms2.climbImg || ms2.img; }
-        document.getElementById('climb-track').style.backgroundPositionY = '0px';
+        document.getElementById('climb-track').style.backgroundPositionY = '0px'; setClimbWallShift(0);
         if (!me) { startBtn.style.display = 'block'; resultBox.style.display = 'none'; resultBox.innerHTML = ''; return; }
         const todayKey = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         if (me.climbDate === todayKey) {
