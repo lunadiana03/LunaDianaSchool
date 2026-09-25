@@ -969,6 +969,7 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .adm-switch input:checked + .sw { background:var(--ak-mag); }
 .adm-switch input:checked + .sw::after { transform:translateX(18px); }
 #live-admin-summary { background:#fff7fb; border-radius:14px; padding:10px; margin-bottom:10px; }
+.lnow-warn { font-size:.78em; line-height:1.5; background:#fff4d6; color:#8a5a00; border-radius:10px; padding:6px 10px; margin-bottom:8px; box-shadow:0 0 0 1px #ffd98a; }
 .lnow-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:.9em; margin-bottom:8px; color:var(--ak-ink); }
 .lnow-badge { font-size:.75em; padding:2px 10px; border-radius:999px; color:#fff; background:#b0a3aa; font-weight:700; }
 .lnow-badge.s-live { background:#e5484d; animation: live-banner-pulse 1.6s ease-in-out infinite; } .lnow-badge.s-voting { background:#f08a3a; } .lnow-badge.s-result { background:#9061f9; } .lnow-badge.s-idle { background:#4c6ef5; }
@@ -2897,7 +2898,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         applyLiveOpLocal(state.live, op, args);
         renderLiveView(); renderLiveAdminSummary();
         const seq = ++liveOpSeq, cb = 'handleLiveOp_' + seq;
-        window[cb] = function(r) { delete window[cb]; const el = document.getElementById('liveop-' + seq); if (el) el.remove(); handleLiveOpResponse(r); };
+        window[cb] = function(r) { delete window[cb]; const el = document.getElementById('liveop-' + seq); if (el) el.remove(); handleLiveOpResponse(r); liveOldGasFallback(r, op, args); };
         const params = new URLSearchParams({ action: 'liveOp', op: op, callback: cb, _: Date.now() + '_' + seq });
         Object.keys(args).forEach(k => params.set(k, typeof args[k] === 'object' ? JSON.stringify(args[k]) : args[k]));
         const script = document.createElement('script');
@@ -2906,8 +2907,18 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         script.onerror = () => { delete window[cb]; liveOpsInFlight = Math.max(0, liveOpsInFlight - 1); script.remove(); };
         document.body.appendChild(script);
     }
+    // GASが新しいライブ機能に対応しているか（新しいGASは返事に now を付ける）。null はまだ分からない
+    let liveGasNew = null;
+    function noteLiveGas(r) { if (!r || !r.live) return; const was = liveGasNew; liveGasNew = !!r.now; if (was !== liveGasNew) renderLiveAdminSummary(); }
+    // 古いGASのままでも動くように、新しい操作の結果は手元で反映してライブ全体を保存し直す
+    function liveOldGasFallback(r, op, a) {
+        if (!r || !r.live || r.now || !state.live) return;
+        if (op === 'card' || op === 'yt') { applyLiveOpLocal(state.live, op, a); syncLive(); renderLiveView(); renderLiveAdminSummary(); }
+        else if (op === 'create') { state.live.type = a.type === 'unit' ? 'unit' : 'solo'; state.live.yt = String(a.yt) === '1'; syncLive(); renderLiveAdminSummary(); }
+    }
     window.handleLiveOpResponse = function(r) {
         liveOpsInFlight = Math.max(0, liveOpsInFlight - 1);
+        noteLiveGas(r);
         if (r && r.now) liveSkew = r.now - Date.now();
         if (r && r.live) { if (liveIsNewer(r.live)) { state.live = r.live; renderLiveView(); renderLiveAdminSummary(); } }
         else if (r && r.error && /unknown action/.test(r.error)) { syncLive(); } // GASが古い場合は従来の保存方法で
@@ -2984,12 +2995,22 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         renderLivePerformerChecks();
     }
     const LIVE_STATUS_LABEL = { idle: '開演前', live: 'ライブ中', voting: '投票中', result: '結果発表' };
+    function probeLiveGas() {
+        if (liveGasNew !== null || document.getElementById('live-gas-probe')) return;
+        const s = document.createElement('script'); s.id = 'live-gas-probe';
+        window.handleLiveGasProbe = function(r) { const el = document.getElementById('live-gas-probe'); if (el) el.remove(); noteLiveGas(r); };
+        s.src = `${API_URL}?action=getLive&callback=handleLiveGasProbe&_=${Date.now()}`;
+        s.onerror = () => s.remove();
+        document.body.appendChild(s);
+    }
     function renderLiveAdminSummary() {
         const box = document.getElementById('live-admin-summary'); if (!box) return;
         const lv = state.live;
-        if (!lv || !lv.performers || !lv.performers.length) { box.innerHTML = `<div class="adm-empty">まだライブはありません。下で作成してね</div>`; return; }
+        probeLiveGas();
+        const gasNote = liveGasNew === false ? `<div class="lnow-warn">${mi('info')}GASがまだ古いままです。ライブは動きますが、<b>コール</b>は出ません。応援の上限はそれぞれの画面で数えます。GASを更新するとすべて使えます。</div>` : '';
+        if (!lv || !lv.performers || !lv.performers.length) { box.innerHTML = gasNote + `<div class="adm-empty">まだライブはありません。下で作成してね</div>`; return; }
         const cur = lv.status === 'live' ? lv.performers[lv.currentIndex] : null;
-        box.innerHTML = `<div class="lnow-head"><span class="lnow-badge s-${lv.status}">${LIVE_STATUS_LABEL[lv.status] || lv.status}</span><b>${lv.type === 'unit' ? 'ユニット' : 'ソロ'}ライブ</b>${cur ? `<span class="lnow-cur">いま：${escapeHtml(cur.name)}</span>` : ''}</div>
+        box.innerHTML = gasNote + `<div class="lnow-head"><span class="lnow-badge s-${lv.status}">${LIVE_STATUS_LABEL[lv.status] || lv.status}</span><b>${lv.type === 'unit' ? 'ユニット' : 'ソロ'}ライブ</b>${cur ? `<span class="lnow-cur">いま：${escapeHtml(cur.name)}</span>` : ''}</div>
             <div class="lnow-list">${lv.performers.map((p, i) => `<div class="lnow-row${i === lv.currentIndex && lv.status === 'live' ? ' cur' : ''}"><span class="lnow-no">${i + 1}</span><span class="lnow-nm">${escapeHtml(p.name)}</span>${p.card && p.card.song ? `<span class="lnow-card ok">${mi('check_circle')}${escapeHtml(p.card.song)}</span>` : `<span class="lnow-card">${mi('edit_note')}カード未記入</span>`}<button type="button" class="adm-mini" onclick="openStageCard('${p.id}')">編集</button></div>`).join('')}</div>
             <label class="adm-switch"><input type="checkbox" ${lv.showTab ? 'checked' : ''} onchange="toggleLiveTabVisibility()"><span class="sw"></span><span>みんなに会場を公開する<small>オンにすると掲示板に「ライブ開催中」が出て、誰でも入れます</small></span></label>
             <label class="adm-switch"><input type="checkbox" ${lv.yt ? 'checked' : ''} onchange="toggleLiveYt()"><span class="sw"></span><span>YouTubeの音源を使う<small>オフにすると、URLが入っていても流れません</small></span></label>
@@ -3258,6 +3279,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const body = document.getElementById('live-body');
         if (!body) return;
         const lv = state.live || { performers: [] };
+        if (lv.status !== 'live') liveMyCheers = {};
         liveProgressSfx(lv);
         updateLiveStage(lv);
         if (!lv.performers || lv.performers.length === 0) {
@@ -3279,7 +3301,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             if (!me) html += `<div class="lv-note">ログインすると応援できます</div>`;
             else if (liveIsMine(cur, me)) html += `<button class="live-gimmick-btn" onclick="liveGimmick()">${mi('auto_awesome')}スペシャルアピール！</button><div class="lv-note">自分のステージは応援できません。アピールで盛り上げよう！</div>`;
             else {
-                const left = Math.max(0, LIVE_CHEER_MAX - ((cur.cheerBy || {})[me.id] || 0) - livePendingCheers);
+                const left = Math.max(0, LIVE_CHEER_MAX - liveMyCheerUsed(lv, me) - livePendingCheers);
                 html += `<button class="live-cheer-btn" onclick="liveCheer()" ${left ? '' : 'disabled'}>${mi('favorite')}${left ? `応援する！<span class="lv-left">あと${left}回</span>` : '応援しきった！ありがとう'}</button>`;
             }
             html += `<div class="live-queue">` + lv.performers.map((p, i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon, '1.2em')} ${escapeHtml(p.name)}</div>`).join('') + `</div>`;
@@ -3341,19 +3363,21 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         liveOp('advance');
     }
     // 応援は連打をまとめて送る（見た目はすぐ増える）。1人の出演者につき LIVE_CHEER_MAX 回まで
-    let livePendingCheers = 0, liveCheerTimer = null;
+    let livePendingCheers = 0, liveCheerTimer = null, liveMyCheers = {};
+    function liveCheerKey(lv) { const p = lv.performers[lv.currentIndex]; return (p ? p.id : '') + ':' + lv.currentIndex + ':' + (lv.stageStart || lv.rev0 || ''); }
+    function liveMyCheerUsed(lv, me) { const p = lv.performers[lv.currentIndex]; return Math.max(((p && p.cheerBy) || {})[me.id] || 0, liveMyCheers[liveCheerKey(lv)] || 0); }
     function liveCheer() {
         const lv = state.live, me = liveMe();
         if (!lv || lv.status !== 'live' || !lv.performers[lv.currentIndex] || !me) return;
         const cur = lv.performers[lv.currentIndex];
         if (liveIsMine(cur, me)) return;
-        if (((cur.cheerBy || {})[me.id] || 0) + livePendingCheers >= LIVE_CHEER_MAX) return;
+        if (liveMyCheerUsed(lv, me) + livePendingCheers >= LIVE_CHEER_MAX) return;
         cur.cheers = (cur.cheers || 0) + 1;
         livePendingCheers++;
         lvPrev.rawCheers = cur.cheers;
         updateLiveGauge(liveFeverValue(cur));
         const btn = document.querySelector('.live-cheer-btn');
-        const left = Math.max(0, LIVE_CHEER_MAX - ((cur.cheerBy || {})[me.id] || 0) - livePendingCheers);
+        const left = Math.max(0, LIVE_CHEER_MAX - liveMyCheerUsed(lv, me) - livePendingCheers);
         if (btn) { btn.innerHTML = left ? `${mi('favorite')}応援する！<span class="lv-left">あと${left}回</span>` : `${mi('favorite')}応援しきった！ありがとう`; btn.disabled = !left; }
         spawnCheerHeart();
         if (Math.random() < 0.3) spawnLiveCall();
@@ -3365,6 +3389,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const n = livePendingCheers; livePendingCheers = 0;
         const me = liveMe();
         if (!n || !state.live || !me) return;
+        const ck = liveCheerKey(state.live); liveMyCheers[ck] = liveMyCheerUsed(state.live, me) + n;
         state.live.performers[state.live.currentIndex].cheers -= n; // liveOp 側で足し直す
         liveOp('cheer', { n: n, idx: state.live.currentIndex, voter: me.id });
     }
@@ -3419,6 +3444,12 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const nameOf = id => { const m = state.members.find(x => x.id === id); return m ? m.name : id; };
         const lines = list.map(r => `${nameOf(r.id)}：${['vo', 'pl', 'da', 'vi'].filter(k => r[k]).map(k => k.charAt(0).toUpperCase() + k.slice(1) + '+' + r[k]).join(' ')}`);
         if (!confirm(`次のポイントを配ります（1回だけ）\n\n${lines.join('\n')}`)) return;
+        if (liveGasNew === false) {
+            // 古いGASのとき：管理者の画面から1人ずつ保存して配り、配ったことをライブに記録する
+            list.forEach(r => { const m = state.members.find(x => x.id === r.id); if (!m) return; addPointsWithLog(m, { vo: r.vo, pl: r.pl, da: r.da, vi: r.vi }, r.s, true); syncToSheet(m); });
+            state.live.rewarded = Date.now(); syncLive(); renderLiveView();
+            return;
+        }
         liveOp('reward', { list: list.map(r => { const o = { id: r.id, s: r.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (r[k]) o[k] = r[k]; }); return o; }) });
     }
     function liveResetAll() {
@@ -3652,6 +3683,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     window.handleLiveOnlyData = function(data) {
         if (data && data.error && /unknown action/.test(data.error)) liveUseReadAll = true; // GASが古い場合
+        noteLiveGas(data);
         if (data && data.now) liveSkew = data.now - Date.now();
         if (data && data.live && !livePendingCheers && liveOpsInFlight === 0 && Date.now() - liveLastOpAt >= 1500 && liveIsNewer(data.live)) {
             state.live = data.live;
