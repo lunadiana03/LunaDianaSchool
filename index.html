@@ -657,6 +657,21 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .gd-admin { margin-top:12px; padding-top:10px; border-top:1px dashed #ffd0e7; }
 .gd-admin .ttl { font-size:.8em; color:#9a6a82; margin-bottom:6px; }
 .gd-admin button { width:100%; margin:0 0 6px; font-size:.85em; }
+.pickup-banner { display:flex; align-items:center; gap:12px; margin:0 0 12px; padding:10px 14px; background:linear-gradient(135deg, #fff4d6, #ffe0ef); border-radius:18px; box-shadow:0 0 0 2px #ffb347, 0 4px 0 2px #f08a3a; color:var(--ak-ink); }
+.pickup-banner .pk-ic { width:40px; height:40px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, #ffb347, #ff6f3c); color:#fff; box-shadow:0 0 12px rgba(255,140,60,.6); animation: work-bob 1.6s ease-in-out infinite; }
+.pickup-banner .pk-t { font-size:.72em; color:#e0781a; font-weight:700; letter-spacing:1px; }
+.pickup-banner .pk-n { font-family:'Mochiy Pop One', sans-serif; font-size:1.05em; }
+.pickup-banner .pk-n b { color:#ff6f3c; margin-left:6px; font-weight:normal; }
+.pickup-banner .pk-s { font-size:.75em; color:#9a6a82; }
+.pickup-banner .pk-s b { color:#ff6f3c; }
+.lesson-menu-item { position:relative; }
+.lm-pickup { position:absolute; top:-9px; left:14px; padding:2px 10px; border-radius:999px; background:linear-gradient(180deg, #ffb347, #ff6f3c); color:#fff; font-size:.72em; font-weight:700; box-shadow:0 2px 0 #d9542a, 0 0 10px rgba(255,140,60,.55); animation: live-banner-pulse 1.6s ease-in-out infinite; white-space:nowrap; z-index:2; }
+.lm-pickup.used { background:#d9c8d0; box-shadow:0 2px 0 #b8a4ae; animation:none; }
+.lesson-menu-item.lm-is-pickup { box-shadow:0 0 0 3px #ffb347, 0 0 16px rgba(255,160,70,.55); }
+.bonus-tags { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin:6px 0 8px; }
+.bonus-tag { padding:3px 12px; border-radius:999px; font-size:.8em; font-weight:700; color:#fff; animation: ak-pop .5s cubic-bezier(.34,1.56,.64,1) both; }
+.bonus-tag.pickup { background:linear-gradient(180deg, #ffb347, #ff6f3c); }
+.bonus-tag.fortune { background:linear-gradient(180deg, #c9a0ff, #8a4dff); animation-delay:.15s; }
 .gain-date { flex:none; color:#c79ab4; font-size:.9em; width:3.2em; }
 .gain-src { flex:1; min-width:0; font-weight:700; color:var(--ak-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gain-chips { flex:none; display:flex; gap:3px; }
@@ -1216,6 +1231,7 @@ html { -webkit-tap-highlight-color: transparent; }
     </div>
     <div id="view-lesson-menu" class="view-section">
         <div class="ak-heading"><span class="ak-h-small">きょうの</span><span class="ak-h-big">レッスン</span></div>
+        <div id="pickup-banner" class="pickup-banner" style="display:none;"></div>
         <div class="lesson-menu-grid">
             <div id="lm-item-climb"class="lesson-menu-item lm-climb" onclick="switchViewWithTransition('climb')">
                 <div class="lm-icon-circle"><svg viewBox="0 0 24 24"><path d="M3 19h18L14 6l-3 5-2-2z"/></svg></div>
@@ -1798,6 +1814,12 @@ html { -webkit-tap-highlight-color: transparent; }
     scripts.forEach(s => s.remove());
 };       
       let pendingIconBase64 = null;
+function lessonBonusHtml() {
+    const b = lastLessonBonus; lastLessonBonus = null;
+    if (!b || (!b.pickup && !b.fortune)) return '';
+    const lb = { vo: 'Vo', pl: 'Pl', da: 'Da', vi: 'Vi' };
+    return `<div class="bonus-tags">${b.pickup ? `<span class="bonus-tag pickup">${mi('local_fire_department')}おすすめレッスン ×${PICKUP_RATE}</span>` : ''}${b.fortune ? `<span class="bonus-tag fortune">${mi('auto_awesome')}占いボーナス ${lb[b.fortune]}+${FORTUNE_BONUS}</span>` : ''}</div>`;
+}
 function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key) {
     const box = document.getElementById(boxId);
     if (!box) return;
@@ -1823,6 +1845,7 @@ function showLessonResult(boxId, canvasId, ms, mainLabel, mainValue, earned, key
             </div>
             <div class="climb-result-title">${mainLabel}</div>
             <div class="climb-result-height">${mainValue}</div>
+            ${lessonBonusHtml()}
             <div class="climb-result-stats">
                 <div>Vo ${earned.vo}↑</div>
                 <div>Pl ${earned.pl}↑</div>
@@ -1988,13 +2011,42 @@ document.addEventListener('change', function(e) {
     }
     function todayLabel() { const d = new Date(); return (d.getMonth() + 1) + '/' + d.getDate(); }
     // ポイントを加算して履歴に残す（source は「崖登り」「イベント参加」など）
-    function addPointsWithLog(m, earned, source, fromAdmin) {
+    // ===== レッスンのボーナス（占い・今日のおすすめ） =====
+    const FORTUNE_BONUS = 10;          // 占いのラッキー組がレッスンを受けたときに足す値
+    const PICKUP_RATE = 1.5, PICKUP_MAX = 3; // 今日のおすすめレッスンは1日3回まで1.5倍（崖登りは対象外）
+    function gameDayCount() { return Math.floor(new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).setHours(0,0,0,0) / (24 * 60 * 60 * 1000)); }
+    function gameDayLabel() { const d = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)); return (d.getMonth() + 1) + '/' + d.getDate(); }
+    function todayPickupLesson() {
+        const vis = state.lessonVisibility || {};
+        const list = LESSON_LIST.filter(l => l.key !== 'climb' && vis[l.key] !== false);
+        if (!list.length) return null;
+        return list[Math.abs(gameDayCount() * 5 + 2) % list.length];
+    }
+    function pickupUsedCount(m) { const day = gameDayLabel(); return parsePointLog(m.pointLog).filter(x => x.b === day).length; }
+    function pickupLeft(m) { return m ? Math.max(0, PICKUP_MAX - pickupUsedCount(m)) : PICKUP_MAX; }
+    let lastLessonBonus = null; // 結果画面に出すボーナスの内容
+    function applyLessonBonus(m, earned, key) {
+        const info = { pickup: false, fortune: false };
+        const pick = todayPickupLesson();
+        if (key !== 'climb' && pick && pick.key === key && pickupLeft(m) > 0) {
+            ['vo', 'pl', 'da', 'vi'].forEach(k => { earned[k] = Math.ceil((earned[k] || 0) * PICKUP_RATE); });
+            info.pickup = true;
+        }
+        const fortune = getFortuneData();
+        if (m.kumi === fortune.kumi) { earned[fortune.key] = (earned[fortune.key] || 0) + FORTUNE_BONUS; info.fortune = fortune.key; }
+        return info;
+    }
+    function addPointsWithLog(m, earned, source, fromAdmin, lessonKey) {
+        let bonus = null;
+        if (lessonKey) { bonus = applyLessonBonus(m, earned, lessonKey); lastLessonBonus = bonus; }
         const e = { vo: earned.vo || 0, pl: earned.pl || 0, da: earned.da || 0, vi: earned.vi || 0 };
         ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = (m.p[k] || 0) + e[k]; });
         if (!e.vo && !e.pl && !e.da && !e.vi) return;
         m.pointLog = parsePointLog(m.pointLog);
         const entry = { d: todayLabel(), s: String(source || '').slice(0, 60), vo: e.vo, pl: e.pl, da: e.da, vi: e.vi };
         if (fromAdmin) entry.n = 1; // 本人がまだ見ていない印（次のログインで「お仕事お疲れ様でした」を出す）
+        if (bonus && bonus.pickup) entry.b = gameDayLabel(); // おすすめ1.5倍を使った日
+        if (bonus && bonus.fortune) entry.f = 1;
         m.pointLog.unshift(entry);
         if (m.pointLog.length > POINT_LOG_MAX) m.pointLog.length = POINT_LOG_MAX;
     }
@@ -2150,7 +2202,7 @@ document.addEventListener('change', function(e) {
     }
     // 送るURLが長すぎると保存に失敗するので、履歴は0の項目を省いて一定の長さまでに収める
     function compactPointLog(m) {
-        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; return o; });
+        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; if (x.b) o.b = x.b; if (x.f) o.f = 1; return o; });
         while (log.length > 3 && encodeURIComponent(JSON.stringify(log)).length > 3200) log.pop();
         m.pointLog = log;
         return JSON.stringify(log);
@@ -2420,6 +2472,7 @@ setTimeout(() => {
             document.querySelector('.box').classList.toggle('stage-mode', view === 'live');
     if (view === 'live') { startLivePolling(); renderLiveView(); if (LiveBGM) LiveBGM.resumeIfWanted(); } else { stopLivePolling(); if (LiveBGM) { LiveBGM.stop(); LiveBGM.refreshButtons(); } }
     if (view === 'bbs') updateBbsDisplay();
+    if (view === 'lesson-menu') refreshPickupUI();
     if (view === 'climb') refreshClimbGateUI();
     if (view === 'run') refreshRunGateUI();
     if (view === 'mascot') renderMascotPage();
@@ -2439,7 +2492,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     function updateBbsDisplay() {
         const fortune = getFortuneData();
         document.getElementById('meigen-body').innerText = getMeigenData();
-        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${kumiLabelHtml(fortune.kumi)}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+1されます！</span>`;
+        document.getElementById('fortune-body').innerHTML = `本日のラッキー所属は <b>【${kumiLabelHtml(fortune.kumi)}】</b> です！<br>今日は <b>【${fortune.label}】</b> の能力が普段より高まりやすい運勢かも…？<br><span style="color:#ff758f; font-size:0.85em;">※対象の組のアイドルは、レッスンを受けるたびにそのステータスが自動で+${FORTUNE_BONUS}されます！</span>` + pickupFortuneLine();
         document.getElementById('bbs-body-text').innerText = state.bbsText || "お知らせはまだありません。";
         document.getElementById('admin-bbs-text').value = state.bbsText || "";
     }
@@ -3527,7 +3580,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo:0, pl:0, da:0, vi:0 };
         const heightM = climb.height * 5;
         Object.assign(earned, climbEarnedFor(heightM));
-        addPointsWithLog(m, earned, '崖登り');
+        addPointsWithLog(m, earned, '崖登り', false, 'climb');
         m.climbDate = new Date(new Date().getTime() - (5 * 60 * 60 * 1000)).toDateString();
         m.climbHeight = heightM;
         const climbMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
@@ -3863,7 +3916,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('run', run.distance));
         m.r++;
-        addPointsWithLog(m, earned, 'ランニング');
+        addPointsWithLog(m, earned, 'ランニング', false, 'run');
         const runMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const runResultBox = document.getElementById('run-result');
         showLessonResult(
@@ -4058,7 +4111,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('music', achieved));
         m.r++;
-        addPointsWithLog(m, earned, '音感');
+        addPointsWithLog(m, earned, '音感', false, 'music');
         const musicMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const musicResultBox = document.getElementById('music-result');
         showLessonResult(
@@ -4233,7 +4286,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('kintore', kintore.totalTaps));
         m.r++;
-        addPointsWithLog(m, earned, '筋トレ');
+        addPointsWithLog(m, earned, '筋トレ', false, 'kintore');
         const kintoreMs = (m && MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         const kintoreResultBox = document.getElementById('kintore-result');
         showLessonResult(
@@ -4345,7 +4398,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         for (let o of outcomes) { cv += o.prob; if (r <= cv) { f = o; break; } }
         m.r++; const em = state.emojis[l] || "🏃‍♂️"; const key = `${em}${l}【${f.name}】`; m.h[key] = (m.h[key] || 0) + 1; m.last = f.name;
         const fortune = getFortuneData();
-        const rollGain = {}; ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += 1; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } rollGain[k] = addPt; });
+        const rollGain = {}; ['vo','pl','da','vi'].forEach(k => { let addPt = f.pts[k]; if (m.kumi === fortune.kumi && k === fortune.key) { addPt += FORTUNE_BONUS; } if (KUMI_STAT_MAP[m.kumi] === k) { addPt += 2; } rollGain[k] = addPt; });
         addPointsWithLog(m, rollGain, noEmoji(l) + ' ' + noEmoji(f.name));
         syncToSheet(m);
     }
@@ -4464,8 +4517,21 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         });
     }
     renderLessonStatHints();
+    function pickupFortuneLine() {
+        const p = todayPickupLesson(); if (!p) return '';
+        return `<br><span style="font-size:0.9em;">今日のおすすめレッスンは <b>【${noEmoji(p.label.replace(/<span[^>]*>[^<]*<\/span>/g, ''))}】</b>！1日${PICKUP_MAX}回まで獲得ポイントが${PICKUP_RATE}倍です</span>`;
+    }
+    function refreshPickupUI() {
+        const p = todayPickupLesson();
+        const me = state.members.find(x => x.name === user);
+        const left = pickupLeft(me);
+        LESSON_LIST.forEach(l => { const el = document.getElementById('lm-item-' + l.key); if (!el) return; let b = el.querySelector('.lm-pickup'); if (p && l.key === p.key) { if (!b) { b = document.createElement('div'); b.className = 'lm-pickup'; el.appendChild(b); } b.innerHTML = `${mi('local_fire_department')}×${PICKUP_RATE}${left > 0 ? ` あと${left}回` : ' 終了'}`; b.classList.toggle('used', left <= 0); el.classList.add('lm-is-pickup'); } else { if (b) b.remove(); el.classList.remove('lm-is-pickup'); } });
+        const bn = document.getElementById('pickup-banner');
+        if (bn) { if (p) { bn.style.display = 'flex'; bn.innerHTML = `<span class="pk-ic">${mi('local_fire_department', 'mi-solo')}</span><div><div class="pk-t">今日のおすすめレッスン</div><div class="pk-n">${p.label}<b>×${PICKUP_RATE}</b></div><div class="pk-s">${left > 0 ? `1日${PICKUP_MAX}回まで・あと<b>${left}</b>回` : '今日の1.5倍は使い切りました。また明日！'}</div></div>`; } else bn.style.display = 'none'; }
+    }
     function applyLessonVisibility() {
         renderLessonStatHints();
+        refreshPickupUI();
         if (!state.lessonVisibility) return;
         LESSON_LIST.forEach(l => {
             const el = document.getElementById('lm-item-' + l.key);
@@ -4789,7 +4855,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === trampoline.targetId); if (!m) return;
         let earned = { vo: 0, pl: 0, da: 0, vi: 0 };
         Object.assign(earned, lessonEarnedByValue('trampoline', trampoline.totalHeight));
-        m.r++; addPointsWithLog(m, earned, 'トランポリン');
+        m.r++; addPointsWithLog(m, earned, 'トランポリン', false, 'trampoline');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('trampoline-result', 'trampoline-result-canvas', ms, mi('sports_gymnastics') + '結果！', trampoline.totalHeight + 'm', earned, 'trampoline');
         document.getElementById('trampoline-start-btn').style.display = 'block';
@@ -4998,7 +5064,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const score = Math.round(acc * 100 * DANCE_DIFFS[dance.diff].mult);
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('dance', score));
-        m.r++; addPointsWithLog(m, earned, 'ダンス（' + DANCE_DIFFS[dance.diff].label + '）');
+        m.r++; addPointsWithLog(m, earned, 'ダンス（' + DANCE_DIFFS[dance.diff].label + '）', false, 'dance');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('dance-result', 'dance-result-canvas', ms, mi('music_note') + '結果！', score + 'pt', earned, 'dance');
         const rb = document.getElementById('dance-result');
@@ -5105,7 +5171,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const seconds = Math.round(model.seconds * 10) / 10;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('model', seconds));
-        m.r++; addPointsWithLog(m, earned, 'モデル');
+        m.r++; addPointsWithLog(m, earned, 'モデル', false, 'model');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
         document.getElementById('model-start-btn').style.display = 'block';
@@ -5210,7 +5276,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const m = state.members.find(x => x.id === actress.targetId); if (!m) return;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('actress', actress.round));
-        m.r++; addPointsWithLog(m, earned, '女優');
+        m.r++; addPointsWithLog(m, earned, '女優', false, 'actress');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('actress-result', 'actress-result-canvas', ms, mi('theater_comedy') + '結果！', actress.round + '問正解', earned, 'actress');
         document.getElementById('actress-start-btn').style.display = 'block';
