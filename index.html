@@ -767,6 +767,56 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .lv-vote-card button { padding:4px 12px; font-size:.85em; margin-top:2px; }
 .lv-vote-card .votes { font-size:.75em; color:#b0708f; }
 @media (prefers-reduced-motion: reduce) { .lv-stage *, .lv-stage { animation-duration: 0s !important; } }
+/* ---- アイカツランキング ---- */
+.top-row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.box.game-mode .top-row, .box.stage-mode .top-row { display:none !important; }
+.top-row button { margin:0; }
+.rank-open-btn { background:linear-gradient(180deg, #fff7d6, #ffd86b); color:#a8560a; font-family:'Mochiy Pop One', sans-serif; font-weight:normal; letter-spacing:1px; border-radius:999px; box-shadow: inset 0 0 0 2px rgba(255,255,255,.9), 0 0 0 2px #f0a93a, 0 4px 0 2px #c77d12; padding:8px 14px; white-space:nowrap; }
+.rank-open-btn .mi { color:#e08a00; }
+.rank-modal, .work-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:12px; }
+.rank-modal.open, .work-modal.open { display:flex; }
+.rank-panel { width:100%; max-width:440px; max-height:90vh; display:flex; flex-direction:column; background:#fff; border:2px solid #f06aa8; border-radius:22px; box-shadow:0 5px 0 #ffc2e0; overflow:hidden; animation: ak-pop .35s cubic-bezier(.34,1.56,.64,1); }
+.rank-head { position:relative; padding:14px 14px 10px; text-align:center; background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.7) 0 2px, transparent 3px) 0 0/26px 26px, linear-gradient(180deg, #ff8cc6, var(--ak-mag)); color:#fff; }
+.rank-title { font-family:'Mochiy Pop One', sans-serif; font-size:1.3em; letter-spacing:2px; text-shadow:0 2px 0 var(--ak-mag-d); }
+.rank-title .mi { color:#ffe28a; }
+.rank-close { position:absolute; right:10px; top:10px; width:34px; height:34px; padding:0; margin:0; border-radius:50%; background:#fff; color:var(--ak-mag); box-shadow:0 2px 0 #ffc2e0; }
+.rank-tabs { display:flex; gap:5px; padding:10px 10px 6px; }
+.rank-tab { flex:1; margin:0; padding:6px 2px; font-size:.85em; border-radius:999px; background:#fff; color:var(--c); box-shadow:0 0 0 2px var(--c); font-family:'Mochiy Pop One', sans-serif; font-weight:normal; }
+.rank-tab.on { background:var(--c); color:#fff; box-shadow:0 0 0 2px var(--c), 0 3px 0 2px var(--cd); }
+#rank-list { overflow-y:auto; padding:6px 12px 14px; }
+.rank-row { display:flex; align-items:center; gap:10px; padding:7px 10px; margin-bottom:6px; background:#fff; border-radius:16px; box-shadow:0 0 0 1.5px #ffd0e7; animation: rank-in .4s cubic-bezier(.34,1.4,.64,1) both; cursor:pointer; }
+@keyframes rank-in { from { opacity:0; transform:translateY(8px); } }
+.rank-row.me { box-shadow:0 0 0 2px var(--ak-mag); background:#fff4fa; }
+.rank-no { width:34px; text-align:center; font-family:'Mochiy Pop One', sans-serif; color:#b0708f; font-size:1.05em; flex:none; }
+.rank-ic { width:42px; height:42px; border-radius:50%; overflow:hidden; flex:none; display:flex; align-items:center; justify-content:center; background:#fff; box-shadow:0 0 0 2px #ffd0e7; }
+.rank-ic img { width:100% !important; height:100% !important; }
+.rank-nm { flex:1; min-width:0; font-weight:700; color:var(--ak-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rank-nm small { display:block; font-weight:500; font-size:.72em; color:#b0708f; }
+.rank-val { font-family:'Mochiy Pop One', sans-serif; color:var(--c); font-size:1.05em; white-space:nowrap; }
+.rank-row.r1 { background:linear-gradient(90deg, #fff6d0, #fff); box-shadow:0 0 0 2px #ffd24a, 0 0 14px rgba(255,210,74,.55); }
+.rank-row.r2 { background:linear-gradient(90deg, #eef2fb, #fff); box-shadow:0 0 0 2px #b9c4dc; }
+.rank-row.r3 { background:linear-gradient(90deg, #fbeee3, #fff); box-shadow:0 0 0 2px #e0a878; }
+.rank-row.r1 .rank-ic { width:52px; height:52px; box-shadow:0 0 0 3px #ffd24a; }
+.rank-row.r2 .rank-ic { box-shadow:0 0 0 3px #b9c4dc; } .rank-row.r3 .rank-ic { box-shadow:0 0 0 3px #e0a878; }
+.rank-row.r1 .rank-no .mi { color:#f5b400; font-size:1.6em; } .rank-row.r2 .rank-no .mi { color:#9aa6c2; font-size:1.4em; } .rank-row.r3 .rank-no .mi { color:#d08850; font-size:1.4em; }
+.rank-empty { text-align:center; color:#b0708f; padding:20px; font-size:.9em; }
+/* ---- お仕事お疲れ様でした ---- */
+.work-panel { position:relative; width:100%; max-width:340px; background:#fff; border:2px solid #f06aa8; border-radius:24px; box-shadow:0 6px 0 #ffc2e0; padding:22px 16px 16px; text-align:center; animation: ak-pop .45s cubic-bezier(.34,1.56,.64,1); overflow:hidden; }
+.work-panel::before { content:''; position:absolute; inset:0; background: radial-gradient(circle, rgba(255,216,107,.6) 1px, transparent 2px) 0 0/22px 22px; opacity:.5; pointer-events:none; animation: sparkle-move 8s linear infinite; }
+.work-badge { position:relative; width:64px; height:64px; margin:0 auto 6px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, #fff7d6, #ffd86b); box-shadow:0 0 0 3px #fff, 0 0 0 5px #f0a93a, 0 0 22px rgba(255,216,107,.8); animation: work-bob 1.6s ease-in-out infinite; }
+.work-badge .mi { font-size:34px; color:#e08a00; }
+@keyframes work-bob { 50% { transform:translateY(-4px) rotate(-4deg); } }
+.work-title { position:relative; font-family:'Mochiy Pop One', sans-serif; color:var(--ak-mag); font-size:1.25em; letter-spacing:1px; }
+.work-sub { position:relative; font-size:.85em; color:#9a6a82; margin:4px 0 12px; }
+.work-list { position:relative; max-height:34vh; overflow-y:auto; text-align:left; }
+.work-item { background:#fff4fa; border-radius:14px; padding:8px 10px; margin-bottom:6px; box-shadow:0 0 0 1.5px #ffd0e7; animation: rank-in .45s cubic-bezier(.34,1.4,.64,1) both; }
+.work-item .src { font-weight:700; color:var(--ak-ink); }
+.work-item .dt { font-size:.72em; color:#b0708f; margin-left:6px; }
+.work-item .gain-chips { margin-top:4px; flex-wrap:wrap; }
+.work-total { position:relative; margin:10px 0 12px; font-weight:700; color:var(--ak-ink); }
+.work-total .gain-chips { justify-content:center; margin-top:4px; flex-wrap:wrap; }
+.work-total .gain-chip { font-size:1.05em; padding:2px 10px; }
+.work-panel button { position:relative; width:100%; }
 .grant-modal { display:none; position:fixed; inset:0; z-index:100000; background:rgba(234,63,147,.18); backdrop-filter:blur(3px); align-items:center; justify-content:center; padding:16px; }
 .grant-modal.open { display:flex; }
 .grant-panel { width:100%; max-width:360px; background:#fff; border:2px solid #f06aa8; border-radius:20px; box-shadow:0 5px 0 #ffc2e0; padding:14px; animation: ak-pop .3s cubic-bezier(.34,1.56,.64,1) both; }
@@ -983,8 +1033,9 @@ html { -webkit-tap-highlight-color: transparent; }
             <button onclick="logout()" style="background:#baabb0; box-shadow:0 3px 0 #9e8e93;">解除</button>
         </div>
     </div>
-    <div class="admin" style="text-align: right; margin-bottom: 10px;">
-        <button onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;"><span class="mi">settings</span>メニュー</button>
+    <div class="top-row" style="margin-bottom: 10px;">
+        <button class="rank-open-btn" onclick="openRanking()"><span class="mi">trophy</span>アイカツランキング！</button>
+        <button class="admin" onclick="toggleMenu()" style="background:#4c6ef5; box-shadow:0 3px 0 #364fc7;"><span class="mi">settings</span>メニュー</button>
     </div>
     <div id="menu" class="menu">
         <h3><span class="mi">palette</span>設定</h3>
@@ -1030,6 +1081,8 @@ html { -webkit-tap-highlight-color: transparent; }
         <h3 onclick="toggleActressList()" style="cursor:pointer;"><span class="mi">theater_comedy</span>女優設定 <span id="actress-list-arrow">▶</span></h3>
         <div id="actress-con" style="display:none;"></div>
         <textarea id="admin-actress-desc" rows="2" placeholder="女優の説明文" onchange="upActressDesc()"></textarea>
+        <h3 onclick="toggleRankHideList()" style="cursor:pointer;"><span class="mi">trophy</span>ランキングに載せない人 <span id="rank-hide-arrow">▶</span></h3>
+        <div id="rank-hide-con" style="display:none;"></div>
         <h3 onclick="openDressLab()" style="cursor:pointer;"><span class="mi">diamond</span>ドレス（試作・管理者のみ） <span>▶</span></h3>
         <h3 onclick="toggleMemberAdminList()" style="cursor:pointer;"><span class="mi">manage_accounts</span>メンバー管理（ポイント変更・獲得） <span id="member-admin-arrow">▶</span></h3>
         <div id="member-admin-con" style="display:none;"></div>
@@ -1900,12 +1953,14 @@ document.addEventListener('change', function(e) {
     }
     function todayLabel() { const d = new Date(); return (d.getMonth() + 1) + '/' + d.getDate(); }
     // ポイントを加算して履歴に残す（source は「崖登り」「イベント参加」など）
-    function addPointsWithLog(m, earned, source) {
+    function addPointsWithLog(m, earned, source, fromAdmin) {
         const e = { vo: earned.vo || 0, pl: earned.pl || 0, da: earned.da || 0, vi: earned.vi || 0 };
         ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = (m.p[k] || 0) + e[k]; });
         if (!e.vo && !e.pl && !e.da && !e.vi) return;
         m.pointLog = parsePointLog(m.pointLog);
-        m.pointLog.unshift({ d: todayLabel(), s: String(source || '').slice(0, 30), vo: e.vo, pl: e.pl, da: e.da, vi: e.vi });
+        const entry = { d: todayLabel(), s: String(source || '').slice(0, 30), vo: e.vo, pl: e.pl, da: e.da, vi: e.vi };
+        if (fromAdmin) entry.n = 1; // 本人がまだ見ていない印（次のログインで「お仕事お疲れ様でした」を出す）
+        m.pointLog.unshift(entry);
         if (m.pointLog.length > POINT_LOG_MAX) m.pointLog.length = POINT_LOG_MAX;
     }
     function pointLogHtml(m) {
@@ -1939,10 +1994,90 @@ document.addEventListener('change', function(e) {
         const e = {}; ['vo', 'pl', 'da', 'vi'].forEach(k => { e[k] = parseInt(document.getElementById('grant-' + k).value) || 0; });
         if (!e.vo && !e.pl && !e.da && !e.vi) { alert('ポイントを入力してください'); return; }
         if (!confirm(`${m.name} に「${src}」で Vo+${e.vo} Pl+${e.pl} Da+${e.da} Vi+${e.vi} を獲得させますか？`)) return;
-        addPointsWithLog(m, e, src);
+        addPointsWithLog(m, e, src, true);
         closeGrantPoints();
         syncToSheet(m);
         render(); refreshMemberViews();
+    }
+
+    // ===== アイカツランキング =====
+    const RANK_TABS = [
+        { key: 'all', label: '総合', c: '#ea3f93', cd: '#c92677' },
+        { key: 'vo', label: 'Vo', c: '#ff5c7a', cd: '#d93d5c' },
+        { key: 'pl', label: 'Pl', c: '#339af0', cd: '#1c7ed6' },
+        { key: 'da', label: 'Da', c: '#e09600', cd: '#b87a00' },
+        { key: 'vi', label: 'Vi', c: '#9061f9', cd: '#6f45d6' }
+    ];
+    let rankTab = 'all';
+    // 載せない人は lessonVis 設定の中に一緒に保存する（GASの変更なしで保存できるように）
+    function rankHiddenIds() { const v = state.lessonVisibility && state.lessonVisibility._rankHide; return Array.isArray(v) ? v : []; }
+    function rankValue(m, key) { const p = m.p || {}; return key === 'all' ? (p.vo || 0) + (p.pl || 0) + (p.da || 0) + (p.vi || 0) : (p[key] || 0); }
+    function openRanking() { rankTab = 'all'; document.getElementById('rank-modal').classList.add('open'); renderRanking(); }
+    function closeRanking() { document.getElementById('rank-modal').classList.remove('open'); }
+    function setRankTab(k) { rankTab = k; renderRanking(); }
+    function renderRanking() {
+        const tab = RANK_TABS.find(t => t.key === rankTab);
+        document.getElementById('rank-tabs').innerHTML = RANK_TABS.map(t => `<button type="button" class="rank-tab ${t.key === rankTab ? 'on' : ''}" style="--c:${t.c}; --cd:${t.cd};" onclick="setRankTab('${t.key}')">${t.label}</button>`).join('');
+        const hide = rankHiddenIds();
+        const list = state.members.filter(m => !hide.includes(m.id)).map(m => ({ m: m, v: rankValue(m, rankTab) })).sort((a, b) => b.v - a.v);
+        const box = document.getElementById('rank-list');
+        if (!list.length) { box.innerHTML = '<div class="rank-empty">まだランキングがありません</div>'; return; }
+        let rank = 0, prev = null;
+        box.innerHTML = list.map((x, i) => {
+            if (x.v !== prev) { rank = i + 1; prev = x.v; }
+            const cls = rank <= 3 ? ' r' + rank : '';
+            const no = rank === 1 ? mi('crown', 'mi-solo') : rank <= 3 ? mi('workspace_premium', 'mi-solo') : rank;
+            return `<div class="rank-row${cls}${x.m.name === user ? ' me' : ''}" style="--c:${tab.c}; animation-delay:${Math.min(i, 12) * 0.04}s" onclick="closeRanking(); openMemberProfile('${x.m.id}')"><div class="rank-no">${no}</div><div class="rank-ic">${getIconHtml(x.m.icon, '42px')}</div><div class="rank-nm">${escapeHtml(x.m.name)}<small>${escapeHtml(x.m.kumi || '')}</small></div><div class="rank-val">${x.v.toLocaleString()}</div></div>`;
+        }).join('');
+        box.scrollTop = 0;
+    }
+    function toggleRankHideList() {
+        const con = document.getElementById('rank-hide-con'), arrow = document.getElementById('rank-hide-arrow');
+        const isHidden = con.style.display === 'none';
+        con.style.display = isHidden ? 'block' : 'none'; arrow.innerText = isHidden ? '▼' : '▶';
+        if (isHidden) renderRankHideAdmin();
+    }
+    function renderRankHideAdmin() {
+        const con = document.getElementById('rank-hide-con'); if (!con) return;
+        const hide = rankHiddenIds();
+        con.innerHTML = `<div style="font-size:.8em; color:#9a6a82; margin-bottom:4px;">チェックした人はランキングに表示されません</div>` + state.members.map(m => `<label style="display:flex;align-items:center;gap:8px;background:#fff;padding:6px 10px;border-radius:10px;margin-bottom:4px;"><input type="checkbox" ${hide.includes(m.id) ? 'checked' : ''} onchange="setRankHidden('${m.id}', this.checked)">${getIconHtml(m.icon, '1.4em')}${escapeHtml(m.name)}</label>`).join('');
+    }
+    function setRankHidden(id, on) {
+        if (!state.isAdmin) return;
+        if (!state.lessonVisibility) state.lessonVisibility = {};
+        const hide = rankHiddenIds().filter(x => x !== id);
+        if (on) hide.push(id);
+        state.lessonVisibility._rankHide = hide;
+        const script = document.createElement('script');
+        script.src = `${API_URL}?action=updateSettings&lessonVisJson=${encodeURIComponent(JSON.stringify(state.lessonVisibility))}&callback=handleLessonVisResponse`;
+        document.body.appendChild(script);
+    }
+    // ===== お仕事お疲れ様でした（管理者から獲得したポイントを次のログインで見せる） =====
+    let workRewardShowing = false;
+    function checkWorkReward() {
+        if (workRewardShowing || !user) return;
+        const entry = document.getElementById('entry'); if (entry && entry.style.display === 'block') return;
+        const m = state.members.find(x => x.name === user); if (!m) return;
+        const log = parsePointLog(m.pointLog);
+        const items = log.filter(x => x.n);
+        if (!items.length) return;
+        workRewardShowing = true;
+        const chips = x => `<span class="gain-chips">${[['vo', 'Vo'], ['pl', 'Pl'], ['da', 'Da'], ['vi', 'Vi']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('')}</span>`;
+        const total = { vo: 0, pl: 0, da: 0, vi: 0 }; items.forEach(x => ['vo', 'pl', 'da', 'vi'].forEach(k => { total[k] += x[k] || 0; }));
+        document.getElementById('work-sub').textContent = `${m.name} さん、ポイントを獲得しました`;
+        document.getElementById('work-list').innerHTML = items.map((x, i) => `<div class="work-item" style="animation-delay:${0.25 + i * 0.1}s"><span class="src">${escapeHtml(x.s)}</span><span class="dt">${escapeHtml(x.d)}</span><div>${chips(x)}</div></div>`).join('');
+        document.getElementById('work-total').innerHTML = items.length > 1 ? `合計${chips(total)}` : '';
+        document.getElementById('work-modal').classList.add('open');
+        if (typeof LiveBGM !== 'undefined') LiveBGM.sfx('fanfare');
+    }
+    function closeWorkReward() {
+        document.getElementById('work-modal').classList.remove('open');
+        const m = state.members.find(x => x.name === user);
+        if (m) {
+            const log = parsePointLog(m.pointLog);
+            if (log.some(x => x.n)) { log.forEach(x => { delete x.n; }); m.pointLog = log; syncToSheet(m); }
+        }
+        workRewardShowing = false;
     }
     function syncToSheet(m) {
         document.getElementById('loading').style.display = 'flex';
@@ -2004,7 +2139,7 @@ setTimeout(() => {
         else if (beforeOpen() && !state.isAdmin) mode = 'wait';
         const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = mode ? 'none' : 'flex';
         const el = document.getElementById('entry');
-        if (!mode) { el.style.display = 'none'; clearInterval(entryWaitTimer); document.body.classList.remove('entry-open'); return; }
+        if (!mode) { el.style.display = 'none'; clearInterval(entryWaitTimer); document.body.classList.remove('entry-open'); setTimeout(checkWorkReward, 700); return; }
         el.style.display = 'block'; document.body.classList.add('entry-open');
         if (mode === 'wait') { if (entryStep !== 'celebrate' && entryStep !== 'submitted' && entryStep !== 'wait') entryGo('wait'); }
         else if (entryStep === 'wait' || entryStep === 'celebrate') entryGo('welcome');
@@ -5840,6 +5975,23 @@ state.members.forEach(m => {
         <div class="dress-panel">
             <div class="dress-panel-head"><span class="mi">diamond</span>ドレス<span class="dress-trial">試作・管理者のみ</span><button type="button" class="dress-close" onclick="closeDressLab()"><span class="mi mi-solo">close</span></button></div>
             <div id="dress-body"></div>
+        </div>
+    </div>
+   <div id="rank-modal" class="rank-modal" onclick="if(event.target===this)closeRanking()">
+        <div class="rank-panel">
+            <div class="rank-head"><div class="rank-title"><span class="mi">trophy</span>アイカツランキング！</div><button type="button" class="rank-close" onclick="closeRanking()"><span class="mi mi-solo">close</span></button></div>
+            <div class="rank-tabs" id="rank-tabs"></div>
+            <div id="rank-list"></div>
+        </div>
+    </div>
+   <div id="work-modal" class="work-modal">
+        <div class="work-panel">
+            <div class="work-badge"><span class="mi mi-solo">workspace_premium</span></div>
+            <div class="work-title">お仕事お疲れ様でした！</div>
+            <div class="work-sub" id="work-sub"></div>
+            <div class="work-list" id="work-list"></div>
+            <div class="work-total" id="work-total"></div>
+            <button type="button" onclick="closeWorkReward()">受け取る</button>
         </div>
     </div>
    <div id="scene-transition-overlay" class="scene-transition-overlay">
