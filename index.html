@@ -5396,235 +5396,332 @@ state.members.forEach(m => {
         fetchCalendarEvents();
     };
     // ===== ドレス（試作・管理者のみ） =====
+    // 1着ずつ専用の形で描く。draw() はパーツごとのSVGを重ね順に返す
     const DRESS_BRANDS = {
-        cute: { name: 'Pétale Rosée', kana: 'ペタルロゼ', type: 'cute' },
-        cool: { name: 'Crystal Nocturne', kana: 'クリスタルノクターン', type: 'cool' },
-        sexy: { name: 'Velvet Rouge', kana: 'ヴェルヴェットルージュ', type: 'sexy' },
-        pop:  { name: 'Candy Parade', kana: 'キャンディパレード', type: 'pop' },
-        luna: { name: 'Luna Diana', kana: 'ルナディアーナ', type: null }
+        cute: { name: 'Pétale Rosée', kana: 'ペタルロゼ' },
+        cool: { name: 'Crystal Nocturne', kana: 'クリスタルノクターン' },
+        sexy: { name: 'Velvet Rouge', kana: 'ヴェルヴェットルージュ' },
+        pop:  { name: 'Candy Parade', kana: 'キャンディパレード' },
+        luna: { name: 'Luna Diana', kana: 'ルナディアーナ' }
     };
     const DRESS_PARTS = { head: 'アクセ', top: 'トップス', bottom: 'ボトムス', shoes: 'シューズ' };
     const DRESS_RARITY = { N: { label: 'ノーマル', rate: 60 }, R: { label: 'レア', rate: 30 }, PR: { label: 'プレミアム', rate: 10 } };
-    // pal: a=メイン b=サブ c=飾り g=宝石
-    const DRESS_COORDS = [
-        { id: 'rose_mariage', name: 'ローズマリアージュ', brand: 'cute', type: 'cute', rarity: 'PR', motif: 'heart',
-          pal: { a: '#ff8cc6', b: '#fff0f7', c: '#ffffff', g: '#ff4fa0' }, skirt: 'tier', sleeve: 'puff', chest: 'bow', head: 'tiara', shoes: 'pump' },
-        { id: 'sugar_ribbon', name: 'シュガーリボン', brand: 'cute', type: 'cute', rarity: 'R', motif: 'heart',
-          pal: { a: '#ffb3d9', b: '#ffffff', c: '#ff6fb1', g: '#ff8cc6' }, skirt: 'bubble', sleeve: 'puff', chest: 'bow', head: 'ribbon', shoes: 'boot' },
-        { id: 'aurora_crystal', name: 'オーロラクリスタル', brand: 'cool', type: 'cool', rarity: 'PR', motif: 'star',
-          pal: { a: '#6fb8f5', b: '#e6f4ff', c: '#ffffff', g: '#9fe4ff' }, skirt: 'over', sleeve: 'cape', chest: 'gem', head: 'crown', shoes: 'boot' },
-        { id: 'midnight_star', name: 'ミッドナイトスター', brand: 'cool', type: 'cool', rarity: 'R', motif: 'star',
-          pal: { a: '#4b5fc9', b: '#c9d6ff', c: '#f2cf6b', g: '#8fb0ff' }, skirt: 'ball', sleeve: 'off', chest: 'gem', head: 'tiara', shoes: 'pump' },
-        { id: 'rouge_rose', name: 'ルージュローズ', brand: 'sexy', type: 'sexy', rarity: 'PR', motif: 'rose',
-          pal: { a: '#c8264f', b: '#2b1530', c: '#f2cf6b', g: '#ff4f78' }, skirt: 'over', sleeve: 'off', chest: 'gem', head: 'hat', shoes: 'pump' },
-        { id: 'violet_night', name: 'ヴァイオレットナイト', brand: 'sexy', type: 'sexy', rarity: 'N', motif: 'diamond',
-          pal: { a: '#8f4fc9', b: '#e9d9ff', c: '#f2cf6b', g: '#c89bff' }, skirt: 'ball', sleeve: 'none', chest: 'gem', head: 'flower', shoes: 'pump' },
-        { id: 'candy_parade', name: 'キャンディパレード', brand: 'pop', type: 'pop', rarity: 'PR', motif: 'star',
-          pal: { a: '#ffb43c', b: '#fff6c9', c: '#ff6fb1', g: '#5fd3f5' }, skirt: 'bubble', sleeve: 'puff', chest: 'bow', head: 'crown', shoes: 'boot' },
-        { id: 'melody_pop', name: 'メロディポップ', brand: 'pop', type: 'pop', rarity: 'N', motif: 'note',
-          pal: { a: '#5fd08a', b: '#f0fff2', c: '#ffd84f', g: '#ff8cc6' }, skirt: 'tier', sleeve: 'puff', chest: 'bow', head: 'ribbon', shoes: 'pump' },
-        { id: 'luna_diana', name: 'ルナディアーナ・ロイヤル', brand: 'luna', type: 'cute', rarity: 'PR', motif: 'moon', reward: true,
-          pal: { a: '#b9a2f5', b: '#fff5fb', c: '#f2cf6b', g: '#ff9ad0' }, skirt: 'over', sleeve: 'cape', chest: 'gem', head: 'crown', shoes: 'boot',
-          need: { head: ['vo', 1000], top: ['pl', 1000], bottom: ['da', 1000], shoes: ['vi', 1000] } }
-    ];
 
     function dcHex(h) { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); }
     function dcMix(a, b, t) { const x = dcHex(a), y = dcHex(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
     function dcRng(str) { let s = 0; for (const ch of str) s = (s * 31 + ch.charCodeAt(0)) >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
-    function dcMotif(kind, x, y, s, fill, extra) {
-        extra = extra || '';
-        const f = n => (+n).toFixed(1);
-        if (kind === 'heart') return `<path d="M${f(x)},${f(y + s * 0.8)} C${f(x - s * 1.25)},${f(y - s * 0.05)} ${f(x - s * 0.7)},${f(y - s * 1.15)} ${f(x)},${f(y - s * 0.45)} C${f(x + s * 0.7)},${f(y - s * 1.15)} ${f(x + s * 1.25)},${f(y - s * 0.05)} ${f(x)},${f(y + s * 0.8)}Z" fill="${fill}" ${extra}/>`;
-        if (kind === 'star') { let p = ''; for (let i = 0; i < 10; i++) { const r = i % 2 ? s * 0.45 : s, a = -Math.PI / 2 + i * Math.PI / 5; p += (i ? 'L' : 'M') + f(x + r * Math.cos(a)) + ',' + f(y + r * Math.sin(a)); } return `<path d="${p}Z" fill="${fill}" ${extra}/>`; }
-        if (kind === 'diamond') return `<path d="M${f(x)},${f(y - s)} L${f(x + s * 0.7)},${f(y)} L${f(x)},${f(y + s)} L${f(x - s * 0.7)},${f(y)}Z" fill="${fill}" ${extra}/>`;
-        if (kind === 'sparkle') return `<path d="M${f(x)},${f(y - s)} Q${f(x + s * 0.14)},${f(y - s * 0.14)} ${f(x + s)},${f(y)} Q${f(x + s * 0.14)},${f(y + s * 0.14)} ${f(x)},${f(y + s)} Q${f(x - s * 0.14)},${f(y + s * 0.14)} ${f(x - s)},${f(y)} Q${f(x - s * 0.14)},${f(y - s * 0.14)} ${f(x)},${f(y - s)}Z" fill="${fill}" ${extra}/>`;
-        if (kind === 'moon') return `<path d="M${f(x + s * 0.3)},${f(y - s)} A${f(s)},${f(s)} 0 1 0 ${f(x + s * 0.3)},${f(y + s)} A${f(s * 0.75)},${f(s * 0.75)} 0 1 1 ${f(x + s * 0.3)},${f(y - s)}Z" fill="${fill}" ${extra}/>`;
-        if (kind === 'note') return `<g ${extra}><ellipse cx="${f(x - s * 0.3)}" cy="${f(y + s * 0.55)}" rx="${f(s * 0.42)}" ry="${f(s * 0.32)}" transform="rotate(-20 ${f(x - s * 0.3)} ${f(y + s * 0.55)})" fill="${fill}"/><path d="M${f(x + s * 0.06)},${f(y + s * 0.5)} L${f(x + s * 0.06)},${f(y - s * 0.9)} Q${f(x + s * 0.5)},${f(y - s * 0.6)} ${f(x + s * 0.7)},${f(y - s * 0.2)}" stroke="${fill}" stroke-width="${f(s * 0.2)}" fill="none" stroke-linecap="round"/></g>`;
-        if (kind === 'rose') { let p = `<g ${extra}>`; for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; p += `<circle cx="${f(x + s * 0.5 * Math.cos(a))}" cy="${f(y + s * 0.5 * Math.sin(a))}" r="${f(s * 0.55)}" fill="${fill}"/>`; } return p + `<circle cx="${f(x)}" cy="${f(y)}" r="${f(s * 0.4)}" fill="${fill}" stroke="rgba(0,0,0,0.18)" stroke-width="${f(s * 0.12)}"/></g>`; }
-        return `<circle cx="${f(x)}" cy="${f(y)}" r="${f(s * 0.6)}" fill="${fill}" ${extra}/>`;
-    }
-    // 宝石（金の台座つき）
-    function dcGem(u, kind, x, y, s) {
-        const k = kind === 'rose' || kind === 'note' ? 'heart' : kind;
-        return `<g>${dcMotif(k, x, y, s * 1.22, `url(#${u}gold)`)}${dcMotif(k, x, y, s, `url(#${u}gem)`)}<ellipse cx="${(x - s * 0.3).toFixed(1)}" cy="${(y - s * 0.35).toFixed(1)}" rx="${(s * 0.28).toFixed(1)}" ry="${(s * 0.16).toFixed(1)}" transform="rotate(-30 ${(x - s * 0.3).toFixed(1)} ${(y - s * 0.35).toFixed(1)})" fill="#fff" opacity="0.85"/></g>`;
-    }
-    function dcBow(x, y, s, fill, dark, trim) {
-        const f = n => (+n).toFixed(1);
-        const loop = d => `<path d="M${f(x)},${f(y)} C${f(x + d * s * 0.6)},${f(y - s * 1.05)} ${f(x + d * s * 1.65)},${f(y - s * 0.75)} ${f(x + d * s * 1.45)},${f(y + s * 0.05)} C${f(x + d * s * 1.3)},${f(y + s * 0.7)} ${f(x + d * s * 0.55)},${f(y + s * 0.45)} ${f(x)},${f(y)}Z" fill="${fill}" stroke="${trim}" stroke-width="${f(s * 0.1)}"/><path d="M${f(x + d * s * 0.2)},${f(y - s * 0.05)} C${f(x + d * s * 0.7)},${f(y - s * 0.55)} ${f(x + d * s * 1.15)},${f(y - s * 0.4)} ${f(x + d * s * 1.1)},${f(y)}" stroke="${dark}" stroke-width="${f(s * 0.14)}" fill="none" opacity="0.55" stroke-linecap="round"/>`;
-        const tail = d => `<path d="M${f(x + d * s * 0.1)},${f(y + s * 0.1)} C${f(x + d * s * 0.35)},${f(y + s * 0.7)} ${f(x + d * s * 0.5)},${f(y + s * 1.2)} ${f(x + d * s * 0.75)},${f(y + s * 1.6)} L${f(x + d * s * 0.55)},${f(y + s * 1.45)} L${f(x + d * s * 0.42)},${f(y + s * 1.7)} C${f(x + d * s * 0.25)},${f(y + s * 1.2)} ${f(x + d * s * 0.05)},${f(y + s * 0.7)} ${f(x - d * s * 0.05)},${f(y + s * 0.15)}Z" fill="${fill}" stroke="${trim}" stroke-width="${f(s * 0.1)}"/>`;
-        return `<g>${tail(-1)}${tail(1)}${loop(-1)}${loop(1)}<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(s * 0.34)}" ry="${f(s * 0.4)}" fill="${fill}" stroke="${dark}" stroke-width="${f(s * 0.12)}"/></g>`;
-    }
-    // 丸いフリルの裾（左→右に下向きのスカラップ）
-    function dcScallop(x0, x1, yAt, n, depth) {
-        let d = '';
-        const w = (x1 - x0) / n;
-        for (let i = 0; i < n; i++) { const xa = x0 + w * i, xb = xa + w; d += ` A${(w / 2).toFixed(1)},${depth} 0 0 0 ${xb.toFixed(1)},${yAt(xb).toFixed(1)}`; }
-        return d;
-    }
-    function dcPearls(pts, r, fill) { return pts.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${fill}" stroke="rgba(0,0,0,0.12)" stroke-width="0.4"/><circle cx="${(p[0] - r * 0.35).toFixed(1)}" cy="${(p[1] - r * 0.35).toFixed(1)}" r="${(r * 0.35).toFixed(1)}" fill="#fff"/>`).join(''); }
+    const dcF = n => (+n).toFixed(1);
+    const dcO = (c, w) => `stroke="${c}" stroke-width="${w || 1.2}" stroke-linejoin="round" stroke-linecap="round"`;
     function dcQuad(p0, p1, p2, n) { const r = []; for (let i = 0; i <= n; i++) { const t = i / n, a = (1 - t) * (1 - t), b = 2 * (1 - t) * t, c = t * t; r.push([a * p0[0] + b * p1[0] + c * p2[0], a * p0[1] + b * p1[1] + c * p2[1]]); } return r; }
+    function dcSparkle(x, y, s, fill, op) { return `<path d="M${dcF(x)},${dcF(y - s)} Q${dcF(x + s * .12)},${dcF(y - s * .12)} ${dcF(x + s)},${dcF(y)} Q${dcF(x + s * .12)},${dcF(y + s * .12)} ${dcF(x)},${dcF(y + s)} Q${dcF(x - s * .12)},${dcF(y + s * .12)} ${dcF(x - s)},${dcF(y)} Q${dcF(x - s * .12)},${dcF(y - s * .12)} ${dcF(x)},${dcF(y - s)}Z" fill="${fill}" opacity="${op == null ? 1 : op}"/>`; }
+    function dcStar(x, y, r, fill, extra, inner) { let p = ''; for (let i = 0; i < 10; i++) { const rr = i % 2 ? r * (inner || .45) : r, a = -Math.PI / 2 + i * Math.PI / 5; p += (i ? 'L' : 'M') + dcF(x + rr * Math.cos(a)) + ',' + dcF(y + rr * Math.sin(a)); } return `<path d="${p}Z" fill="${fill}" ${extra || ''}/>`; }
+    function dcHeart(x, y, s, fill, extra) { return `<path d="M${dcF(x)},${dcF(y + s * .85)} C${dcF(x - s * 1.3)},${dcF(y - s * .05)} ${dcF(x - s * .7)},${dcF(y - s * 1.15)} ${dcF(x)},${dcF(y - s * .42)} C${dcF(x + s * .7)},${dcF(y - s * 1.15)} ${dcF(x + s * 1.3)},${dcF(y - s * .05)} ${dcF(x)},${dcF(y + s * .85)}Z" fill="${fill}" ${extra || ''}/>`; }
+    function dcPearls(pts, r, col) { col = col || '#fffaf2'; return pts.map(p => `<circle cx="${dcF(p[0])}" cy="${dcF(p[1])}" r="${r}" fill="${col}" stroke="rgba(120,60,90,.35)" stroke-width=".5"/><circle cx="${dcF(p[0] - r * .35)}" cy="${dcF(p[1] - r * .35)}" r="${dcF(r * .38)}" fill="#fff"/>`).join(''); }
+    // 描画用の小道具（グラデーションは使うたびに defs へ登録）
+    function dcCtx(u) {
+        const ctx = { u: u, defs: [], seen: {} };
+        ctx.lin = (name, stops, x2, y2) => { const id = u + name; if (!ctx.seen[id]) { ctx.seen[id] = 1; ctx.defs.push(`<linearGradient id="${id}" x1="0" y1="0" x2="${x2 == null ? 0 : x2}" y2="${y2 == null ? 1 : y2}">${stops.map((s, i) => `<stop offset="${Array.isArray(s) ? s[0] : i / (stops.length - 1)}" stop-color="${Array.isArray(s) ? s[1] : s}"${Array.isArray(s) && s[2] != null ? ` stop-opacity="${s[2]}"` : ''}/>`).join('')}</linearGradient>`); } return `url(#${id})`; };
+        ctx.rad = (name, stops, cx, cy, r) => { const id = u + name; if (!ctx.seen[id]) { ctx.seen[id] = 1; ctx.defs.push(`<radialGradient id="${id}" cx="${cx == null ? .5 : cx}" cy="${cy == null ? .5 : cy}" r="${r == null ? .6 : r}">${stops.map((s, i) => `<stop offset="${Array.isArray(s) ? s[0] : i / (stops.length - 1)}" stop-color="${Array.isArray(s) ? s[1] : s}"${Array.isArray(s) && s[2] != null ? ` stop-opacity="${s[2]}"` : ''}/>`).join('')}</radialGradient>`); } return `url(#${id})`; };
+        ctx.gold = () => ctx.lin('gold', ['#fff7cf', '#ffd84a', '#e8a410', '#b86e00']);
+        ctx.silver = () => ctx.lin('silver', ['#ffffff', '#dfe8ff', '#a9b6e6', '#7482c2']);
+        // カット面のある宝石
+        ctx.gem = (x, y, r, col, shape, rim) => {
+            const g = ctx.rad('gem' + col.replace('#', ''), [[0, dcMix(col, '#ffffff', .85)], [.45, col], [1, dcMix(col, '#10001a', .45)]], .35, .3, .75);
+            const rimFill = rim === 'silver' ? ctx.silver() : ctx.gold();
+            let body, facet;
+            if (shape === 'heart') { body = dcHeart(x, y, r * 1.2, rimFill) + dcHeart(x, y, r, g, dcO(dcMix(col, '#10001a', .5), .5)); facet = `<path d="M${dcF(x)},${dcF(y - r * .35)} L${dcF(x)},${dcF(y + r * .7)} M${dcF(x - r * .6)},${dcF(y - r * .2)} L${dcF(x)},${dcF(y + r * .1)} L${dcF(x + r * .6)},${dcF(y - r * .2)}" stroke="#fff" stroke-width=".5" opacity=".6" fill="none"/>`; }
+            else if (shape === 'star') { body = dcStar(x, y, r * 1.3, rimFill) + dcStar(x, y, r, g, dcO(dcMix(col, '#10001a', .5), .5)); facet = ''; }
+            else if (shape === 'drop') { const d = s => `M${dcF(x)},${dcF(y - s * 1.3)} C${dcF(x + s * .9)},${dcF(y - s * .2)} ${dcF(x + s * .9)},${dcF(y + s * .9)} ${dcF(x)},${dcF(y + s * .9)} C${dcF(x - s * .9)},${dcF(y + s * .9)} ${dcF(x - s * .9)},${dcF(y - s * .2)} ${dcF(x)},${dcF(y - s * 1.3)}Z`; body = `<path d="${d(r * 1.2)}" fill="${rimFill}"/><path d="${d(r)}" fill="${g}"/>`; facet = ''; }
+            else if (shape === 'diamond') { const d = s => `M${dcF(x)},${dcF(y - s * 1.2)} L${dcF(x + s * .8)},${dcF(y)} L${dcF(x)},${dcF(y + s * 1.2)} L${dcF(x - s * .8)},${dcF(y)}Z`; body = `<path d="${d(r * 1.25)}" fill="${rimFill}"/><path d="${d(r)}" fill="${g}"/>`; facet = `<path d="M${dcF(x - r * .8)},${dcF(y)} L${dcF(x + r * .8)},${dcF(y)} M${dcF(x)},${dcF(y - r * 1.2)} L${dcF(x)},${dcF(y + r * 1.2)}" stroke="#fff" stroke-width=".5" opacity=".55"/>`; }
+            else { body = `<circle cx="${dcF(x)}" cy="${dcF(y)}" r="${dcF(r * 1.22)}" fill="${rimFill}"/><circle cx="${dcF(x)}" cy="${dcF(y)}" r="${dcF(r)}" fill="${g}"/>`; let p = ''; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; p += (i ? 'L' : 'M') + dcF(x + r * .55 * Math.cos(a)) + ',' + dcF(y + r * .55 * Math.sin(a)); } facet = `<path d="${p}Z" fill="none" stroke="#fff" stroke-width=".5" opacity=".6"/>`; }
+            return body + facet + `<ellipse cx="${dcF(x - r * .32)}" cy="${dcF(y - r * .38)}" rx="${dcF(r * .3)}" ry="${dcF(r * .17)}" transform="rotate(-35 ${dcF(x - r * .32)} ${dcF(y - r * .38)})" fill="#fff" opacity=".9"/>`;
+        };
+        // 立体的なリボン
+        ctx.bow = (x, y, s, fill, dark, knot, tails) => {
+            const loop = d => `<path d="M${dcF(x)},${dcF(y)} C${dcF(x + d * s * .5)},${dcF(y - s * 1.15)} ${dcF(x + d * s * 1.75)},${dcF(y - s * .95)} ${dcF(x + d * s * 1.5)},${dcF(y + s * .1)} C${dcF(x + d * s * 1.35)},${dcF(y + s * .8)} ${dcF(x + d * s * .5)},${dcF(y + s * .5)} ${dcF(x)},${dcF(y)}Z" fill="${fill}" ${dcO(dark, s * .09)}/><path d="M${dcF(x + d * s * .25)},${dcF(y - s * .1)} C${dcF(x + d * s * .7)},${dcF(y - s * .65)} ${dcF(x + d * s * 1.2)},${dcF(y - s * .5)} ${dcF(x + d * s * 1.15)},${dcF(y + s * .05)} C${dcF(x + d * s * .9)},${dcF(y - s * .15)} ${dcF(x + d * s * .6)},${dcF(y - s * .1)} ${dcF(x + d * s * .25)},${dcF(y - s * .1)}Z" fill="${dark}" opacity=".35"/><path d="M${dcF(x + d * s * .55)},${dcF(y - s * .62)} Q${dcF(x + d * s * 1.1)},${dcF(y - s * .85)} ${dcF(x + d * s * 1.35)},${dcF(y - s * .45)}" stroke="#fff" stroke-width="${dcF(s * .12)}" fill="none" opacity=".7" stroke-linecap="round"/>`;
+            const tail = d => `<path d="M${dcF(x + d * s * .1)},${dcF(y + s * .1)} C${dcF(x + d * s * .4)},${dcF(y + s * .8)} ${dcF(x + d * s * .55)},${dcF(y + s * 1.4)} ${dcF(x + d * s * .85)},${dcF(y + s * 1.95)} L${dcF(x + d * s * .6)},${dcF(y + s * 1.78)} L${dcF(x + d * s * .45)},${dcF(y + s * 2.05)} C${dcF(x + d * s * .25)},${dcF(y + s * 1.4)} ${dcF(x + d * s * .05)},${dcF(y + s * .8)} ${dcF(x - d * s * .08)},${dcF(y + s * .15)}Z" fill="${fill}" ${dcO(dark, s * .09)}/>`;
+            return `<g>${tails === false ? '' : tail(-1) + tail(1)}${loop(-1)}${loop(1)}<ellipse cx="${dcF(x)}" cy="${dcF(y)}" rx="${dcF(s * .36)}" ry="${dcF(s * .42)}" fill="${fill}" ${dcO(dark, s * .09)}/>${knot || ''}</g>`;
+        };
+        return ctx;
+    }
+
+    const DRESS_COORDS = [
+    // ---------- キュート：ロイヤルストロベリー ----------
+    { id: 'royal_strawberry', name: 'ロイヤルストロベリー', brand: 'cute', type: 'cute', rarity: 'PR', draw(k, rnd) {
+        const L = '#b0003a', red = k.lin('red', ['#ff4d7a', '#ff1446', '#d6003a']), petal = k.lin('petal', [[0, '#ff1d50'], [.55, '#ff4f8f'], [1, '#ffb0d0']]);
+        const leaf = k.lin('leaf', ['#9dffb8', '#2fd46a', '#11994a']), cream = k.lin('cream', ['#ffffff', '#fff0f6', '#ffd6e7']), pink = k.lin('pink', ['#ffc2dd', '#ff7fb6']);
+        const dots = k.u + 'dots'; k.defs.push(`<pattern id="${dots}" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.3" fill="#fff"/><circle cx="6" cy="6" r="1.3" fill="#fff"/></pattern>`);
+        const leafAt = (x, y, len, ang, w) => `<path d="M0,0 C${dcF(w)},${dcF(-len * .35)} ${dcF(w * .6)},${dcF(-len * .8)} 0,${dcF(-len)} C${dcF(-w * .6)},${dcF(-len * .8)} ${dcF(-w)},${dcF(-len * .35)} 0,0Z" transform="translate(${dcF(x)} ${dcF(y)}) rotate(${dcF(ang)})" fill="${leaf}" ${dcO('#0d7a3a', .9)}/><path d="M0,-1 L0,${dcF(-len * .8)}" transform="translate(${dcF(x)} ${dcF(y)}) rotate(${dcF(ang)})" stroke="#dfffe8" stroke-width=".7" opacity=".8"/>`;
+        const berry = (x, y, s) => `<path d="M${dcF(x)},${dcF(y - s)} C${dcF(x + s * 1.1)},${dcF(y - s * 1.05)} ${dcF(x + s * 1.05)},${dcF(y + s * .3)} ${dcF(x)},${dcF(y + s * 1.2)} C${dcF(x - s * 1.05)},${dcF(y + s * .3)} ${dcF(x - s * 1.1)},${dcF(y - s * 1.05)} ${dcF(x)},${dcF(y - s)}Z" fill="${red}" ${dcO(L, .7)}/>` + [[-.4, -.3], [.4, -.3], [0, .1], [-.3, .5], [.3, .5], [0, -.55]].map(([a, b]) => `<ellipse cx="${dcF(x + a * s)}" cy="${dcF(y + b * s)}" rx="${dcF(s * .09)}" ry="${dcF(s * .14)}" fill="#ffe27a"/>`).join('') + `<path d="M${dcF(x - s * .7)},${dcF(y - s * .95)} L${dcF(x - s * .3)},${dcF(y - s * .7)} L${dcF(x)},${dcF(y - s * 1.2)} L${dcF(x + s * .3)},${dcF(y - s * .7)} L${dcF(x + s * .7)},${dcF(y - s * .95)} L${dcF(x + s * .35)},${dcF(y - s * 1.3)} L${dcF(x)},${dcF(y - s * 1.1)} L${dcF(x - s * .35)},${dcF(y - s * 1.3)}Z" fill="${leaf}" ${dcO('#0d7a3a', .5)}/><ellipse cx="${dcF(x - s * .4)}" cy="${dcF(y - s * .35)}" rx="${dcF(s * .22)}" ry="${dcF(s * .13)}" fill="#fff" opacity=".8" transform="rotate(-40 ${dcF(x - s * .4)} ${dcF(y - s * .35)})"/>`;
+        const out = [];
+        // --- ボトムス ---
+        let b = '';
+        // ピンクのフリルペチコート
+        let pp = 'M44,262'; for (let i = 0; i < 16; i++) { const x0 = 44 + i * 9.5; pp += ` Q${dcF(x0 + 4.75)},${286 + (i % 2) * 3} ${dcF(x0 + 9.5)},262`; }
+        b += `<path d="${pp} L196,262 L180,230 L60,230 Z" fill="${pink}" ${dcO('#e0467f', 1)}/>`;
+        // 生クリームのようなホイップフリル
+        let wp = 'M40,258'; const wn = 9; for (let i = 0; i < wn; i++) { const x0 = 40 + i * (160 / wn), x1 = x0 + 160 / wn; wp += ` C${dcF(x0)},${dcF(282)} ${dcF(x1)},${dcF(282)} ${dcF(x1)},258`; }
+        b += `<path d="${wp} L176,212 L64,212 Z" fill="${cream}" ${dcO('#f08ab4', 1.1)}/>`;
+        for (let i = 0; i < wn; i++) { const x0 = 40 + i * (160 / wn); b += `<path d="M${dcF(x0 + 5)},266 Q${dcF(x0 + 9)},272 ${dcF(x0 + 13)},267" stroke="#f7b5cf" stroke-width="1" fill="none"/>`; }
+        // いちごの花びらスカート（5枚）
+        const petals = [[38, 244], [200, 244], [76, 258], [164, 258], [120, 266]];
+        petals.forEach(([tx, ty], i) => {
+            const wx = 120 + (tx - 120) * .22;
+            const d = `M${dcF(wx - 10)},150 C${dcF(wx - 16 + (tx - 120) * .1)},190 ${dcF(tx - 32)},${ty - 50} ${dcF(tx - 24)},${ty - 14} Q${dcF(tx - 6)},${ty + 12} ${tx},${ty + 8} Q${dcF(tx + 6)},${ty + 12} ${dcF(tx + 24)},${ty - 14} C${dcF(tx + 32)},${ty - 50} ${dcF(wx + 16 + (tx - 120) * .1)},190 ${dcF(wx + 10)},150Z`;
+            b += `<path d="${d}" fill="${petal}" ${dcO(L, 1.3)}/>`;
+            b += `<path d="M${dcF(wx - 4)},160 C${dcF(wx - 8 + (tx - 120) * .1)},195 ${dcF(tx - 20)},${ty - 40} ${dcF(tx - 16)},${ty - 12}" stroke="#fff" stroke-width="3.2" fill="none" opacity=".45" stroke-linecap="round"/>`;
+            b += `<path d="M${dcF(tx + 18)},${ty - 16} C${dcF(tx + 24)},${ty - 44} ${dcF(wx + 12 + (tx - 120) * .1)},195 ${dcF(wx + 8)},162" stroke="${L}" stroke-width="4" fill="none" opacity=".18"/>`;
+            for (let j = 0; j < 6; j++) { const t = .25 + rnd() * .65, x = wx + (tx - wx) * t + (rnd() - .5) * 26 * t, y = 150 + (ty - 150) * t; b += `<path d="M${dcF(x)},${dcF(y - 2.2)} Q${dcF(x + 1.6)},${dcF(y + .6)} ${dcF(x)},${dcF(y + 2)} Q${dcF(x - 1.6)},${dcF(y + .6)} ${dcF(x)},${dcF(y - 2.2)}Z" fill="${k.gold()}" ${dcO('#b86e00', .3)}/>`; }
+            b += `<path d="M${dcF(tx - 22)},${ty - 12} Q${dcF(tx - 6)},${ty + 10} ${tx},${ty + 6} Q${dcF(tx + 6)},${ty + 10} ${dcF(tx + 22)},${ty - 12}" stroke="${k.gold()}" stroke-width="1.6" fill="none"/>`;
+        });
+        // パールのドレープといちごチャーム
+        [[56, 205, 96, 222], [144, 222, 184, 205]].forEach(([x1, y1, x2, y2]) => { b += dcPearls(dcQuad([x1, y1], [(x1 + x2) / 2, Math.max(y1, y2) + 16], [x2, y2], 10), 1.8); });
+        b += berry(96, 230, 5) + berry(144, 230, 5) + berry(120, 282, 6);
+        // ウエストの葉っぱペプラム
+        for (let i = 0; i < 9; i++) { const x = 96 + i * 6, a = (i - 4) * 14; b += leafAt(x, 150, 20, 180 + a, 6); }
+        out.push(['bottom', b]);
+        // --- トップス ---
+        let t = '';
+        const sleeve = dir => { const x = 120 + dir * 44; return `<path d="M${x - dir * 6},88 C${x + dir * 20},82 ${x + dir * 24},104 ${x + dir * 14},116 C${x + dir * 4},120 ${x - dir * 8},114 ${x - dir * 10},104 Z" fill="${pink}" ${dcO('#e0467f', 1.1)}/><path d="M${x - dir * 6},88 C${x + dir * 20},82 ${x + dir * 24},104 ${x + dir * 14},116 C${x + dir * 4},120 ${x - dir * 8},114 ${x - dir * 10},104 Z" fill="url(#${dots})" opacity=".8"/><path d="M${x + dir * 16},114 Q${x + dir * 2},124 ${x - dir * 10},112" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M${x + dir * 16},114 Q${x + dir * 2},124 ${x - dir * 10},112" stroke="#f08ab4" stroke-width="1" fill="none" stroke-dasharray="2 2"/>` + k.bow(x + dir * 4, 117, 3.6, red, L, '', false); };
+        t += sleeve(-1) + sleeve(1);
+        const body = 'M84,96 C88,120 92,138 96,152 Q120,160 144,152 C148,138 152,120 156,96 Q146,88 136,90 Q126,92 120,102 Q114,92 104,90 Q94,88 84,96 Z';
+        t += `<path d="${body}" fill="${cream}" ${dcO('#e0467f', 1.3)}/>`;
+        t += `<path d="M84,96 C88,120 92,138 96,152 L106,155 C102,134 100,116 101,91 Q92,89 84,96Z M156,96 C152,120 148,138 144,152 L134,155 C138,134 140,116 139,91 Q148,89 156,96Z" fill="${pink}" ${dcO('#e0467f', .8)}/>`;
+        t += `<path d="M84,96 C88,120 92,138 96,152 L106,155 C102,134 100,116 101,91 Q92,89 84,96Z M156,96 C152,120 148,138 144,152 L134,155 C138,134 140,116 139,91 Q148,89 156,96Z" fill="url(#${dots})" opacity=".7"/>`;
+        for (let i = 0; i < 5; i++) { const y = 116 + i * 8; t += `<path d="M112,${y} L128,${y + 6} M128,${y} L112,${y + 6}" stroke="#ff1446" stroke-width="1.6" stroke-linecap="round"/>`; }
+        t += `<path d="M112,110 L112,150 M128,110 L128,150" stroke="#f08ab4" stroke-width=".8"/>`;
+        // へたの襟
+        [[-34, 97, -60], [-24, 91, -38], [-12, 94, -14], [12, 94, 14], [24, 91, 38], [34, 97, 60]].forEach(([dx, y, a]) => { t += leafAt(120 + dx, y, 16, a, 5.5); });
+        t += `<path d="M93,152 Q120,162 147,152 L146,158 Q120,168 94,158 Z" fill="${k.gold()}" ${dcO('#b86e00', .6)}/>`;
+        t += k.gem(120, 160, 3.2, '#ff1446', 'heart');
+        t += k.bow(120, 106, 12, red, L, k.gem(120, 106, 4, '#ff5f8f', 'heart'));
+        t += berry(120, 128, 4.5);
+        out.push(['top', t]);
+        // --- アクセ：いちごのティアラ ---
+        let h = '';
+        h += k.bow(88, 50, 9, pink, '#e0467f', '', true) + k.bow(152, 50, 9, pink, '#e0467f', '', true);
+        h += `<path d="M92,54 Q120,40 148,54 L146,60 Q120,48 94,60 Z" fill="${k.gold()}" ${dcO('#b86e00', .7)}/>`;
+        [[-22, 14], [-11, 22], [11, 22], [22, 14]].forEach(([dx, hh]) => { const x = 120 + dx, y = 50 + Math.abs(dx) * .2; h += `<path d="M${x - 5},${y} Q${x - 1},${y - hh * .6} ${x},${y - hh} Q${x + 1},${y - hh * .6} ${x + 5},${y}Z" fill="${k.gold()}" ${dcO('#b86e00', .6)}/>` + dcPearls([[x, y - hh]], 2); });
+        h += berry(120, 36, 11);
+        h += dcPearls(dcQuad([96, 58], [120, 50], [144, 58], 8), 1.4);
+        h += dcPearls(dcQuad([98, 60], [100, 70], [96, 76], 4), 1.3) + dcPearls(dcQuad([142, 60], [140, 70], [144, 76], 4), 1.3) + k.gem(96, 79, 2.2, '#ff1446', 'drop') + k.gem(144, 79, 2.2, '#ff1446', 'drop');
+        out.push(['head', h]);
+        // --- シューズ：フリルソックス＋厚底ストラップ ---
+        const shoe = dir => { const x = 120 + dir * 24; const s = dir; return `<g transform="translate(${x} 0) scale(${s} 1)">
+            <path d="M-9,292 L9,292 L10,318 L-10,318 Z" fill="#fff" ${dcO('#f08ab4', 1)}/>
+            <path d="M-12,294 Q-9,286 -6,294 Q-3,286 0,294 Q3,286 6,294 Q9,286 12,294 L10,300 L-10,300 Z" fill="#fff" ${dcO('#f08ab4', .9)}/>
+            <path d="M-10,318 C-14,322 -18,332 -12,338 L16,338 C22,336 22,326 14,320 L10,316 Z" fill="${pink}" ${dcO('#c8216a', 1.2)}/>
+            <path d="M-14,338 L18,338 Q22,338 21,343 L20,348 L-13,348 Q-16,344 -14,338Z" fill="${k.lin('sole', ['#ff4f8f', '#c8216a'])}" ${dcO('#8c0f48', 1)}/>
+            <path d="M-13,343 L20,343" stroke="${k.gold()}" stroke-width="1.6"/>
+            <path d="M-11,322 Q2,316 13,322" stroke="${red}" stroke-width="3.2" fill="none" ${''}/>
+            <path d="M-9,328 Q4,332 16,330" stroke="#fff" stroke-width="1.4" opacity=".7" fill="none"/>
+            </g>` + berry(x + dir * 1, 320, 3.6) + `<path d="M${x - 8},304 L${x + 8},304" stroke="#ffc2dd" stroke-width="1.4"/>`; };
+        out.push(['shoes', shoe(-1) + shoe(1)]);
+        return out;
+    } },
+
+    // ---------- クール：ギャラクシーオーロラ ----------
+    { id: 'galaxy_aurora', name: 'ギャラクシーオーロラ', brand: 'cool', type: 'cool', rarity: 'PR', reward: true,
+      need: { head: ['vo', 1000], top: ['pl', 1000], bottom: ['da', 1000], shoes: ['vi', 1000] }, draw(k, rnd) {
+        const L = '#16115a';
+        const galaxy = k.lin('gal', [[0, '#3a2bd9'], [.45, '#5a1fd6'], [.75, '#241075'], [1, '#0c0640']]);
+        const aurora = k.lin('aur', [[0, '#29e3ff', .85], [.35, '#7a8cff', .75], [.7, '#ff6ad5', .7], [1, '#c26bff', .8]], 1, 0);
+        const lining = k.lin('lin', ['#b9c6ff', '#6d5bff', '#3a1ea8']);
+        const neb1 = k.rad('neb1', [[0, '#ff5ad8', .75], [1, '#ff5ad8', 0]]), neb2 = k.rad('neb2', [[0, '#29d3ff', .8], [1, '#29d3ff', 0]]);
+        const ice = k.lin('ice', ['#ffffff', '#bff3ff', '#39c9ff']);
+        const stars = (x0, x1, y0, y1, n, clip) => { let s = ''; for (let i = 0; i < n; i++) { const x = x0 + rnd() * (x1 - x0), y = y0 + rnd() * (y1 - y0); s += rnd() < .2 ? dcSparkle(x, y, 2 + rnd() * 2.5, '#fff', .95) : `<circle cx="${dcF(x)}" cy="${dcF(y)}" r="${dcF(.5 + rnd() * .9)}" fill="#fff" opacity="${dcF(.5 + rnd() * .5)}"/>`; } return clip ? `<g clip-path="url(#${clip})">${s}</g>` : s; };
+        const out = [];
+        // --- ボトムス ---
+        let b = '';
+        // オーロラのチュール（うしろ）
+        b += `<path d="M98,156 C60,180 18,240 8,290 Q30,298 52,288 Q72,300 96,290 Q120,302 144,290 Q168,300 188,288 Q210,298 232,290 C222,240 180,180 142,156 Z" fill="${aurora}" ${dcO('#8a7cff', .8)}/>`;
+        for (let i = 0; i < 7; i++) b += `<path d="M${120 + (i - 3) * 6},160 Q${120 + (i - 3) * 22},230 ${120 + (i - 3) * 34},292" stroke="#fff" stroke-width="1" opacity=".35" fill="none"/>`;
+        // 裏地（前が短いハイロー）
+        b += `<path d="M40,282 C62,252 88,222 120,218 C152,222 178,252 200,282 Q160,300 120,300 Q80,300 40,282Z" fill="${lining}" ${dcO(L, 1.2)}/>`;
+        const skirt = 'M96,150 C66,176 34,236 26,284 Q34,290 44,284 C66,252 90,222 120,218 C150,222 174,252 196,284 Q206,290 214,284 C206,236 174,176 144,150 Z';
+        const cid = k.u + 'skc'; k.defs.push(`<clipPath id="${cid}"><path d="${skirt}"/></clipPath>`);
+        b += `<path d="${skirt}" fill="${galaxy}" ${dcO(L, 1.4)}/>`;
+        b += `<g clip-path="url(#${cid})"><ellipse cx="70" cy="215" rx="42" ry="30" fill="${neb1}"/><ellipse cx="168" cy="200" rx="40" ry="34" fill="${neb2}"/><ellipse cx="120" cy="175" rx="30" ry="16" fill="${neb1}" opacity=".6"/>
+            <path d="M60,250 Q90,200 120,190 Q150,180 190,150" stroke="#fff" stroke-width="7" opacity=".08" fill="none"/></g>`;
+        b += stars(28, 212, 152, 280, 60, cid);
+        b += `<path d="M70,210 L86,196 L104,204 L116,186 M150,196 L166,210 L182,200" stroke="#bfe9ff" stroke-width=".6" opacity=".8" fill="none"/>` + [[70, 210], [86, 196], [104, 204], [116, 186], [150, 196], [166, 210], [182, 200]].map(p => dcSparkle(p[0], p[1], 2.4, '#fff')).join('');
+        // 前の裾のつらら状クリスタル
+        const hem = dcQuad([44, 284], [120, 190], [196, 284], 16);
+        hem.slice(1, -1).forEach((p, i) => { const len = 8 + (i % 3 === 1 ? 8 : 3) + rnd() * 3; b += `<path d="M${dcF(p[0] - 3.2)},${dcF(p[1] - 1)} L${dcF(p[0])},${dcF(p[1] + len)} L${dcF(p[0] + 3.2)},${dcF(p[1] - 1)}Z" fill="${ice}" ${dcO('#1f7fd6', .6)}/>`; });
+        b += `<path d="M44,284 Q120,190 196,284" stroke="${k.silver()}" stroke-width="2.4" fill="none"/>`;
+        b += `<path d="M34,262 C48,226 70,190 92,168" stroke="#fff" stroke-width="3" opacity=".35" fill="none" stroke-linecap="round"/>`;
+        // 土星の輪のベルト
+        b += `<ellipse cx="120" cy="156" rx="44" ry="9" fill="none" stroke="${k.gold()}" stroke-width="2.6" transform="rotate(-6 120 156)"/>` + k.gem(78, 160, 3, '#29d3ff') + k.gem(162, 151, 3, '#ff6ad5') + dcStar(120, 165, 4, k.gold());
+        out.push(['bottom', b]);
+        // --- トップス（ワンショルダー＋片側ケープ） ---
+        let t = '';
+        t += `<path d="M146,84 C170,96 186,140 196,196 Q184,204 172,196 Q162,206 152,196 C150,160 146,120 136,96 Z" fill="${aurora}" ${dcO('#8a7cff', .8)} opacity=".9"/>`;
+        t += stars(150, 190, 110, 196, 10);
+        const body = 'M84,102 Q98,96 110,98 L146,80 Q158,80 158,94 C154,120 150,138 146,152 Q120,160 94,152 C90,138 86,122 84,102 Z';
+        const bid = k.u + 'bdc'; k.defs.push(`<clipPath id="${bid}"><path d="${body}"/></clipPath>`);
+        t += `<path d="${body}" fill="${galaxy}" ${dcO(L, 1.3)}/>`;
+        t += `<g clip-path="url(#${bid})"><ellipse cx="100" cy="130" rx="20" ry="16" fill="${neb1}"/><ellipse cx="146" cy="110" rx="18" ry="18" fill="${neb2}"/></g>` + stars(86, 154, 96, 152, 18, bid);
+        t += `<path d="M92,112 Q96,132 100,148" stroke="#fff" stroke-width="3" opacity=".3" fill="none" stroke-linecap="round"/>`;
+        // 胸元のクリスタル
+        dcQuad([84, 102], [110, 94], [150, 80], 9).forEach((p, i) => { const hh = 7 + (i % 2) * 5; t += `<path d="M${dcF(p[0] - 3.4)},${dcF(p[1] + 2)} L${dcF(p[0])},${dcF(p[1] - hh)} L${dcF(p[0] + 3.4)},${dcF(p[1] + 2)}Z" fill="${ice}" ${dcO('#1f7fd6', .6)}/>`; });
+        t += `<path d="M84,102 Q98,96 110,98 L146,80" stroke="${k.silver()}" stroke-width="2" fill="none"/>`;
+        t += `<path d="M146,80 L152,74 L160,80 L154,88 Z" fill="${ice}" ${dcO('#1f7fd6', .6)}/>`;
+        t += dcStar(104, 118, 10, k.gold(), dcO('#b86e00', .6)) + k.gem(104, 118, 4.5, '#29d3ff', 'star');
+        t += dcPearls(dcQuad([104, 128], [108, 140], [100, 150], 5), 1.3, '#dff6ff');
+        t += `<path d="M93,152 Q120,160 147,152" stroke="${k.silver()}" stroke-width="3" fill="none"/>`;
+        out.push(['top', t]);
+        // --- アクセ：星の輪のヘッドピース ---
+        let h = '';
+        h += `<path d="M104,56 C92,70 90,86 96,98 L144,98 C150,86 148,70 136,56 Z" fill="${aurora}" opacity=".35"/>`;
+        h += `<ellipse cx="120" cy="46" rx="34" ry="10" fill="none" stroke="${k.gold()}" stroke-width="3" transform="rotate(-10 120 46)"/>`;
+        h += `<ellipse cx="120" cy="46" rx="34" ry="10" fill="none" stroke="#fff" stroke-width=".8" opacity=".8" transform="rotate(-10 120 46)" stroke-dasharray="1 5"/>`;
+        h += dcStar(120, 36, 16, ice, dcO('#1f7fd6', 1)) + dcStar(120, 36, 9, '#fff', 'opacity=".6"') + k.gem(120, 37, 4, '#ff6ad5');
+        h += dcStar(88, 52, 6, k.gold(), dcO('#b86e00', .5)) + dcStar(153, 40, 6, k.gold(), dcO('#b86e00', .5)) + k.gem(88, 52, 2, '#29d3ff') + k.gem(153, 40, 2, '#29d3ff');
+        h += dcSparkle(100, 22, 4, '#fff') + dcSparkle(144, 20, 3, '#bff3ff') + dcSparkle(76, 36, 3, '#fff');
+        out.push(['head', h]);
+        // --- シューズ：クリスタルのロングブーツ ---
+        const boot = dir => { const x = 120 + dir * 20; return `<g transform="translate(${x} 0) scale(${dir} 1)">
+            <path d="M3,318 L8,322 L7,348 L4,348 Z" fill="${k.silver()}" ${dcO(L, .7)}/>
+            <path d="M-10,286 L10,286 C10,302 9,314 8,322 C14,328 22,336 26,342 C28,346 24,348 20,348 L2,348 C-2,340 -8,332 -9,322 C-10,312 -10,300 -10,286 Z" fill="${k.lin('bt', ['#ffffff', '#dce4ff', '#9aa6f2'])}" ${dcO(L, 1.2)}/>
+            <path d="M-4,290 L4,290 L3,320 C8,328 14,334 18,340 L10,340 C6,334 2,328 -3,322 Z" fill="${galaxy}"/>
+            <path d="M-11,286 L-8,278 L-4,286 L0,274 L4,286 L8,278 L11,286 L10,292 L-10,292 Z" fill="${ice}" ${dcO('#1f7fd6', .7)}/>
+            <path d="M-9,302 L9,302" stroke="${k.gold()}" stroke-width="1.8"/>
+            <path d="M-7,294 Q-8,310 -5,324" stroke="#fff" stroke-width="2" opacity=".7" fill="none"/>
+            </g>` + dcStar(x + dir * 12, 336, 3.6, k.gold(), dcO('#b86e00', .4)) + k.gem(x, 302, 1.8, '#29d3ff'); };
+        out.push(['shoes', boot(-1) + boot(1)]);
+        return out;
+    } },
+
+    // ---------- セクシー：フェニックスルージュ ----------
+    { id: 'phoenix_rouge', name: 'フェニックスルージュ', brand: 'sexy', type: 'sexy', rarity: 'PR', draw(k, rnd) {
+        const L = '#4a0010';
+        const flame = k.lin('flame', [[0, '#ffe066'], [.35, '#ff8a00'], [.75, '#ff2a2a'], [1, '#b0001e']]);
+        const flameR = k.lin('flameR', [[0, '#b0001e'], [.35, '#ff2a2a'], [.7, '#ff8a00'], [1, '#ffe066']]);
+        const wine = k.lin('wine', ['#ff3355', '#d4002a', '#6e0018']);
+        const dark = k.lin('dark', ['#6a0a2a', '#2a0010']);
+        const feather = (x, y, len, ang, w, fill) => `<g transform="translate(${dcF(x)} ${dcF(y)}) rotate(${dcF(ang)})"><path d="M0,0 C${dcF(w)},${dcF(len * .15)} ${dcF(w * 1.1)},${dcF(len * .6)} ${dcF(w * .5)},${dcF(len)} C${dcF(-w * .2)},${dcF(len * .8)} ${dcF(-w)},${dcF(len * .35)} 0,0Z" fill="${fill}" ${dcO(L, .8)}/><path d="M0,2 L0,${dcF(len * .92)}" stroke="#fff3c0" stroke-width=".8" opacity=".85"/>${[.35, .55, .75].map(q => `<path d="M0,${dcF(len * q)} L${dcF(w * .6)},${dcF(len * q + 4)} M0,${dcF(len * q)} L${dcF(-w * .6)},${dcF(len * q + 4)}" stroke="#fff3c0" stroke-width=".5" opacity=".6"/>`).join('')}</g>`;
+        const out = [];
+        // --- ボトムス（うしろの翼＋マーメイド） ---
+        let b = '';
+        // 大きく広がる不死鳥の翼
+        [-1, 1].forEach(dir => {
+            for (let row = 0; row < 3; row++) for (let i = 0; i < 8; i++) { const len = [100, 76, 52][row] - i * 5; b += `<g transform="translate(${120 + dir * 14} 138) scale(${dir} 1) translate(${-120 - dir * 14} -138)">` + feather(120 + dir * 14, 138, len, -166 + i * 13 + row * 4, [13, 10, 8][row], [flame, flameR, wine][row]) + `</g>`; }
+        });
+        const sk = 'M96,150 C90,178 92,206 100,230 C84,246 64,258 54,270 Q120,282 186,270 C176,258 156,246 140,230 C148,206 150,178 144,150 Z';
+        b += `<path d="${sk}" fill="${wine}" ${dcO(L, 1.4)}/>`;
+        // スリットからのぞく金
+        b += `<path d="M104,186 C100,206 98,222 94,240 C104,236 110,232 114,226 C110,214 108,200 104,186Z" fill="${k.gold()}" ${dcO('#8a5200', .8)}/>`;
+        // 金の唐草
+        b += `<path d="M110,160 C104,176 124,182 118,198 C112,214 132,218 126,232 M134,160 C140,176 124,184 130,200" stroke="${k.gold()}" stroke-width="1.3" fill="none" opacity=".9"/>` + [[118, 198], [126, 232], [130, 200]].map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="1.8" fill="#ffe066"/>`).join('');
+        b += `<path d="M100,160 C98,186 100,210 106,228" stroke="#fff" stroke-width="3" opacity=".3" fill="none" stroke-linecap="round"/>`;
+        // 炎の羽根の裾
+        for (let row = 0; row < 3; row++) { const n = 6 + row * 3, y = 228 + row * 12, hw = 20 + row * 28; for (let i = 0; i < n; i++) { const x = 120 - hw + (2 * hw) * i / (n - 1); b += feather(x, y, 28 + row * 3, (x - 120) * -.5 - 4, 7, row % 2 ? flameR : flame); } }
+        b += `<path d="M100,230 Q120,236 140,230" stroke="${k.gold()}" stroke-width="2.6" fill="none"/>` + k.gem(120, 234, 3.6, '#ff2a2a', 'drop');
+        out.push(['bottom', b]);
+        // --- トップス（ホルターネック） ---
+        let t = '';
+        [-1, 1].forEach(dir => { for (let i = 0; i < 5; i++) t += feather(120 + dir * 38, 92, 26 - i * 2, dir * (-70 + i * 22), 6, i % 2 ? flame : flameR); });
+        const body = 'M84,98 C88,122 92,140 96,152 Q120,160 144,152 C148,140 152,122 156,98 L132,86 Q124,110 120,124 Q116,110 108,86 Z';
+        t += `<path d="${body}" fill="${dark}" ${dcO('#1a0008', 1.3)}/>`;
+        t += `<path d="M92,106 C96,126 100,140 104,150 M148,106 C144,126 140,140 136,150" stroke="${k.gold()}" stroke-width="1" fill="none"/>`;
+        t += `<path d="M96,112 C104,118 100,128 108,134 M144,112 C136,118 140,128 132,134" stroke="${k.gold()}" stroke-width="1" fill="none" opacity=".9"/>`;
+        t += `<path d="M84,98 L108,86 Q116,110 120,124 Q124,110 132,86 L156,98" stroke="${k.gold()}" stroke-width="2.2" fill="none"/>`;
+        t += `<path d="M108,86 Q114,76 120,74 Q126,76 132,86" stroke="${wine}" stroke-width="5" fill="none"/>`;
+        t += `<path d="M100,78 Q120,86 140,78 L139,83 Q120,91 101,83 Z" fill="${k.gold()}" ${dcO('#8a5200', .6)}/>`;
+        [106, 113, 120, 127, 134].forEach((x, i) => { t += `<path d="M${x},${84 + (i === 2 ? 2 : 0)} L${x},${88 + (i === 2 ? 6 : 2)}" stroke="${k.gold()}" stroke-width=".8"/>` + k.gem(x, 91 + (i === 2 ? 6 : 2), i === 2 ? 3.4 : 1.8, '#ff2a2a', 'drop'); });
+        t += k.gem(120, 136, 4, '#ff2a2a', 'diamond');
+        t += `<path d="M93,152 Q120,160 147,152 L146,157 Q120,166 94,157 Z" fill="${k.gold()}" ${dcO('#8a5200', .6)}/>`;
+        out.push(['top', t]);
+        // --- アクセ：羽根のファシネーター ---
+        let h = '';
+        for (let i = 0; i < 7; i++) h += feather(128, 58, 44 - Math.abs(i - 3) * 4, -80 + i * 22 + 180, 9, i % 2 ? flame : flameR);
+        h += `<circle cx="128" cy="58" r="10" fill="${dark}" ${dcO('#1a0008', 1)}/>` + k.gem(128, 58, 6, '#ff2a2a', 'heart');
+        h += dcPearls(dcQuad([118, 62], [104, 76], [92, 70], 6), 1.2, '#ffe9a0') + dcPearls(dcQuad([138, 62], [150, 78], [160, 70], 6), 1.2, '#ffe9a0');
+        h += `<path d="M110,64 Q96,86 84,80" stroke="${k.gold()}" stroke-width=".8" fill="none"/><path d="M146,64 Q160,88 172,80" stroke="${k.gold()}" stroke-width=".8" fill="none"/>` + k.gem(84, 81, 2, '#ff2a2a', 'drop') + k.gem(172, 81, 2, '#ff2a2a', 'drop');
+        out.push(['head', h]);
+        // --- シューズ：金のストラップサンダル ---
+        const shoe = dir => { const x = 120 + dir * 16; return `<g transform="translate(${x} 0) scale(${dir} 1)">
+            <path d="M0,316 L4,316 L6,346 L3,346 Z" fill="${k.gold()}" ${dcO('#8a5200', .6)}/>
+            <path d="M2,316 C12,318 20,330 30,338 C34,341 34,345 30,346 L14,346 C10,338 6,330 2,326 Z" fill="${k.lin('sl', ['#ff3355', '#6e0018'])}" ${dcO(L, 1)}/>
+            <path d="M8,330 L22,334 M4,320 L16,330 M14,340 L30,340" stroke="${k.gold()}" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M-2,304 L8,304 M-1,312 L9,312" stroke="${k.gold()}" stroke-width="2"/>
+            <path d="M0,300 L0,318" stroke="${k.gold()}" stroke-width="1.6"/>
+            </g>` + feather(x + dir * 3, 304, 18, dir * -120, 5, flameR) + feather(x + dir * 3, 304, 14, dir * -150, 4, flame) + k.gem(x + dir * 3, 305, 2.4, '#ff2a2a'); };
+        out.push(['shoes', shoe(-1) + shoe(1)]);
+        return out;
+    } },
+
+    // ---------- ポップ：キャンディカーニバル ----------
+    { id: 'candy_carnival', name: 'キャンディカーニバル', brand: 'pop', type: 'pop', rarity: 'PR', draw(k, rnd) {
+        const L = '#5a2a8a';
+        const pink = k.lin('pk', ['#ff9ad0', '#ff3d9a']), mint = k.lin('mt', ['#9fffe6', '#1fd6b0']), yel = k.lin('yl', ['#fff39a', '#ffc400']), sky = k.lin('sk', ['#9fdcff', '#2f8cff']), pur = k.lin('pu', ['#d6b3ff', '#8a4dff']);
+        const stripes = k.u + 'str'; k.defs.push(`<pattern id="${stripes}" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="14" height="14" fill="#ffffff"/><rect width="4" height="14" fill="#ff3d9a"/><rect x="7" width="3" height="14" fill="#1fd6b0"/></pattern>`);
+        const hstripe = k.u + 'hs'; k.defs.push(`<pattern id="${hstripe}" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><rect width="6" height="3" fill="#ff5fb0"/></pattern>`);
+        const polka = k.u + 'pk2'; k.defs.push(`<pattern id="${polka}" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2" fill="#fff"/><circle cx="8" cy="8" r="1.4" fill="#fff39a"/></pattern>`);
+        const candy = (x, y, s, col) => `<g transform="translate(${dcF(x)} ${dcF(y)})"><path d="M${dcF(-s * 2)},${dcF(-s * .8)} L${dcF(-s)},0 L${dcF(-s * 2)},${dcF(s * .8)} Z M${dcF(s * 2)},${dcF(-s * .8)} L${dcF(s)},0 L${dcF(s * 2)},${dcF(s * .8)} Z" fill="${col}" ${dcO(L, .5)}/><circle r="${dcF(s * 1.1)}" fill="${col}" ${dcO(L, .6)}/><path d="M${dcF(-s * .6)},${dcF(-s * .8)} L${dcF(s * .2)},${dcF(s * .9)} M${dcF(s * .1)},${dcF(-s * 1)} L${dcF(s * .8)},${dcF(s * .6)}" stroke="#fff" stroke-width="${dcF(s * .3)}" opacity=".8"/></g>`;
+        const lolli = (x, y, r) => { let sw = ''; for (let i = 0; i < 4; i++) sw += `<path d="M${x},${y} m0,0 a${dcF(r * (1 - i * .22))},${dcF(r * (1 - i * .22))} 0 1 1 -.1,0" fill="none" stroke="${['#ff3d9a', '#ffc400', '#1fd6b0', '#8a4dff'][i]}" stroke-width="${dcF(r * .2)}"/>`; return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" ${dcO(L, .8)}/>` + sw + `<circle cx="${x}" cy="${y}" r="${dcF(r * .15)}" fill="#ff3d9a"/><ellipse cx="${dcF(x - r * .4)}" cy="${dcF(y - r * .45)}" rx="${dcF(r * .3)}" ry="${dcF(r * .16)}" fill="#fff" opacity=".85" transform="rotate(-35 ${dcF(x - r * .4)} ${dcF(y - r * .45)})"/>`; };
+        const zig = (x0, x1, y, n, col) => { let p = `M${x0},${y}`; const w = (x1 - x0) / n; for (let i = 0; i < n; i++) p += ` L${dcF(x0 + w * (i + .5))},${y + 3} L${dcF(x0 + w * (i + 1))},${y}`; return `<path d="${p}" stroke="${col}" stroke-width="2" fill="none" stroke-linejoin="round"/>`; };
+        const out = [];
+        // --- ボトムス：3段のバルーンスカート ---
+        let b = '';
+        let tul = 'M40,236'; for (let i = 0; i < 20; i++) tul += ` L${dcF(40 + i * 8 + 4)},${248 + (i % 2) * 3} L${dcF(40 + (i + 1) * 8)},236`;
+        b += `<path d="${tul} L180,200 L60,200 Z" fill="#fff" ${dcO('#c9a6ff', .9)} opacity=".95"/>`;
+        const tier = (y0, y1, hw0, hw1, fill, pat, n) => { let d = `M${120 - hw0},${y0} C${120 - hw1 - 6},${(y0 + y1) / 2} ${120 - hw1 - 4},${y1 - 6} ${120 - hw1},${y1}`; const w = hw1 * 2 / n; for (let i = 0; i < n; i++) d += ` Q${dcF(120 - hw1 + w * (i + .5))},${y1 + 9} ${dcF(120 - hw1 + w * (i + 1))},${y1}`; d += ` C${120 + hw1 + 4},${y1 - 6} ${120 + hw1 + 6},${(y0 + y1) / 2} ${120 + hw0},${y0} Z`; return `<path d="${d}" fill="${fill}" ${dcO(L, 1.2)}/>` + (pat ? `<path d="${d}" fill="url(#${pat})" opacity=".85"/>` : ''); };
+        b += tier(200, 238, 60, 80, yel, stripes, 8);
+        b += zig(44, 196, 232, 20, '#ff3d9a');
+        b += tier(178, 214, 44, 68, mint, null, 7);
+        b += zig(56, 184, 208, 16, '#ffc400');
+        for (let i = 0; i < 7; i++) b += `<circle cx="${62 + i * 19.3}" cy="219" r="2.2" fill="#fff" ${dcO(L, .4)}/>`;
+        b += tier(150, 186, 26, 52, pink, polka, 6);
+        b += `<path d="M76,170 Q70,180 72,186" stroke="#fff" stroke-width="3" opacity=".5" fill="none" stroke-linecap="round"/>`;
+        b += `<path d="M56,210 Q50,222 50,232" stroke="#fff" stroke-width="3" opacity=".5" fill="none" stroke-linecap="round"/>`;
+        // ぶら下がるキャンディ
+        [[70, 196, '#ff3d9a'], [98, 204, '#8a4dff'], [142, 204, '#2f8cff'], [170, 196, '#ffc400']].forEach(([x, y, c]) => { b += `<path d="M${x},${y - 12} L${x},${y}" stroke="${L}" stroke-width=".6"/>` + candy(x, y + 3, 3, c); });
+        b += k.bow(172, 164, 11, `url(#${stripes})`, L, lolli(172, 164, 4), true);
+        out.push(['bottom', b]);
+        // --- トップス：ボレロ＋セーラー襟 ---
+        let t = '';
+        const sleeve = dir => { const x = 120 + dir * 44; return `<path d="M${x - dir * 8},88 C${x + dir * 24},80 ${x + dir * 28},112 ${x + dir * 12},122 C${x},126 ${x - dir * 10},116 ${x - dir * 12},104 Z" fill="url(#${hstripe})" ${dcO(L, 1.1)}/><path d="M${x + dir * 14},120 Q${x},130 ${x - dir * 12},116" stroke="${mint}" stroke-width="5" fill="none" stroke-linecap="round"/>` + dcStar(x + dir * 2, 124, 3.5, k.gold(), dcO('#b86e00', .4)); };
+        t += sleeve(-1) + sleeve(1);
+        t += `<path d="M96,94 L144,94 L146,152 Q120,160 94,152 Z" fill="url(#${hstripe})" ${dcO(L, 1.1)}/>`;
+        t += `<path d="M84,94 Q98,86 110,90 L106,150 Q98,152 94,152 C90,138 86,120 84,94 Z M156,94 Q142,86 130,90 L134,150 Q142,152 146,152 C150,138 154,120 156,94 Z" fill="${sky}" ${dcO(L, 1.2)}/>`;
+        t += `<path d="M88,110 Q92,130 96,146" stroke="#fff" stroke-width="2.4" opacity=".45" fill="none" stroke-linecap="round"/>`;
+        t += `<path d="M82,92 Q100,84 120,100 Q140,84 158,92 L152,108 Q136,104 124,118 L120,122 L116,118 Q104,104 88,108 Z" fill="${pink}" ${dcO(L, 1.2)}/>`;
+        t += `<path d="M86,96 Q102,90 118,104 M154,96 Q138,90 122,104" stroke="#fff39a" stroke-width="1.8" fill="none"/>`;
+        t += lolli(120, 118, 7);
+        [110, 130].forEach(x => { t += `<circle cx="${x}" cy="136" r="2.6" fill="${yel}" ${dcO(L, .5)}/><circle cx="${x}" cy="146" r="2.6" fill="${yel}" ${dcO(L, .5)}/>`; });
+        t += `<path d="M94,152 Q120,160 146,152 L146,157 Q120,165 94,157 Z" fill="${pur}" ${dcO(L, .8)}/>`;
+        out.push(['top', t]);
+        // --- アクセ：ミニシルクハット ---
+        let h = '';
+        h += `<g transform="rotate(-14 120 56)"><ellipse cx="120" cy="64" rx="30" ry="7" fill="${pur}" ${dcO(L, 1.1)}/><path d="M102,62 L104,30 Q120,24 136,30 L138,62 Q120,68 102,62 Z" fill="${pur}" ${dcO(L, 1.2)}/><path d="M103,52 Q120,57 137,52 L138,61 Q120,66 102,61 Z" fill="url(#${stripes})" ${dcO(L, .8)}/><ellipse cx="120" cy="30" rx="16" ry="4" fill="${k.lin('pt', ['#e6d0ff', '#a47aff'])}" ${dcO(L, .8)}/><path d="M108,34 Q106,44 108,50" stroke="#fff" stroke-width="2.4" opacity=".5" fill="none" stroke-linecap="round"/>` + dcStar(112, 44, 3.6, k.gold(), dcO('#b86e00', .4)) + dcStar(128, 40, 2.6, k.gold()) + `</g>`;
+        h += `<path d="M142,54 L156,26" stroke="#fff" stroke-width="2.2" ${''}/><path d="M142,54 L156,26" stroke="${L}" stroke-width=".5" fill="none"/>` + lolli(157, 23, 9);
+        h += k.bow(96, 62, 7, pink, L, '', true) + candy(84, 44, 2.6, '#1fd6b0') + dcSparkle(100, 20, 4, '#ffe066') + dcSparkle(176, 40, 3, '#fff');
+        out.push(['head', h]);
+        // --- シューズ：しましまソックス＋厚底スニーカー ---
+        const shoe = dir => { const x = 120 + dir * 24; return `<g transform="translate(${x} 0) scale(${dir} 1)">
+            <path d="M-8,270 L8,270 L9,318 L-9,318 Z" fill="url(#${hstripe})" ${dcO(L, 1)}/>
+            <path d="M-9,266 L9,266 L9,274 L-9,274 Z" fill="${mint}" ${dcO(L, .8)}/>
+            <path d="M-11,316 C-15,322 -18,332 -12,337 L18,337 C24,334 22,324 14,318 L10,313 L-9,313 Z" fill="${sky}" ${dcO(L, 1.2)}/>
+            <path d="M-4,316 L8,322 M-2,322 L10,316" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M-12,337 L20,337 Q23,338 22,342 L-13,342 Q-15,340 -12,337Z" fill="${pink}" ${dcO(L, .8)}/>
+            <path d="M-13,342 L22,342 Q22,346 20,348 L-12,348 Q-14,346 -13,342Z" fill="${yel}" ${dcO(L, .8)}/>
+            <path d="M-8,330 Q4,334 16,331" stroke="#fff" stroke-width="1.4" opacity=".7" fill="none"/>
+            </g>` + dcStar(x + dir * 12, 326, 4, k.gold(), dcO('#b86e00', .4)) + `<path d="M${x - dir * 10},318 l${-dir * 6},-4 l0,8 z" fill="#fff" ${dcO(L, .5)}/>`; };
+        out.push(['shoes', shoe(-1) + shoe(1)]);
+        return out;
+    } }
+    ];
 
     let dressUidSeq = 0;
     function dressSvg(c, part) {
         part = part || 'all';
-        const u = 'dr' + (++dressUidSeq) + '_';
-        const P = c.pal, W = '#ffffff';
-        const aL = dcMix(P.a, W, 0.5), aD = dcMix(P.a, '#2a0a20', 0.3), bD = dcMix(P.b, P.a, 0.35);
-        const rnd = dcRng(c.id + part);
-        const show = k => part === 'all' || part === k;
-        const defs = `<defs>
-            <linearGradient id="${u}ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${aL}"/><stop offset="0.55" stop-color="${P.a}"/><stop offset="1" stop-color="${aD}"/></linearGradient>
-            <linearGradient id="${u}gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${dcMix(P.b, W, 0.4)}"/><stop offset="1" stop-color="${bD}"/></linearGradient>
-            <linearGradient id="${u}gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6cf"/><stop offset="0.5" stop-color="#f2cf6b"/><stop offset="1" stop-color="#c38f25"/></linearGradient>
-            <radialGradient id="${u}gem" cx="0.35" cy="0.3" r="0.8"><stop offset="0" stop-color="${dcMix(P.g, W, 0.8)}"/><stop offset="0.45" stop-color="${P.g}"/><stop offset="1" stop-color="${dcMix(P.g, '#200018', 0.4)}"/></radialGradient>
-            <linearGradient id="${u}sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.5"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-            <pattern id="${u}pt" width="24" height="24" patternUnits="userSpaceOnUse">${dcMotif(c.motif === 'note' ? 'note' : c.motif, 6, 6, 3.2, P.c, 'opacity="0.6"')}${dcMotif('sparkle', 18, 18, 2.6, '#fff', 'opacity="0.8"')}</pattern>
-            <filter id="${u}sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="${aD}" flood-opacity="0.35"/></filter>
-        </defs>`;
-        let g = '';
-        // ---- ケープ（うしろ） ----
-        if (show('top') && c.sleeve === 'cape') {
-            g += `<path d="M78,92 C60,130 40,190 30,236 Q60,226 80,238 Q100,226 120,240 Q140,226 160,238 Q180,226 210,236 C200,190 180,130 162,92 Z" fill="${aL}" opacity="0.5"/>`;
-            g += `<path d="M30,236 Q60,226 80,238 Q100,226 120,240 Q140,226 160,238 Q180,226 210,236" stroke="url(#${u}gold)" stroke-width="2" fill="none"/>`;
-            for (let i = 0; i < 9; i++) g += dcMotif('sparkle', 45 + rnd() * 150, 130 + rnd() * 95, 2 + rnd() * 2.5, '#fff', 'opacity="0.9"');
-        }
-        // ---- スカート ----
-        if (show('bottom')) {
-            const layer = (hw, yh, fill, n, withPt) => {
-                const yAt = x => yh + 9 * (1 - Math.pow((x - 120) / hw, 2));
-                const top = 148;
-                const d = `M94,${top} C${120 - hw * 0.45},${top + (yh - top) * 0.3} ${120 - hw + 4},${yh - (yh - top) * 0.3} ${120 - hw},${yAt(120 - hw)}` + dcScallop(120 - hw, 120 + hw, yAt, n, 7) + ` C${120 + hw - 4},${yh - (yh - top) * 0.3} ${120 + hw * 0.45},${top + (yh - top) * 0.3} 146,${top} Z`;
-                let s = `<path d="${d}" fill="${fill}" filter="url(#${u}sh)"/>`;
-                if (withPt) s += `<path d="${d}" fill="url(#${u}pt)"/>`;
-                // ひだ
-                for (let i = 1; i < 6; i++) { const t = i / 6, xb = 120 - hw + hw * 2 * t; s += `<path d="M${(100 + 40 * t).toFixed(1)},${top + 6} Q${(110 + 20 * t + (xb - 120) * 0.5).toFixed(1)},${((top + yh) / 2).toFixed(1)} ${xb.toFixed(1)},${(yAt(xb) - 3).toFixed(1)}" stroke="${aD}" stroke-width="1.2" fill="none" opacity="0.18"/>`; }
-                // レースの縁取り
-                s += `<path d="M${120 - hw},${(yAt(120 - hw) - 3).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, x => yAt(x) - 3, n, 7) + `" stroke="#fff" stroke-width="2.2" fill="none" opacity="0.95"/>`;
-                s += `<path d="M${120 - hw},${(yAt(120 - hw) - 7).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, x => yAt(x) - 7, n * 2, 3) + `" stroke="url(#${u}gold)" stroke-width="1.2" fill="none"/>`;
-                s += `<path d="M${(120 - hw * 0.55).toFixed(1)},${top + 30} Q${(120 - hw * 0.7).toFixed(1)},${((top + yh) / 2 + 10).toFixed(1)} ${(120 - hw * 0.75).toFixed(1)},${yh - 8}" stroke="url(#${u}sheen)" stroke-width="7" fill="none" opacity="0.8" stroke-linecap="round"/>`;
-                return s;
-            };
-            const petti = (hw, yh, fill) => { const top = 150, yAt = x => yh + 7 * (1 - Math.pow((x - 120) / hw, 2)); return `<path d="M96,${top} C${120 - hw * 0.45},${top + (yh - top) * 0.3} ${120 - hw + 4},${yh - (yh - top) * 0.3} ${120 - hw},${yAt(120 - hw).toFixed(1)}` + dcScallop(120 - hw, 120 + hw, yAt, 16, 4) + ` C${120 + hw - 4},${yh - (yh - top) * 0.3} ${120 + hw * 0.45},${top + (yh - top) * 0.3} 144,${top} Z" fill="${fill}" stroke="${bD}" stroke-width="0.6"/>`; };
-            // プレミアムはチュールのトレーン
-            if (c.rarity === 'PR' && c.skirt !== 'bubble') {
-                const yAt = x => 286 + 8 * (1 - Math.pow((x - 120) / 114, 2));
-                g += `<path d="M100,160 C60,190 14,240 6,${yAt(6).toFixed(1)}` + dcScallop(6, 234, yAt, 12, 6) + ` C226,240 180,190 140,160 Z" fill="${aL}" opacity="0.45"/>`;
-                g += `<path d="M6,${(yAt(6) - 2).toFixed(1)}` + dcScallop(6, 234, x => yAt(x) - 2, 12, 6) + `" stroke="url(#${u}gold)" stroke-width="1.4" fill="none" opacity="0.9"/>`;
-                for (let i = 0; i < 12; i++) { const side = i % 2 ? 1 : -1, x = 120 + side * (80 + rnd() * 30); g += dcMotif(i % 3 ? 'sparkle' : c.motif, x, 200 + rnd() * 80, 2 + rnd() * 2.5, i % 3 ? '#fff' : `url(#${u}gold)`, 'opacity="0.95"'); }
-            }
-            if (c.skirt === 'ball') {
-                g += petti(96, 280, '#fff');
-                g += layer(94, 270, `url(#${u}ga)`, 9, true);
-                // パールのドレープ
-                [205, 238].forEach((yy, i) => { const hw = 40 + i * 18; g += dcPearls(dcQuad([120 - hw, yy - 12], [120, yy + 14], [120 + hw, yy - 12], 12 + i * 4), 2.2, '#fffaf2'); g += dcBow(120 - hw, yy - 12, 6, P.c === '#ffffff' ? P.b : P.c, aD, '#fff') + dcBow(120 + hw, yy - 12, 6, P.c === '#ffffff' ? P.b : P.c, aD, '#fff'); });
-            } else if (c.skirt === 'tier') {
-                g += petti(100, 282, '#fff');
-                g += layer(98, 272, `url(#${u}gb)`, 11, true);
-                g += layer(84, 244, `url(#${u}ga)`, 9, false);
-                g += layer(64, 208, `url(#${u}ga)`, 7, true);
-                g += dcBow(120 - 64, 206, 7, P.b, aD, P.a) + dcBow(120 + 64, 206, 7, P.b, aD, P.a);
-            } else if (c.skirt === 'over') {
-                g += petti(100, 282, '#fff');
-                g += layer(96, 272, `url(#${u}gb)`, 11, true);
-                // フロントの横フリル
-                [196, 222, 248].forEach((yy, i) => { const hw = 38 + i * 16; g += `<path d="M${120 - hw},${yy}` + dcScallop(120 - hw, 120 + hw, x => yy + 4 * (1 - Math.pow((x - 120) / hw, 2)), 6 + i * 2, 5) + `" stroke="#fff" stroke-width="3" fill="none"/><path d="M${120 - hw},${yy - 3}` + dcScallop(120 - hw, 120 + hw, x => yy - 3 + 4 * (1 - Math.pow((x - 120) / hw, 2)), 6 + i * 2, 5) + `" stroke="${P.a}" stroke-width="1" fill="none" opacity="0.6"/>`; });
-                // オーバースカート（左右に開く）
-                const panel = dir => { const sx = x => 120 + dir * (x - 120); return `<path d="M${sx(94)},148 C${sx(70)},180 ${sx(30)},230 ${sx(20)},270 Q${sx(34)},282 ${sx(50)},276 Q${sx(64)},284 ${sx(76)},272 C${sx(88)},236 ${sx(100)},196 ${sx(114)},152 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="M${sx(76)},272 C${sx(88)},236 ${sx(100)},196 ${sx(114)},152" stroke="url(#${u}gold)" stroke-width="2.4" fill="none"/><path d="M${sx(20)},270 Q${sx(34)},282 ${sx(50)},276 Q${sx(64)},284 ${sx(76)},272" stroke="url(#${u}gold)" stroke-width="2" fill="none"/><path d="M${sx(80)},168 Q${sx(56)},220 ${sx(42)},262" stroke="url(#${u}sheen)" stroke-width="8" fill="none" stroke-linecap="round"/>`; };
-                g += panel(-1) + panel(1);
-                for (let i = 0; i < 6; i++) { const t = (i + 0.5) / 6; g += dcMotif(c.motif, 40 + 12 * t + rnd() * 20, 190 + t * 70, 3 + rnd() * 1.5, P.c, 'opacity="0.75"') + dcMotif(c.motif, 200 - 12 * t - rnd() * 20, 190 + t * 70, 3 + rnd() * 1.5, P.c, 'opacity="0.75"'); }
-                g += dcGem(u, c.motif, 104, 166, 6) + dcGem(u, c.motif, 136, 166, 6);
-                g += dcPearls(dcQuad([104, 172], [98, 200], [106, 226], 8), 1.8, '#fffaf2') + dcPearls(dcQuad([136, 172], [142, 200], [134, 226], 8), 1.8, '#fffaf2');
-            } else { // bubble
-                g += petti(88, 244, '#fff') + petti(82, 236, P.b);
-                const d = `M94,148 C58,156 34,192 42,226` + dcScallop(42, 198, x => 226 + 8 * (1 - Math.pow((x - 120) / 78, 2)), 9, 7) + ` C206,192 182,156 146,148 Z`;
-                g += `<path d="${d}" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="${d}" fill="url(#${u}pt)"/>`;
-                g += `<path d="M42,222` + dcScallop(42, 198, x => 222 + 8 * (1 - Math.pow((x - 120) / 78, 2)), 9, 7) + `" stroke="#fff" stroke-width="2.4" fill="none"/>`;
-                g += `<path d="M70,172 Q56,196 58,214" stroke="url(#${u}sheen)" stroke-width="8" fill="none" stroke-linecap="round"/>`;
-                for (let i = 0; i < 5; i++) { const x = 64 + i * 28; g += `<path d="M${x},${160 + Math.abs(2 - i) * 4} Q${x + (x - 120) * 0.12},200 ${x + (x - 120) * 0.2},${226 + 8 * (1 - Math.pow((x - 120) / 78, 2))}" stroke="${aD}" stroke-width="1.2" fill="none" opacity="0.2"/>`; }
-                g += dcBow(64, 190, 7, P.c, aD, '#fff') + dcBow(176, 190, 7, P.c, aD, '#fff');
-                g += dcGem(u, c.motif, 64, 190, 3.2) + dcGem(u, c.motif, 176, 190, 3.2);
-            }
-        }
-        // ---- トップス ----
-        if (show('top')) {
-            const body = 'M80,94 Q90,82 104,86 Q114,89 120,98 Q126,89 136,86 Q150,82 160,94 Q154,125 146,152 Q120,162 94,152 Q86,125 80,94 Z';
-            // 袖（うしろ側）
-            if (c.sleeve === 'puff' || c.sleeve === 'cape') {
-                [-1, 1].forEach(dir => { const x = 120 + dir * 46; g += `<ellipse cx="${x}" cy="100" rx="16" ry="14" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`; for (let i = -1; i <= 1; i++) g += `<path d="M${x + i * 6},88 Q${x + i * 9},100 ${x + i * 6},112" stroke="${aD}" stroke-width="1" fill="none" opacity="0.3"/>`; g += `<path d="M${x - 14},110 Q${x},118 ${x + 14},110" stroke="url(#${u}gold)" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M${x - 13},114` + dcScallop(x - 13, x + 13, () => 114, 4, 3) + `" stroke="#fff" stroke-width="2" fill="none"/>`; g += `<ellipse cx="${x - dir * 5}" cy="95" rx="5" ry="3" fill="#fff" opacity="0.55"/>`; });
-            }
-            g += `<path d="${body}" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`;
-            g += `<path d="M112,104 L110,146 M128,104 L130,146" stroke="${aD}" stroke-width="1" opacity="0.25"/>`;
-            // コルセットの編み上げ
-            for (let i = 0; i < 4; i++) { const y = 112 + i * 9; g += `<path d="M114,${y} L126,${y + 7} M126,${y} L114,${y + 7}" stroke="${P.c === '#ffffff' ? P.g : P.c}" stroke-width="1.3" opacity="0.8"/>`; }
-            g += `<path d="M86,100 Q88,122 96,144" stroke="url(#${u}sheen)" stroke-width="6" fill="none" stroke-linecap="round"/>`;
-            // ネックラインのレースと金縁
-            const nl = dcQuad([80, 94], [90, 82], [104, 86], 5).concat(dcQuad([104, 86], [114, 89], [120, 98], 4).slice(1), dcQuad([120, 98], [126, 89], [136, 86], 4).slice(1), dcQuad([136, 86], [150, 82], [160, 94], 5).slice(1));
-            g += nl.map(p => `<circle cx="${p[0].toFixed(1)}" cy="${(p[1] + 1).toFixed(1)}" r="3.4" fill="#fff"/>`).join('');
-            g += `<path d="M80,94 Q90,82 104,86 Q114,89 120,98 Q126,89 136,86 Q150,82 160,94" stroke="url(#${u}gold)" stroke-width="1.8" fill="none"/>`;
-            // ウエストベルト
-            g += `<path d="M93,146 Q120,156 147,146 L146,154 Q120,164 94,154 Z" fill="url(#${u}gold)"/>`;
-            g += dcPearls(dcQuad([98, 151], [120, 160], [142, 151], 8), 1.5, '#fffaf2');
-            if (c.sleeve === 'off') {
-                [-1, 1].forEach(dir => { const sx = x => 120 + dir * (x - 120); g += `<path d="M${sx(82)},96 Q${sx(66)},96 ${sx(54)},104 L${sx(58)},118 Q${sx(70)},112 ${sx(86)},114 Z" fill="${P.b}" stroke="${bD}" stroke-width="0.6"/><path d="M${sx(54)},104 Q${sx(62)},122 ${sx(58)},118 Q${sx(66)},126 ${sx(70)},116 Q${sx(76)},124 ${sx(80)},116 Q${sx(86)},122 ${sx(86)},114" fill="#fff" stroke="${bD}" stroke-width="0.6"/>`; g += dcBow(sx(70), 106, 4.5, P.a, aD, '#fff'); });
-            }
-            if (c.sleeve === 'cape') [-1, 1].forEach(dir => { g += dcMotif('star', 120 + dir * 42, 90, 5, `url(#${u}gold)`); });
-            if (c.chest === 'bow') { g += dcBow(120, 104, 11, P.c === '#ffffff' ? P.g : P.c, aD, '#fff') + dcGem(u, c.motif, 120, 104, 4.2); }
-            else { g += dcPearls(dcQuad([100, 100], [120, 118], [140, 100], 9), 1.8, '#fffaf2') + dcGem(u, c.motif, 120, 112, 8); g += dcMotif('diamond', 120, 128, 3, `url(#${u}gem)`); }
-        }
-        // ---- アクセ（頭） ----
-        if (show('head')) {
-            const hy = 44;
-            if (c.head === 'tiara') {
-                g += `<path d="M78,${hy + 18} Q120,${hy - 2} 162,${hy + 18} L160,${hy + 24} Q120,${hy + 6} 80,${hy + 24} Z" fill="url(#${u}gold)" filter="url(#${u}sh)"/>`;
-                [[-30, 10], [-15, 18], [0, 28], [15, 18], [30, 10]].forEach(([dx, h]) => { const x = 120 + dx, by = hy + 8 + Math.abs(dx) * 0.2; g += `<path d="M${x - 6},${by + 4} Q${x - 2},${by - h * 0.5} ${x},${by - h} Q${x + 2},${by - h * 0.5} ${x + 6},${by + 4} Z" fill="url(#${u}gold)"/>`; g += dcPearls([[x, by - h]], 2.2, '#fffaf2'); });
-                g += dcGem(u, c.motif, 120, hy + 4, 7) + dcGem(u, 'diamond', 100, hy + 10, 3.5) + dcGem(u, 'diamond', 140, hy + 10, 3.5);
-                g += dcPearls(dcQuad([84, hy + 21], [120, hy + 6], [156, hy + 21], 10), 1.4, '#fffaf2');
-            } else if (c.head === 'crown') {
-                const b = hy + 22;
-                g += `<path d="M92,${b} L88,${hy - 6} L104,${hy + 8} L120,${hy - 14} L136,${hy + 8} L152,${hy - 6} L148,${b} Z" fill="url(#${u}gold)" filter="url(#${u}sh)"/>`;
-                g += `<path d="M96,${b - 4} L94,${hy + 4} L106,${hy + 14} L120,${hy - 2} L134,${hy + 14} L146,${hy + 4} L144,${b - 4} Z" fill="${P.a}" opacity="0.55"/>`;
-                g += `<rect x="90" y="${b - 6}" width="60" height="9" rx="4" fill="url(#${u}gold)"/>` + dcPearls([92, 100, 108, 116, 124, 132, 140, 148].map(x => [x, b - 1.5]), 1.8, '#fffaf2');
-                g += dcPearls([[88, hy - 8], [120, hy - 17], [152, hy - 8]], 3, '#fffaf2');
-                g += dcGem(u, c.motif, 120, hy + 10, 8) + dcGem(u, 'diamond', 101, hy + 16, 3.6) + dcGem(u, 'diamond', 139, hy + 16, 3.6);
-                g += dcBow(150, b + 2, 6, P.b, aD, P.a);
-            } else if (c.head === 'ribbon') {
-                g += dcBow(120, hy + 6, 22, `url(#${u}ga)`, aD, '#fff');
-                g += `<path d="M96,${hy - 2} Q86,${hy + 4} 92,${hy + 12}" stroke="url(#${u}sheen)" stroke-width="4" fill="none"/>`;
-                for (let i = 0; i < 6; i++) g += dcMotif(c.motif, 90 + rnd() * 60, hy - 6 + rnd() * 18, 2.2, P.c === '#ffffff' ? P.b : P.c, 'opacity="0.85"');
-                g += dcGem(u, c.motif, 120, hy + 6, 7.5);
-            } else if (c.head === 'hat') {
-                g += `<g transform="rotate(-12 120 ${hy + 10})"><ellipse cx="120" cy="${hy + 22}" rx="34" ry="8" fill="${P.b}" filter="url(#${u}sh)"/><path d="M100,${hy + 20} L102,${hy - 8} Q120,${hy - 14} 138,${hy - 8} L140,${hy + 20} Q120,${hy + 26} 100,${hy + 20} Z" fill="${dcMix(P.b, '#ffffff', 0.08)}"/><path d="M101,${hy + 10} Q120,${hy + 16} 139,${hy + 10} L140,${hy + 18} Q120,${hy + 24} 100,${hy + 18} Z" fill="url(#${u}ga)"/>`;
-                g += `<path d="M86,${hy + 22} Q120,${hy + 50} 154,${hy + 22}" fill="none" stroke="#fff" stroke-width="0.6" opacity="0.6"/><path d="M86,${hy + 22} Q120,${hy + 54} 154,${hy + 22} Z" fill="${P.b}" opacity="0.25"/>`;
-                g += `<path d="M138,${hy + 12} C150,${hy - 20} 164,${hy - 26} 170,${hy - 30} C160,${hy - 12} 152,${hy} 140,${hy + 14} Z" fill="${aL}"/><path d="M140,${hy + 12} C150,${hy - 10} 160,${hy - 20} 170,${hy - 30}" stroke="${aD}" stroke-width="0.8" fill="none"/>`;
-                g += dcMotif('rose', 134, hy + 14, 6, P.a) + dcGem(u, 'diamond', 120, hy + 14, 3.6) + `</g>`;
-                g += dcPearls(dcQuad([100, hy + 40], [120, hy + 50], [140, hy + 40], 7), 1.3, '#fffaf2');
-            } else { // flower
-                [[-20, 6, 9], [0, 0, 12], [20, 6, 9], [-8, 16, 7], [10, 16, 7]].forEach(([dx, dy, s], i) => { g += dcMotif('rose', 120 + dx, hy + dy, s, i % 2 ? aL : P.a, `filter="url(#${u}sh)"`); });
-                g += `<path d="M90,${hy + 12} Q80,${hy + 4} 78,${hy + 16} Q86,${hy + 20} 94,${hy + 14}Z M150,${hy + 12} Q160,${hy + 4} 162,${hy + 16} Q154,${hy + 20} 146,${hy + 14}Z" fill="#8fcf9a"/>`;
-                g += dcPearls([[108, hy - 6], [132, hy - 6], [120, hy + 24], [96, hy + 20], [144, hy + 20]], 2.4, '#fffaf2') + dcGem(u, c.motif, 120, hy, 4);
-            }
-        }
-        // ---- シューズ ----
-        if (show('shoes')) {
-            const boot = c.shoes === 'boot';
-            const shoe = (tx, dir) => {
-                let s = `<g transform="translate(${tx},338) scale(${dir},1)">`;
-                s += `<path d="M1,-26 L8,-14 L6,0 L3,0 Z" fill="url(#${u}gold)"/>`;
-                if (boot) s += `<path d="M0,-66 L24,-66 C24,-44 25,-26 34,-16 C42,-10 50,-9 54,-5 C56,-1 53,1 48,1 L24,1 C16,-6 8,-12 3,-14 C1,-30 0,-50 0,-66 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/>`;
-                else s += `<path d="M0,-30 C8,-28 22,-22 32,-15 C40,-10 50,-9 54,-5 C56,-1 53,1 48,1 L24,1 C16,-6 8,-12 3,-14 Z" fill="url(#${u}ga)" filter="url(#${u}sh)"/><path d="M0,-30 C4,-22 14,-17 26,-18" stroke="#fff" stroke-width="2.4" fill="none" opacity="0.9"/>`;
-                s += `<path d="M24,1 L48,1 C53,1 56,-1 54,-5" stroke="url(#${u}gold)" stroke-width="1.8" fill="none"/>`;
-                if (boot) { s += `<path d="M-1,-66` + dcScallop(-1, 25, () => -64, 4, 4) + `" stroke="#fff" stroke-width="3" fill="none"/><path d="M-1,-60 L25,-60" stroke="url(#${u}gold)" stroke-width="2"/>`; for (let i = 0; i < 4; i++) s += `<path d="M6,${-52 + i * 8} L20,${-48 + i * 8} M20,${-52 + i * 8} L6,${-48 + i * 8}" stroke="${P.c === '#ffffff' ? P.g : P.c}" stroke-width="1.2"/>`; s += dcBow(12, -58, 5, P.b, aD, P.a); }
-                else s += dcBow(4, -26, 5, P.c === '#ffffff' ? P.b : P.c, aD, '#fff');
-                s += dcGem(u, c.motif, 36, -10, 4);
-                s += `<path d="M30,-12 Q40,-8 48,-6" stroke="#fff" stroke-width="1.6" opacity="0.6" fill="none"/>`;
-                return s + `</g>`;
-            };
-            g += shoe(112, -1) + shoe(128, 1);
-        }
-        // キラキラ
-        if (part === 'all') for (let i = 0; i < 10; i++) g += dcMotif('sparkle', 20 + rnd() * 200, 20 + rnd() * 320, 2 + rnd() * 4, i % 3 ? '#fff' : '#ffe59a', 'opacity="0.95"');
-        const vb = { all: '0 0 240 350', head: '66 4 108 92', top: '40 70 160 100', bottom: '10 140 220 150', shoes: '48 256 144 92' }[part];
-        return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="dress-svg">${defs}${g}</svg>`;
+        const k = dcCtx('dr' + (++dressUidSeq) + '_');
+        const layers = c.draw(k, dcRng(c.id));
+        let g = layers.filter(([p]) => part === 'all' || p === part).map(([, s]) => s).join('');
+        if (part === 'all') { const r = dcRng(c.id + 'sp'); for (let i = 0; i < 12; i++) g += dcSparkle(14 + r() * 212, 14 + r() * 320, 2 + r() * 4, i % 3 ? '#fff' : '#ffe59a', .95); }
+        const vb = { all: '0 0 240 350', head: '64 4 112 96', top: '36 66 168 104', bottom: '0 136 240 170', shoes: '60 258 120 94' }[part];
+        return `<svg viewBox="${vb}" xmlns="http://www.w3.org/2000/svg" class="dress-svg"><defs>${k.defs.join('')}</defs>${g}</svg>`;
     }
 
     let dressTab = 'book';
