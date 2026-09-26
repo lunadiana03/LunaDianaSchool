@@ -899,9 +899,11 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .my-call summary::-webkit-details-marker { display:none; }
 .my-call summary .mi { color:#ffb347; }
 .my-call summary span { margin-left:auto; font-weight:500; font-size:.9em; color:var(--ak-mag); max-width:60%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.my-call-body { display:flex; gap:6px; margin-top:6px; }
-.my-call-body input { flex:1; margin:0; }
-.my-call-body button { width:auto; margin:0; padding:6px 14px; font-size:.85em; }
+.my-call-body { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
+.my-call-row { display:flex; align-items:center; gap:6px; }
+.my-call-row .mc-nm { flex:none; width:5.5em; font-size:.8em; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.my-call-row input { flex:1; margin:0; }
+.my-call-body button { align-self:flex-end; width:auto; margin:0; padding:6px 18px; font-size:.85em; }
 .my-call-note { font-size:.72em; color:#9a6a82; margin-top:4px; }
 .lv-unit { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; max-width:130px; }
 .lv-icon.mini { width:46px; height:46px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--pc), 0 0 14px var(--pc); }
@@ -2878,8 +2880,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     const LIVE_CALL_OFFSETS = [15, 35, 55];   // 出番が始まってから「コール！」が出るまでの秒数
     const LIVE_CALL_WINDOW = 5;               // コールできる秒数
     const LIVE_CALL_TEMPLATES = ['かわいいー！', '最高ー！', 'L・O・V・E！', 'ハイ！ハイ！', 'フッフー！', 'こっち向いてー！', '天才！', '世界一！', 'アンコール！', 'ありがとー！'];
-    function liveMyCall() { try { return localStorage.getItem('live_my_call') || ''; } catch (e) { return ''; } }
-    function saveMyCall() { const el = document.getElementById('my-call-in'); if (!el) return; const v = el.value.trim().slice(0, 20); try { localStorage.setItem('live_my_call', v); } catch (e) {} el.value = v; const n = document.getElementById('my-call-note'); if (n) { n.textContent = v ? '保存しました！コールタイムに出ます' : '消しました'; } }
+    // マイコールは出演者ごと（この端末に保存）
+    function liveMyCalls() { try { return JSON.parse(localStorage.getItem('live_my_calls') || '{}') || {}; } catch (e) { return {}; } }
+    function liveMyCall(pid) { return liveMyCalls()[pid] || ''; }
+    function saveMyCalls() {
+        const map = liveMyCalls();
+        document.querySelectorAll('.my-call-in').forEach(el => { const v = el.value.trim().slice(0, 20); el.value = v; if (v) map[el.dataset.pid] = v; else delete map[el.dataset.pid]; });
+        try { localStorage.setItem('live_my_calls', JSON.stringify(map)); } catch (e) {}
+        const n = document.getElementById('my-call-note'); if (n) n.textContent = '保存しました！その子のコールタイムに出ます';
+        liveBodyHtml = ''; setTimeout(renderLiveView, 1500); // 少ししてから表示を更新
+    }
     const LIVE_SCORE = { vote: 20, cheer: 1, call: 3, statMax: 60 };
     const LIVE_REWARD = { appear: 20, rank: [100, 60, 40], audience: 5 };
     const LIVE_GENRES = { vo: { label: 'Vo曲', c: '#ff5c7a' }, pl: { label: 'Pl曲', c: '#339af0' }, da: { label: 'Da曲', c: '#e09600' }, vi: { label: 'Vi曲', c: '#9061f9' } };
@@ -3324,7 +3334,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     }
     // コールの候補：自分で決めたコール → 名前コール → テンプレート（コールごとに変わる）
     function liveCallChoices(cur, no) {
-        const out = [], mine = liveMyCall();
+        const out = [], mine = liveMyCall(cur.id);
         if (mine) out.push(mine);
         out.push(cur.name.replace(/\s+/g, '').slice(0, 12) + 'ー！');
         const seed = (state.live.stageStart || 0) / 1000 + no * 7;
@@ -3346,8 +3356,12 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
 
     let liveBodyHtml = '';
     // 自分のコール（この端末に保存。コールタイムにボタンで出る）
-    function myCallHtml() {
-        return `<details class="my-call"${liveMyCall() ? '' : ' open'}><summary>${mi('campaign')}マイコール<span>${liveMyCall() ? escapeHtml(liveMyCall()) : '未設定'}</span></summary><div class="my-call-body"><input type="text" id="my-call-in" maxlength="20" placeholder="例）あいりちゃん最高ー！" value="${escapeHtml(liveMyCall())}"><button type="button" onclick="saveMyCall()">保存</button></div><div class="my-call-note" id="my-call-note">コールタイムに、自分で決めた言葉で叫べます（20文字まで）</div></details>`;
+    function myCallHtml(perfs, single) {
+        if (!perfs.length) return '';
+        const set = perfs.filter(p => liveMyCall(p.id)).length;
+        const summary = single ? (liveMyCall(perfs[0].id) ? escapeHtml(liveMyCall(perfs[0].id)) : '未設定') : `${set}/${perfs.length}人 設定済み`;
+        const rows = perfs.map(p => `<div class="my-call-row">${single ? '' : `<span class="mc-nm">${escapeHtml(p.name)}</span>`}<input type="text" class="my-call-in" data-pid="${p.id}" maxlength="20" placeholder="例）${escapeHtml(p.name.slice(0, 8))}ちゃん最高ー！" value="${escapeHtml(liveMyCall(p.id))}"></div>`).join('');
+        return `<details class="my-call"${single && !liveMyCall(perfs[0].id) ? ' open' : ''}><summary>${mi('campaign')}${single ? `${escapeHtml(perfs[0].name)}へのマイコール` : 'マイコール（出演者ごと）'}<span>${summary}</span></summary><div class="my-call-body">${rows}<button type="button" onclick="saveMyCalls()">保存</button></div><div class="my-call-note" id="my-call-note">その子のコールタイムに、自分で決めた言葉で叫べます（20文字まで）</div></details>`;
     }
     function renderLiveView() {
         const body = document.getElementById('live-body');
@@ -3369,7 +3383,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 html += `<div class="lv-line-row"><span class="lv-line-no">${i + 1}</span><div class="lv-line-main"><div class="lv-line-nm">${escapeHtml(p.name)}</div>${stageCardHtml(p, true)}</div>${can ? `<button type="button" class="lv-card-btn" onclick="openStageCard('${p.id}')">${mi('edit_note')}${p.card && p.card.song ? 'カードを直す' : 'カードを書く'}</button>` : ''}</div>`;
             });
             html += `</div>`;
-            if (me) html += myCallHtml();
+            if (me) html += myCallHtml(lv.performers.filter(p => !liveIsMine(p, me)), false);
         } else if (lv.status === 'live' && lv.performers[lv.currentIndex]) {
             const cur = lv.performers[lv.currentIndex];
             html += stageCardHtml(cur);
@@ -3380,7 +3394,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
                 html += `<button class="live-cheer-btn" onclick="liveCheer()" ${left ? '' : 'disabled'}>${mi('favorite')}${left ? `応援する！<span class="lv-left">あと${left}回</span>` : '応援しきった！ありがとう'}</button>`;
             }
             html += `<div class="live-queue">` + lv.performers.map((p, i) => `<div class="live-queue-item${i < lv.currentIndex ? ' done' : ''}${i === lv.currentIndex ? ' current' : ''}">${getIconHtml(p.icon, '1.2em')} ${escapeHtml(p.name)}</div>`).join('') + `</div>`;
-            if (me && !liveIsMine(cur, me)) html += myCallHtml();
+            if (me && !liveIsMine(cur, me)) html += myCallHtml([cur], true);
         } else if (lv.status === 'voting') {
             html += `<div class="lv-sub">${mi('how_to_vote')}いちばん良かったステージに投票してね</div>`;
             const voted = (lv.voters || []).includes(me ? me.id : '');
@@ -3410,7 +3424,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
         // 内容が同じなら描き直さない（数秒ごとの更新で画面が動かないように）。マイコール入力中も描き直さない
         if (html === liveBodyHtml && body.childElementCount) return;
-        if (document.activeElement && document.activeElement.id === 'my-call-in') return;
+        if (document.activeElement && document.activeElement.classList.contains('my-call-in')) return;
         liveBodyHtml = html;
         const y = window.scrollY;
         body.innerHTML = html;
