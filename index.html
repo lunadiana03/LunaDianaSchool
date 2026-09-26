@@ -2014,7 +2014,7 @@ html { -webkit-tap-highlight-color: transparent; }
         if (data.musicDesc !== undefined) { state.musicDesc = data.musicDesc; const md = document.getElementById('music-desc'); if (md) md.innerText = state.musicDesc; const amd = document.getElementById('admin-music-desc'); if (amd) amd.value = state.musicDesc; }
         if (data.kintoreTiers) { state.kintoreTiers = data.kintoreTiers; }
         if (data.kintoreDesc !== undefined) { state.kintoreDesc = data.kintoreDesc; const kd = document.getElementById('kintore-desc'); if (kd) kd.innerText = state.kintoreDesc; const akd = document.getElementById('admin-kintore-desc'); if (akd) akd.value = state.kintoreDesc; }
-        if (data.live) { state.live = data.live; }
+        if (data.live && liveIsNewer(data.live)) { state.live = data.live; }
     }
   checkReset(); updateUI(); updateLoginBoxUI(); updateBbsDisplay(); initForm(); updatePreviewTableAll(); refreshLiveBannerVisibility(); refreshClimbGateUI(); refreshRunGateUI(); refreshMusicGateUI(); refreshKintoreGateUI(); renderMascotPage(); render();
             } catch(e) { console.error(e); document.getElementById('loading').style.display = 'none'; alert('データの読み込みでエラーが発生しました。'); }
@@ -3087,7 +3087,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         loadYtApi(() => {
             if (lvYt.key !== key) return;
             const start = Math.max(0, Math.floor((liveNow() - (lv.stageStart || liveNow())) / 1000));
-            lvYt.player = new YT.Player('lv-yt-player', { videoId: vid, width: '100%', height: '100%', playerVars: { autoplay: 1, mute: 1, controls: 0, playsinline: 1, start: start, rel: 0, loop: 1, playlist: vid, disablekb: 1, fs: 0, iv_load_policy: 3 }, events: { onReady: e => { try { e.target.mute(); e.target.playVideo(); } catch (err) {} } } });
+            lvYt.player = new YT.Player('lv-yt-player', { videoId: vid, width: '100%', height: '100%', playerVars: { autoplay: 1, mute: 1, controls: 0, playsinline: 1, start: start, rel: 0, loop: 1, playlist: vid, disablekb: 1, fs: 0, iv_load_policy: 3 }, events: { onReady: e => { try { const f = e.target.getIframe(); f.setAttribute('tabindex', '-1'); f.setAttribute('aria-hidden', 'true'); const y = window.scrollY; e.target.mute(); e.target.playVideo(); if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); } catch (err) {} } } });
         });
     }
     function toggleLiveYtSound() {
@@ -3275,6 +3275,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         liveCallTick();
     }
 
+    let liveBodyHtml = '';
     function renderLiveView() {
         const body = document.getElementById('live-body');
         if (!body) return;
@@ -3283,7 +3284,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         liveProgressSfx(lv);
         updateLiveStage(lv);
         if (!lv.performers || lv.performers.length === 0) {
-            body.innerHTML = '<div style="padding:20px;">準備中です…</div>';
+            body.innerHTML = '<div style="padding:20px;">準備中です…</div>'; liveBodyHtml = '';
             return;
         }
         const me = liveMe();
@@ -3332,8 +3333,13 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             }
             html += `</div>`;
         }
+        // 内容が同じなら描き直さない（数秒ごとの更新で画面が動かないように）
+        if (html === liveBodyHtml && body.childElementCount) return;
+        liveBodyHtml = html;
+        const y = window.scrollY;
         body.innerHTML = html;
         if (lv.status === 'result') { renderLiveResultReveal(); }
+        if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y);
     }
     // 結果発表の演出は1回だけ。以降の自動更新では結果をそのまま表示する
     let liveRevealKey = '';
