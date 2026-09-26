@@ -672,6 +672,21 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .bonus-tag { padding:3px 12px; border-radius:999px; font-size:.8em; font-weight:700; color:#fff; animation: ak-pop .5s cubic-bezier(.34,1.56,.64,1) both; }
 .bonus-tag.pickup { background:linear-gradient(180deg, #ffb347, #ff6f3c); }
 .bonus-tag.fortune { background:linear-gradient(180deg, #c9a0ff, #8a4dff); animation-delay:.15s; }
+.gain-chip.wp { background:#fff3c4; color:#b8860b; }
+.gd-wp { display:inline-flex; align-items:center; gap:2px; margin-right:10px; color:#b8860b; }
+.grant-wp { display:flex; align-items:center; gap:6px; margin-top:8px; font-weight:700; color:#b8860b; font-size:.88em; }
+.grant-wp input { flex:1; margin:0; }
+.home-cell.home-wp { grid-column:1 / -1; display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto auto; align-items:center; column-gap:10px; text-align:left; background:linear-gradient(135deg, #fffaf0, #fff3d0); border-color:#ffd98a; }
+.wp-coin { grid-row:1 / 3; width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, #ffe89a, #f5b400); color:#fff; box-shadow:0 0 0 2px #fff, 0 0 0 4px #f5c64a, 0 3px 8px rgba(245,180,0,.4); }
+.wp-coin .mi { font-size:28px; }
+.wp-main { display:flex; align-items:baseline; justify-content:space-between; gap:6px; }
+.wp-main b { font-size:.85em; color:#8a5a00; }
+.wp-num { font-family:'Mochiy Pop One', sans-serif; font-size:1.5em; color:#d48f00; }
+.wp-num small { font-size:.55em; margin-left:2px; }
+.wp-daily { font-size:.75em; color:#9a7a3a; }
+.wp-daily b { color:#d48f00; }
+.work-toast { position:fixed; left:50%; top:18px; z-index:100001; transform:translateX(-50%); display:flex; align-items:center; gap:6px; padding:10px 18px; border-radius:999px; background:linear-gradient(180deg, #fff7d6, #ffd86b); color:#8a5a00; font-weight:700; font-size:.9em; box-shadow:0 0 0 2px #f0a93a, 0 6px 16px rgba(0,0,0,.18); animation: work-toast 3.6s ease forwards; white-space:nowrap; }
+@keyframes work-toast { 0% { opacity:0; transform:translate(-50%, -20px) scale(.9); } 10% { opacity:1; transform:translate(-50%, 0) scale(1); } 85% { opacity:1; } 100% { opacity:0; transform:translate(-50%, -10px); } }
 .gain-date { flex:none; color:#c79ab4; font-size:.9em; width:3.2em; }
 .gain-src { flex:1; min-width:0; font-weight:700; color:var(--ak-ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .gain-chips { flex:none; display:flex; gap:3px; }
@@ -1070,7 +1085,8 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .member-admin { margin-top:16px; padding:12px; border-radius:16px; background:#fff7fb; border:2px dashed #ffb3d9; }
 .member-admin-title { font-weight:700; color:var(--ak-mag); margin-bottom:6px; }
 .member-admin-sub { font-size:.78em; color:#a08a96; margin-bottom:4px; }
-.member-admin-pts { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+.member-admin-pts { display:grid; grid-template-columns:repeat(5,1fr); gap:5px; }
+.member-admin-pt.wp { background:#fff8e0; color:#d48f00; }
 .member-admin-pt { display:flex; flex-direction:column; align-items:center; gap:0; padding:6px 2px; margin:0; border-radius:14px; box-shadow:0 0 0 1.5px currentColor; }
 .member-admin-pt.vo { background:#fff0f3; color:#ff5c7a; } .member-admin-pt.pl { background:#eef6ff; color:#339af0; } .member-admin-pt.da { background:#fff8e6; color:#e09600; } .member-admin-pt.vi { background:#f4efff; color:#9061f9; }
 .member-admin-pt .lbl { font-size:.75em; } .member-admin-pt .val { font-size:1.25em; } .member-admin-pt .chg { font-size:.7em; opacity:.7; }
@@ -2231,6 +2247,24 @@ document.addEventListener('change', function(e) {
     }
     function todayLabel() { const d = new Date(); return (d.getMonth() + 1) + '/' + d.getDate(); }
     // ポイントを加算して履歴に残す（source は「崖登り」「イベント参加」など）
+    // ===== お仕事ポイント（P）：交換などに使う予定の通貨 =====
+    const WORK_DAILY_LESSONS = 10; // 1日にこの回数レッスンしたら +1P（崖登りは数えない）
+    const WORK_LIVE = { perform: 10, audience: 3 };
+    function checkDailyWorkBonus(m) {
+        const day = gameDayLabel();
+        if ((m.r || 0) < WORK_DAILY_LESSONS) return;
+        m.pointLog = parsePointLog(m.pointLog);
+        if (m.pointLog.some(x => x.dw === day)) return;
+        m.wp = (m.wp || 0) + 1;
+        m.pointLog.unshift({ d: todayLabel(), s: `デイリーボーナス（${WORK_DAILY_LESSONS}レッスン）`, wp: 1, dw: day });
+        if (m.pointLog.length > POINT_LOG_MAX) m.pointLog.length = POINT_LOG_MAX;
+        setTimeout(() => showWorkToast(`${WORK_DAILY_LESSONS}レッスン達成！お仕事ポイント +1P`), 1200);
+    }
+    function showWorkToast(text) {
+        const t = document.createElement('div'); t.className = 'work-toast'; t.innerHTML = `${mi('paid')}${escapeHtml(text)}`;
+        document.body.appendChild(t); setTimeout(() => t.remove(), 3600);
+        if (typeof LiveBGM !== 'undefined') LiveBGM.sfx('reveal');
+    }
     // ===== レッスンのボーナス（占い・今日のおすすめ） =====
     const FORTUNE_BONUS = 10;          // 占いのラッキー組がレッスンを受けたときに足す値
     const PICKUP_RATE = 1.5, PICKUP_MAX = 3; // 今日のおすすめレッスンは1日3回まで1.5倍（崖登りは対象外）
@@ -2258,12 +2292,14 @@ document.addEventListener('change', function(e) {
     }
     function addPointsWithLog(m, earned, source, fromAdmin, lessonKey) {
         let bonus = null;
-        if (lessonKey) { bonus = applyLessonBonus(m, earned, lessonKey); lastLessonBonus = bonus; }
-        const e = { vo: earned.vo || 0, pl: earned.pl || 0, da: earned.da || 0, vi: earned.vi || 0 };
+        if (lessonKey) { bonus = applyLessonBonus(m, earned, lessonKey); lastLessonBonus = bonus; checkDailyWorkBonus(m); }
+        const e = { vo: earned.vo || 0, pl: earned.pl || 0, da: earned.da || 0, vi: earned.vi || 0, wp: earned.wp || 0 };
         ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = (m.p[k] || 0) + e[k]; });
-        if (!e.vo && !e.pl && !e.da && !e.vi) return;
+        if (e.wp) m.wp = Math.max(0, (m.wp || 0) + e.wp);
+        if (!e.vo && !e.pl && !e.da && !e.vi && !e.wp) return;
         m.pointLog = parsePointLog(m.pointLog);
         const entry = { d: todayLabel(), s: String(source || '').slice(0, 60), vo: e.vo, pl: e.pl, da: e.da, vi: e.vi };
+        if (e.wp) entry.wp = e.wp;
         if (fromAdmin) entry.n = 1; // 本人がまだ見ていない印（次のログインで「お仕事お疲れ様でした」を出す）
         if (bonus && bonus.pickup) entry.b = gameDayLabel(); // おすすめ1.5倍を使った日
         if (bonus && bonus.fortune) entry.f = 1;
@@ -2274,7 +2310,7 @@ document.addEventListener('change', function(e) {
         const log = parsePointLog(m.pointLog);
         if (!log.length) return '';
         const row = (x, i) => {
-            const chips = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('');
+            const chips = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi'],['wp','P']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('');
             return `<div class="gain-row tap" onclick="openGainDetail('${m.id}', ${i})"><span class="gain-date">${escapeHtml(x.d)}</span><span class="gain-src">${escapeHtml(x.s)}</span><span class="gain-chips">${chips}</span></div>`;
         };
         const rows = log.map(row).join('');
@@ -2292,7 +2328,7 @@ document.addEventListener('change', function(e) {
         const total = (x.vo || 0) + (x.pl || 0) + (x.da || 0) + (x.vi || 0);
         let h = `<div class="gd-date">${escapeHtml(m.name)} ・ ${escapeHtml(x.d)}</div><div class="gd-src">${escapeHtml(x.s)}</div>`;
         h += `<div class="gd-stats">${labels.map(([k, l]) => `<div class="gd-stat ${k}${x[k] ? '' : ' zero'}"><span>${l}</span><span class="n">+${x[k] || 0}</span></div>`).join('')}</div>`;
-        h += `<div class="gd-total">合計 +${total}</div>`;
+        h += `<div class="gd-total">${x.wp ? `<span class="gd-wp">${mi('paid')}お仕事P +${x.wp}</span>` : ''}合計 +${total}</div>`;
         if (state.isAdmin) h += `<div class="gd-admin"><div class="ttl">${mi('admin_panel_settings')}管理者：この記録を消す</div><button type="button" onclick="deleteGainEntry(true)" style="background:#e5484d; box-shadow:0 3px 0 #b8383c;">${mi('undo')}ポイントも差し引いて消す</button><button type="button" onclick="deleteGainEntry(false)" style="background:#fff; color:#e5484d; box-shadow:0 0 0 1.5px #ffb3b8;">${mi('delete')}記録だけ消す（ポイントはそのまま）</button></div>`;
         document.getElementById('gain-detail').innerHTML = h;
         document.getElementById('gain-modal').classList.add('open');
@@ -2307,9 +2343,9 @@ document.addEventListener('change', function(e) {
         if (!log[i] || JSON.stringify(log[i]) !== gainDetailRef.key) i = log.findIndex(x => JSON.stringify(x) === gainDetailRef.key);
         if (i < 0) { alert('この記録が見つかりませんでした'); closeGainDetail(); return; }
         const x = log[i];
-        const msg = revert ? `「${x.s}」の記録を消して、${m.name} のポイントから Vo-${x.vo || 0} Pl-${x.pl || 0} Da-${x.da || 0} Vi-${x.vi || 0} を差し引きますか？` : `「${x.s}」の記録だけを消しますか？（ポイントはそのままです）`;
+        const msg = revert ? `「${x.s}」の記録を消して、${m.name} のポイントから Vo-${x.vo || 0} Pl-${x.pl || 0} Da-${x.da || 0} Vi-${x.vi || 0}${x.wp ? ` お仕事P-${x.wp}` : ''} を差し引きますか？` : `「${x.s}」の記録だけを消しますか？（ポイントはそのままです）`;
         if (!confirm(msg)) return;
-        if (revert) ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = Math.max(0, (m.p[k] || 0) - (x[k] || 0)); });
+        if (revert) { ['vo', 'pl', 'da', 'vi'].forEach(k => { m.p[k] = Math.max(0, (m.p[k] || 0) - (x[k] || 0)); }); if (x.wp) m.wp = Math.max(0, (m.wp || 0) - x.wp); }
         log.splice(i, 1);
         m.pointLog = log;
         closeGainDetail();
@@ -2322,7 +2358,7 @@ document.addEventListener('change', function(e) {
         const modal = document.getElementById('grant-modal');
         modal.dataset.id = id;
         document.getElementById('grant-name').innerText = m.name;
-        ['grant-src', 'grant-vo', 'grant-pl', 'grant-da', 'grant-vi'].forEach(x => { document.getElementById(x).value = ''; });
+        ['grant-src', 'grant-vo', 'grant-pl', 'grant-da', 'grant-vi', 'grant-wp'].forEach(x => { document.getElementById(x).value = ''; });
         modal.classList.add('open');
         setTimeout(() => document.getElementById('grant-src').focus(), 50);
     }
@@ -2332,9 +2368,9 @@ document.addEventListener('change', function(e) {
         const m = state.members.find(x => x.id === document.getElementById('grant-modal').dataset.id); if (!m) return;
         const src = document.getElementById('grant-src').value.trim();
         if (!src) { alert('何による獲得かを入力してください'); return; }
-        const e = {}; ['vo', 'pl', 'da', 'vi'].forEach(k => { e[k] = parseInt(document.getElementById('grant-' + k).value) || 0; });
-        if (!e.vo && !e.pl && !e.da && !e.vi) { alert('ポイントを入力してください'); return; }
-        if (!confirm(`${m.name} に「${src}」で Vo+${e.vo} Pl+${e.pl} Da+${e.da} Vi+${e.vi} を獲得させますか？`)) return;
+        const e = {}; ['vo', 'pl', 'da', 'vi', 'wp'].forEach(k => { e[k] = parseInt(document.getElementById('grant-' + k).value) || 0; });
+        if (!e.vo && !e.pl && !e.da && !e.vi && !e.wp) { alert('ポイントを入力してください'); return; }
+        if (!confirm(`${m.name} に「${src}」で Vo+${e.vo} Pl+${e.pl} Da+${e.da} Vi+${e.vi}${e.wp ? ` お仕事P+${e.wp}` : ''} を獲得させますか？`)) return;
         addPointsWithLog(m, e, src, true);
         closeGrantPoints();
         syncToSheet(m);
@@ -2403,8 +2439,8 @@ document.addEventListener('change', function(e) {
         const items = log.filter(x => x.n);
         if (!items.length) return;
         workRewardShowing = true;
-        const chips = x => `<span class="gain-chips">${[['vo', 'Vo'], ['pl', 'Pl'], ['da', 'Da'], ['vi', 'Vi']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('')}</span>`;
-        const total = { vo: 0, pl: 0, da: 0, vi: 0 }; items.forEach(x => ['vo', 'pl', 'da', 'vi'].forEach(k => { total[k] += x[k] || 0; }));
+        const chips = x => `<span class="gain-chips">${[['vo', 'Vo'], ['pl', 'Pl'], ['da', 'Da'], ['vi', 'Vi'], ['wp', 'P']].filter(([k]) => x[k]).map(([k, l]) => `<span class="gain-chip ${k}">${l}+${x[k]}</span>`).join('')}</span>`;
+        const total = { vo: 0, pl: 0, da: 0, vi: 0, wp: 0 }; items.forEach(x => ['vo', 'pl', 'da', 'vi', 'wp'].forEach(k => { total[k] += x[k] || 0; }));
         document.querySelector('#work-modal .work-title').textContent = items.every(x => /^ライブ/.test(x.s || '')) ? 'ライブお疲れ様でした！' : 'お仕事お疲れ様でした！';
         document.getElementById('work-sub').textContent = `${m.name} さん、ポイントを獲得しました`;
         document.getElementById('work-list').innerHTML = items.map((x, i) => `<div class="work-item" style="animation-delay:${0.25 + i * 0.1}s"><span class="src">${escapeHtml(x.s)}</span><span class="dt">${escapeHtml(x.d)}</span><div>${chips(x)}</div></div>`).join('');
@@ -2423,7 +2459,7 @@ document.addEventListener('change', function(e) {
     }
     // 送るURLが長すぎると保存に失敗するので、履歴は0の項目を省いて一定の長さまでに収める
     function compactPointLog(m) {
-        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; if (x.b) o.b = x.b; if (x.f) o.f = 1; return o; });
+        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; if (x.b) o.b = x.b; if (x.f) o.f = 1; if (x.wp) o.wp = x.wp; if (x.dw) o.dw = x.dw; return o; });
         while (log.length > 3 && encodeURIComponent(JSON.stringify(log)).length > 3200) log.pop();
         m.pointLog = log;
         return JSON.stringify(log);
@@ -2437,7 +2473,7 @@ document.addEventListener('change', function(e) {
             vo: m.p.vo, pl: m.p.pl, da: m.p.da, vi: m.p.vi, last: m.last||"", hStr: hStr,
             climbDate: m.climbDate||"", climbHeight: m.climbHeight||0, icon: m.icon||"", mascotId: m.mascotId||"",
             suit: m.suit||"", profileImg: m.profileImg||"", youtubeUrl: m.youtubeUrl||"", unitId: m.unitId||"",
-            pointLog: compactPointLog(m),
+            pointLog: compactPointLog(m), wp: m.wp || 0,
             callback: "handleSyncResponse"
         });
         // 自分のデータを保存したときだけログイン名を記録（管理者が他の人を保存してもログインは変わらない）
@@ -3474,13 +3510,13 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
     // 結果に応じたポイント：出演（全員）＋順位（上位3組）は曲の系統のステータスへ、観客（投票した人）は全ステータスへ
     function liveRewardList(lv) {
         const map = {};
-        const add = (id, s, pts) => { const r = map[id] || (map[id] = { id: id, s: s, vo: 0, pl: 0, da: 0, vi: 0 }); Object.keys(pts).forEach(k => { r[k] += pts[k]; }); };
+        const add = (id, s, pts) => { const r = map[id] || (map[id] = { id: id, s: s, vo: 0, pl: 0, da: 0, vi: 0, wp: 0 }); Object.keys(pts).forEach(k => { r[k] += pts[k]; }); };
         const perfIds = new Set();
         liveRanked(lv).forEach(x => {
             const g = livePerfGenre(x.p), pts = LIVE_REWARD.appear + (x.rank <= 3 ? LIVE_REWARD.rank[x.rank - 1] : 0);
-            livePerfMembers(x.p).forEach(id => { perfIds.add(id); add(id, `ライブ出演（${x.rank}位）`, { [g]: pts }); });
+            livePerfMembers(x.p).forEach(id => { perfIds.add(id); add(id, `ライブ出演（${x.rank}位）`, { [g]: pts, wp: WORK_LIVE.perform }); });
         });
-        (lv.voters || []).filter(id => !perfIds.has(id)).forEach(id => add(id, 'ライブ観覧', { vo: LIVE_REWARD.audience, pl: LIVE_REWARD.audience, da: LIVE_REWARD.audience, vi: LIVE_REWARD.audience }));
+        (lv.voters || []).filter(id => !perfIds.has(id)).forEach(id => add(id, 'ライブ観覧', { vo: LIVE_REWARD.audience, pl: LIVE_REWARD.audience, da: LIVE_REWARD.audience, vi: LIVE_REWARD.audience, wp: WORK_LIVE.audience }));
         return Object.values(map);
     }
     function liveReward() {
@@ -3488,15 +3524,15 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (!state.isAdmin || !lv || lv.status !== 'result' || lv.rewarded) return;
         const list = liveRewardList(lv);
         const nameOf = id => { const m = state.members.find(x => x.id === id); return m ? m.name : id; };
-        const lines = list.map(r => `${nameOf(r.id)}：${['vo', 'pl', 'da', 'vi'].filter(k => r[k]).map(k => k.charAt(0).toUpperCase() + k.slice(1) + '+' + r[k]).join(' ')}`);
+        const lines = list.map(r => `${nameOf(r.id)}：${['vo', 'pl', 'da', 'vi'].filter(k => r[k]).map(k => k.charAt(0).toUpperCase() + k.slice(1) + '+' + r[k]).join(' ')}${r.wp ? ` お仕事P+${r.wp}` : ''}`);
         if (!confirm(`次のポイントを配ります（1回だけ）\n\n${lines.join('\n')}`)) return;
         if (liveGasNew === false) {
             // 古いGASのとき：管理者の画面から1人ずつ保存して配り、配ったことをライブに記録する
-            list.forEach(r => { const m = state.members.find(x => x.id === r.id); if (!m) return; addPointsWithLog(m, { vo: r.vo, pl: r.pl, da: r.da, vi: r.vi }, r.s, true); syncToSheet(m); });
+            list.forEach(r => { const m = state.members.find(x => x.id === r.id); if (!m) return; addPointsWithLog(m, { vo: r.vo, pl: r.pl, da: r.da, vi: r.vi, wp: r.wp }, r.s, true); syncToSheet(m); });
             state.live.rewarded = Date.now(); syncLive(); renderLiveView();
             return;
         }
-        liveOp('reward', { list: list.map(r => { const o = { id: r.id, s: r.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (r[k]) o[k] = r[k]; }); return o; }) });
+        liveOp('reward', { list: list.map(r => { const o = { id: r.id, s: r.s }; ['vo', 'pl', 'da', 'vi', 'wp'].forEach(k => { if (r[k]) o[k] = r[k]; }); return o; }) });
     }
     function liveResetAll() {
         if (!state.isAdmin || !state.live) return;
@@ -5003,6 +5039,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <div class="home-cell home-cal" onclick="openCalendar()"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2zm-2 8h14v10H5z"/></svg>カレンダー</div>
             <div class="home-cell home-stamina">体力<br><span class="home-num">${remain}/${state.limit||2}</span></div>
             <div class="home-cell home-unit">ユニット<br>${unitHtml}</div>
+            <div class="home-cell home-wp"><div class="wp-coin">${mi('paid', 'mi-solo')}</div><div class="wp-main"><b>お仕事ポイント</b><span class="wp-num">${m.wp || 0}<small>P</small></span></div><div class="wp-daily">${isMe ? (parsePointLog(m.pointLog).some(x => x.dw === gameDayLabel()) ? `${mi('check_circle')}今日のデイリー達成！` : `今日のレッスン <b>${Math.min(m.r || 0, WORK_DAILY_LESSONS)}/${WORK_DAILY_LESSONS}</b> で +1P`) : ''}</div></div>
         </div>
         <div class="history-title">${mi('auto_awesome')}ポイント獲得のきろく</div>
         <div class="history">${pointLogHtml(m) || (hHtml ? `<div class="history-old">${hHtml}</div>` : '<div class="gain-empty">まだ獲得したポイントはありません。レッスンを受けてみよう！</div>')}</div>`;
@@ -5047,7 +5084,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             const w = l.key === 'climb' ? { vo: 0.75, pl: 0.75, da: 0.75, vi: 0.75 } : LESSON_STAT_WEIGHTS[l.key]; if (!w) return;
             let el = item.querySelector('.lm-stats');
             if (!el) { el = document.createElement('div'); el.className = 'lm-stats'; item.querySelector('.lm-label').after(el); }
-            el.innerHTML = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].map(([k, label]) => {
+            el.innerHTML = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi'],['wp','P']].map(([k, label]) => {
                 const a = w[k] >= 0.6 ? '↑↑' : w[k] >= 0.3 ? '↑' : '';
                 return `<span class="st-${k}${a ? ' up' : ''}">${label}${a ? `<span class="arr">${a}</span>` : ''}</span>`;
             }).join('');
@@ -5960,8 +5997,8 @@ state.members.forEach(m => {
     }
     // 管理者メニュー（プロフィール画面の下）：ポイントの変更・獲得、体力の回復、名前/組/タイプ、アイコン、除名
     function memberAdminHtml(m) {
-        const pts = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi']].map(([k, l]) =>
-            `<button type="button" class="member-admin-pt ${k}" onclick="adminEditPt('${m.id}','${k}')"><span class="lbl">${l}</span><span class="val">${m.p[k] || 0}</span><span class="chg">${mi('edit','mi-solo')}</span></button>`).join('');
+        const pts = [['vo','Vo'],['pl','Pl'],['da','Da'],['vi','Vi'],['wp','P']].map(([k, l]) =>
+            `<button type="button" class="member-admin-pt ${k}" onclick="adminEditPt('${m.id}','${k}')"><span class="lbl">${l}</span><span class="val">${k === 'wp' ? (m.wp || 0) : (m.p[k] || 0)}</span><span class="chg">${mi('edit','mi-solo')}</span></button>`).join('');
         const total = (m.p.vo || 0) + (m.p.pl || 0) + (m.p.da || 0) + (m.p.vi || 0);
         return `<div class="member-admin-title">${mi('admin_panel_settings')}管理者メニュー</div>
             <div class="member-admin-sub">ポイント（合計 ${total}）　数字をタップで変更</div>
@@ -5979,6 +6016,7 @@ state.members.forEach(m => {
     function adminEditPt(id, k) {
         if (!state.isAdmin) return;
         const m = state.members.find(x => x.id === id); if (!m) return;
+        if (k === 'wp') { const v = prompt(`${m.name} のお仕事ポイント（P）を入力してください（今：${m.wp || 0}）`, m.wp || 0); if (v === null) return; m.wp = Math.max(0, parseInt(v) || 0); syncToSheet(m); render(); refreshMemberViews(); return; }
         const v = prompt(`${m.name} の ${k.toUpperCase()} を入力してください（今：${m.p[k] || 0}）`, m.p[k] || 0);
         if (v === null) return;
         m.p[k] = parseInt(v) || 0;
@@ -6634,6 +6672,7 @@ state.members.forEach(m => {
                 <label class="da">Da<input type="number" id="grant-da" inputmode="numeric" placeholder="0"></label>
                 <label class="vi">Vi<input type="number" id="grant-vi" inputmode="numeric" placeholder="0"></label>
             </div>
+            <label class="grant-wp"><span class="mi">paid</span>お仕事ポイント（P）<input type="number" id="grant-wp" inputmode="numeric" placeholder="0"></label>
             <div style="display:flex;gap:8px;margin-top:10px;">
                 <button type="button" onclick="closeGrantPoints()" style="flex:1;background:#eee4e8;color:#8a7a7e;">キャンセル</button>
                 <button type="button" onclick="submitGrantPoints()" style="flex:1;">獲得させる</button>
