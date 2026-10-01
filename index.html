@@ -928,6 +928,10 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .letter-tabs button.on { background:var(--ak-mag); color:#fff; }
 .lt-badge { margin-left:4px; padding:0 6px; border-radius:999px; background:#ff4d6d; color:#fff; font-size:.75em; }
 .letterbox-list { overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:2px; }
+.letter-anon { margin:10px 2px 0; }
+.lt-anon-ic { width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:linear-gradient(180deg, #d9c2ff, #9b6bff); color:#fff; }
+.lt-anon-ic .mi { font-size:18px; }
+.lt-anon-tag { margin-left:6px; font-size:.8em; padding:1px 8px; border-radius:999px; background:#efe6ff; color:#8a5bd6; }
 .lt-card { background:repeating-linear-gradient(180deg, #fffdfd 0 23px, #ffe3ef 23px 24px); border-radius:14px; padding:10px 12px; box-shadow:0 0 0 1.5px #ffd0e7; animation: rank-in .4s cubic-bezier(.34,1.4,.64,1) both; }
 .lt-card.new { box-shadow:0 0 0 2px var(--ak-mag), 0 0 12px rgba(234,63,147,.25); }
 .lt-head { display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:.82em; color:#9a6a82; }
@@ -2546,18 +2550,22 @@ document.addEventListener('change', function(e) {
         document.getElementById('letter-to-name').textContent = m.name;
         document.getElementById('letter-from-name').textContent = me.name;
         document.getElementById('letter-text').value = '';
+        document.getElementById('letter-anon').checked = false;
+        updateLetterFrom();
         document.getElementById('letter-modal').classList.add('open');
         setTimeout(() => document.getElementById('letter-text').focus(), 60);
     }
+    function updateLetterFrom() { const me = letterMe(); document.getElementById('letter-from-name').textContent = document.getElementById('letter-anon').checked ? '匿名のファン' : (me ? me.name : ''); }
     function closeLetterCompose() { document.getElementById('letter-modal').classList.remove('open'); letterComposeTo = null; }
     function sendLetter() {
         const me = letterMe(); const text = document.getElementById('letter-text').value.trim();
         if (!me || !letterComposeTo || letterBusy) return;
         if (!text) { alert('お手紙の内容を書いてね'); return; }
         const to = state.members.find(x => x.id === letterComposeTo);
-        if (!confirm(`${to ? to.name : ''} さんにファンレターを送りますか？`)) return;
+        const anon = document.getElementById('letter-anon').checked;
+        if (!confirm(`${to ? to.name : ''} さんにファンレターを${anon ? '匿名で' : ''}送りますか？`)) return;
         letterBusy = true;
-        letterJsonp({ action: 'sendLetter', from: me.id, to: letterComposeTo, text: text }, r => {
+        letterJsonp({ action: 'sendLetter', from: me.id, to: letterComposeTo, text: text, anon: anon ? 1 : 0 }, r => {
             letterBusy = false;
             if (!r || r.error) { alert(r && /unknown action/.test(r.error) ? 'ファンレターを使うにはGASの更新が必要です' : '送れませんでした。もう一度試してね'); return; }
             closeLetterCompose();
@@ -2574,7 +2582,7 @@ document.addEventListener('change', function(e) {
         const sent = letters.filter(l => l.from === me.id).sort((a, b) => b.ts - a.ts);
         const un = lettersUnanswered().length;
         document.getElementById('letter-tabs').innerHTML = `<button type="button" class="${letterTab === 'in' ? 'on' : ''}" onclick="setLetterTab('in')">${mi('inbox')}とどいた${un ? `<span class="lt-badge">${un}</span>` : ''}</button><button type="button" class="${letterTab === 'out' ? 'on' : ''}" onclick="setLetterTab('out')">${mi('outbox')}おくった</button>`;
-        const who = id => state.members.find(x => x.id === id) || { name: '（退学した子）', icon: '' };
+        const who = id => id ? (state.members.find(x => x.id === id) || { name: '（退学した子）', icon: '' }) : { name: '匿名のファン', icon: '', anon: true };
         const list = letterTab === 'in' ? inbox : sent;
         const box = document.getElementById('letterbox-list');
         if (!lettersLoaded) { box.innerHTML = '<div class="adm-empty" style="text-align:center;padding:20px;">読み込み中…</div>'; return; }
@@ -2586,7 +2594,8 @@ document.addEventListener('change', function(e) {
             if (l.reply) foot = `<div class="lt-reply"><div class="lt-reply-h">${mi('reply')}${letterTab === 'in' ? 'あなたのお返事' : `${escapeHtml(other.name)} さんからのお返事`}<span>${letterDate(l.replyTs)}</span></div><div class="lt-text">${escapeHtml(l.reply)}</div></div>`;
             else if (letterTab === 'in') foot = `<div class="lt-reply-form"><textarea id="lt-reply-${l.id}" rows="3" maxlength="300" placeholder="お返事を書いてね"></textarea><button type="button" onclick="replyLetter('${l.id}')">${mi('reply')}お返事する${left ? '<small>お仕事P +1</small>' : ''}</button>${left ? '' : '<div class="lt-note">今日のP（1日3通まで）はもらい済み。お返事はいつでもできます</div>'}</div>`;
             else foot = `<div class="lt-wait">${mi('hourglass_empty')}お返事を待っています</div>`;
-            return `<div class="lt-card${!l.reply && letterTab === 'in' ? ' new' : ''}"><div class="lt-head"><span class="lt-ic">${getIconHtml(other.icon, '30px')}</span><span class="lt-who">${letterTab === 'in' ? 'from' : 'to'} <b>${escapeHtml(other.name)}</b></span><span class="lt-date">${letterDate(l.ts)}</span></div><div class="lt-text">${escapeHtml(l.text)}</div>${foot}</div>`;
+            const ic = other.anon ? `<span class="lt-anon-ic">${mi('mail_lock', 'mi-solo')}</span>` : getIconHtml(other.icon, '30px');
+            return `<div class="lt-card${!l.reply && letterTab === 'in' ? ' new' : ''}"><div class="lt-head"><span class="lt-ic">${ic}</span><span class="lt-who">${letterTab === 'in' ? 'from' : 'to'} <b>${escapeHtml(other.name)}</b>${letterTab === 'out' && l.anon ? '<span class="lt-anon-tag">匿名で送信</span>' : ''}</span><span class="lt-date">${letterDate(l.ts)}</span></div><div class="lt-text">${escapeHtml(l.text)}</div>${foot}</div>`;
         }).join('');
     }
     function replyLetter(id) {
@@ -6902,6 +6911,7 @@ state.members.forEach(m => {
                 <textarea id="letter-text" rows="7" maxlength="300" placeholder="応援の気持ちを書いてね（300文字まで）"></textarea>
                 <div class="letter-from">from <span id="letter-from-name"></span></div>
             </div>
+            <label class="adm-switch letter-anon"><input type="checkbox" id="letter-anon" onchange="updateLetterFrom()"><span class="sw"></span><span>名前を出さずに送る（匿名）<small>相手には「匿名のファン」と表示されます</small></span></label>
             <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" onclick="closeLetterCompose()" style="flex:1;background:#baabb0;box-shadow:0 3px 0 #9e8e93;">やめる</button><button type="button" onclick="sendLetter()" style="flex:2;"><span class="mi">send</span>送る</button></div>
         </div>
     </div>
