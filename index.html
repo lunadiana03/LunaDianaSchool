@@ -905,6 +905,45 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .my-call-row input { flex:1; margin:0; }
 .my-call-body button { align-self:flex-end; width:auto; margin:0; padding:6px 18px; font-size:.85em; }
 .my-call-note { font-size:.72em; color:#9a6a82; margin-top:4px; }
+/* ---- ファンレター ---- */
+.letter-send-btn { width:auto; margin:8px auto 0; display:inline-flex; align-items:center; gap:4px; padding:7px 18px; border-radius:999px; font-size:.88em; background:linear-gradient(180deg, #fff, #ffe6f2); color:var(--ak-mag); box-shadow:0 0 0 2px #ffb3d9, 0 3px 0 2px #ffd0e7; }
+.home-cell.home-letter { grid-column:1 / -1; display:flex; align-items:center; gap:10px; text-align:left; cursor:pointer; }
+.home-letter .hl-ic { position:relative; width:40px; height:40px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, #ffb3d9, var(--ak-mag)); color:#fff; }
+.home-letter .hl-badge { position:absolute; top:-4px; right:-6px; min-width:18px; height:18px; padding:0 4px; border-radius:999px; background:#ff4d6d; color:#fff; font-size:.7em; font-weight:700; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 2px #fff; animation: live-banner-pulse 1.6s ease-in-out infinite; }
+.home-letter .hl-t { flex:1; min-width:0; }
+.home-letter .hl-t b { display:block; color:var(--ak-ink); font-size:.92em; }
+.home-letter .hl-t small { display:block; color:#9a6a82; font-size:.75em; }
+.home-letter > .mi:last-child { color:#d39ab9; }
+.letter-panel { max-width:380px; }
+.letter-paper { position:relative; padding:14px 14px 10px; border-radius:14px; background:repeating-linear-gradient(180deg, #fffdfd 0 27px, #ffd6e8 27px 28px); box-shadow:inset 0 0 0 1.5px #ffd0e7; }
+.letter-paper::before { content:'favorite'; font-family:'Material Symbols Rounded'; font-variation-settings:'FILL' 1; position:absolute; right:10px; top:6px; font-size:26px; color:#ff8cc6; transform:rotate(12deg); }
+.letter-to { display:flex; align-items:center; gap:6px; font-family:'Mochiy Pop One', sans-serif; color:var(--ak-mag); margin-bottom:6px; }
+.letter-to img { border-radius:50%; }
+.letter-paper textarea { width:100%; box-sizing:border-box; margin:0; background:transparent; border:0; box-shadow:none; line-height:28px; padding:0 2px; font-size:.95em; resize:none; }
+.letter-from { text-align:right; font-size:.8em; color:#b0708f; margin-top:4px; }
+.letterbox-panel { max-width:440px; max-height:88vh; display:flex; flex-direction:column; }
+.letterbox-panel .grant-title { display:flex; align-items:center; gap:6px; }
+.letter-tabs { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:8px 0; }
+.letter-tabs button { margin:0; border-radius:999px; background:#fff; color:var(--ak-mag); box-shadow:0 0 0 1.5px #ffb3d9; font-size:.88em; position:relative; }
+.letter-tabs button.on { background:var(--ak-mag); color:#fff; }
+.lt-badge { margin-left:4px; padding:0 6px; border-radius:999px; background:#ff4d6d; color:#fff; font-size:.75em; }
+.letterbox-list { overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding:2px; }
+.lt-card { background:repeating-linear-gradient(180deg, #fffdfd 0 23px, #ffe3ef 23px 24px); border-radius:14px; padding:10px 12px; box-shadow:0 0 0 1.5px #ffd0e7; animation: rank-in .4s cubic-bezier(.34,1.4,.64,1) both; }
+.lt-card.new { box-shadow:0 0 0 2px var(--ak-mag), 0 0 12px rgba(234,63,147,.25); }
+.lt-head { display:flex; align-items:center; gap:6px; margin-bottom:4px; font-size:.82em; color:#9a6a82; }
+.lt-ic img { border-radius:50%; }
+.lt-who b { color:var(--ak-ink); }
+.lt-date { margin-left:auto; font-size:.85em; }
+.lt-text { white-space:pre-wrap; word-break:break-word; line-height:24px; color:var(--ak-ink); font-size:.9em; }
+.lt-reply { margin-top:8px; padding:8px 10px; background:#fff; border-radius:12px; box-shadow:0 0 0 1px #ffd0e7; }
+.lt-reply-h { display:flex; align-items:center; gap:4px; font-size:.75em; font-weight:700; color:var(--ak-mag); margin-bottom:2px; }
+.lt-reply-h span { margin-left:auto; font-weight:500; color:#b0708f; }
+.lt-reply-form { margin-top:8px; display:flex; flex-direction:column; gap:6px; }
+.lt-reply-form textarea { margin:0; width:100%; box-sizing:border-box; }
+.lt-reply-form button { margin:0; align-self:flex-end; width:auto; padding:7px 16px; font-size:.85em; display:inline-flex; align-items:center; gap:4px; }
+.lt-reply-form button small { font-size:.75em; background:rgba(255,255,255,.3); padding:1px 6px; border-radius:999px; }
+.lt-note { font-size:.72em; color:#9a6a82; text-align:right; }
+.lt-wait { margin-top:6px; font-size:.78em; color:#b0708f; display:flex; align-items:center; gap:4px; }
 .lv-unit { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; max-width:130px; }
 .lv-icon.mini { width:46px; height:46px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--pc), 0 0 14px var(--pc); }
 .lv-one.small .lv-icon.mini { width:26px; height:26px; }
@@ -1670,6 +1709,7 @@ html { -webkit-tap-highlight-color: transparent; }
                 <div id="member-profile-icon-wrap" class="member-profile-icon-wrap"></div>
                 <div id="member-profile-name" class="member-profile-name"></div>
                 <span id="member-profile-kumi" class="kumi-tag"></span>
+                <div id="member-profile-letter"></div>
             </div>
             <div class="member-profile-section">
                 <div class="member-profile-section-title"><span class="mi">photo_camera</span>しょうかい画像</div>
@@ -2262,8 +2302,8 @@ document.addEventListener('change', function(e) {
         if (m.pointLog.length > POINT_LOG_MAX) m.pointLog.length = POINT_LOG_MAX;
         setTimeout(() => showWorkToast(`${WORK_DAILY_LESSONS}レッスン達成！お仕事ポイント +1P`), 1200);
     }
-    function showWorkToast(text) {
-        const t = document.createElement('div'); t.className = 'work-toast'; t.innerHTML = `${mi('paid')}${escapeHtml(text)}`;
+    function showWorkToast(text, icon) {
+        const t = document.createElement('div'); t.className = 'work-toast'; t.innerHTML = `${mi(icon || 'paid')}${escapeHtml(text)}`;
         document.body.appendChild(t); setTimeout(() => t.remove(), 3600);
         if (typeof LiveBGM !== 'undefined') LiveBGM.sfx('reveal');
     }
@@ -2461,10 +2501,112 @@ document.addEventListener('change', function(e) {
     }
     // 送るURLが長すぎると保存に失敗するので、履歴は0の項目を省いて一定の長さまでに収める
     function compactPointLog(m) {
-        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; if (x.b) o.b = x.b; if (x.f) o.f = 1; if (x.wp) o.wp = x.wp; if (x.dw) o.dw = x.dw; return o; });
+        const log = parsePointLog(m.pointLog).slice(0, POINT_LOG_MAX).map(x => { const o = { d: x.d, s: x.s }; ['vo', 'pl', 'da', 'vi'].forEach(k => { if (x[k]) o[k] = x[k]; }); if (x.n) o.n = 1; if (x.b) o.b = x.b; if (x.f) o.f = 1; if (x.wp) o.wp = x.wp; if (x.dw) o.dw = x.dw; if (x.lt) o.lt = x.lt; return o; });
         while (log.length > 3 && encodeURIComponent(JSON.stringify(log)).length > 3200) log.pop();
         m.pointLog = log;
         return JSON.stringify(log);
+    }
+    // ===== ファンレター（お試し） =====
+    const LETTER_REWARD_PER_DAY = 3; // お返事でPがもらえるのは1日この回数まで（GASと同じ）
+    let letters = [], lettersLoaded = false, letterTab = 'in', letterComposeTo = null, letterNoticeShown = false, letterBusy = false;
+    function letterMe() { return state.members.find(m => m.name === user); }
+    function letterDate(ts) { const d = new Date(ts); return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+    function letterDayKey(ts) { const d = new Date(ts); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+    function lettersUnanswered() { const me = letterMe(); return me ? letters.filter(l => l.to === me.id && !l.reply) : []; }
+    function letterRewardLeft() { const me = letterMe(); if (!me) return 0; const today = letterDayKey(Date.now()); return Math.max(0, LETTER_REWARD_PER_DAY - letters.filter(l => l.to === me.id && l.rewarded && l.replyTs && letterDayKey(l.replyTs) === today).length); }
+    function letterJsonp(params, cb) {
+        const name = 'handleLetter_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+        const sc = document.createElement('script');
+        window[name] = r => { delete window[name]; sc.remove(); cb(r); };
+        sc.onerror = () => { delete window[name]; sc.remove(); cb(null); };
+        sc.src = `${API_URL}?${new URLSearchParams(Object.assign({}, params, { callback: name, _: Date.now() })).toString()}`;
+        document.body.appendChild(sc);
+    }
+    function fetchLetters(after) {
+        const me = letterMe(); if (!me) return;
+        letterJsonp({ action: 'getLetters', id: me.id }, r => {
+            if (r && r.letters) letters = r.letters;
+            lettersLoaded = true; // GASが古いときも何度も読みに行かないように
+            render();
+            if (document.getElementById('letterbox-modal').classList.contains('open')) renderLetterBox();
+            const n = lettersUnanswered().length;
+            if (n && !letterNoticeShown) { letterNoticeShown = true; setTimeout(() => showWorkToast(`ファンレターが${n}通届いています`, 'mail'), 1500); }
+            if (after) after();
+        });
+    }
+    function letterHomeCellHtml() {
+        const n = lettersUnanswered().length;
+        return `<div class="home-cell home-letter" onclick="openLetterBox()"><span class="hl-ic">${mi('mail', 'mi-solo')}${n ? `<span class="hl-badge">${n}</span>` : ''}</span><span class="hl-t"><b>ファンレター</b><small>${n ? `お返事を待っている手紙が${n}通` : '届いた手紙・送った手紙'}</small></span>${mi('chevron_right', 'mi-solo')}</div>`;
+    }
+    function openLetterCompose(id) {
+        const me = letterMe(); if (!me) { alert('先にログインしてください'); return; }
+        const m = state.members.find(x => x.id === id); if (!m || m.id === me.id) return;
+        letterComposeTo = id;
+        document.getElementById('letter-to-icon').innerHTML = getIconHtml(m.icon, '28px');
+        document.getElementById('letter-to-name').textContent = m.name;
+        document.getElementById('letter-from-name').textContent = me.name;
+        document.getElementById('letter-text').value = '';
+        document.getElementById('letter-modal').classList.add('open');
+        setTimeout(() => document.getElementById('letter-text').focus(), 60);
+    }
+    function closeLetterCompose() { document.getElementById('letter-modal').classList.remove('open'); letterComposeTo = null; }
+    function sendLetter() {
+        const me = letterMe(); const text = document.getElementById('letter-text').value.trim();
+        if (!me || !letterComposeTo || letterBusy) return;
+        if (!text) { alert('お手紙の内容を書いてね'); return; }
+        const to = state.members.find(x => x.id === letterComposeTo);
+        if (!confirm(`${to ? to.name : ''} さんにファンレターを送りますか？`)) return;
+        letterBusy = true;
+        letterJsonp({ action: 'sendLetter', from: me.id, to: letterComposeTo, text: text }, r => {
+            letterBusy = false;
+            if (!r || r.error) { alert(r && /unknown action/.test(r.error) ? 'ファンレターを使うにはGASの更新が必要です' : '送れませんでした。もう一度試してね'); return; }
+            closeLetterCompose();
+            showWorkToast('ファンレターを送りました！', 'send');
+            fetchLetters();
+        });
+    }
+    function openLetterBox() { letterTab = lettersUnanswered().length || !letters.length ? 'in' : letterTab; document.getElementById('letterbox-modal').classList.add('open'); renderLetterBox(); fetchLetters(); }
+    function closeLetterBox() { document.getElementById('letterbox-modal').classList.remove('open'); }
+    function setLetterTab(t) { letterTab = t; renderLetterBox(); }
+    function renderLetterBox() {
+        const me = letterMe(); if (!me) return;
+        const inbox = letters.filter(l => l.to === me.id).sort((a, b) => (a.reply ? 1 : 0) - (b.reply ? 1 : 0) || b.ts - a.ts);
+        const sent = letters.filter(l => l.from === me.id).sort((a, b) => b.ts - a.ts);
+        const un = lettersUnanswered().length;
+        document.getElementById('letter-tabs').innerHTML = `<button type="button" class="${letterTab === 'in' ? 'on' : ''}" onclick="setLetterTab('in')">${mi('inbox')}とどいた${un ? `<span class="lt-badge">${un}</span>` : ''}</button><button type="button" class="${letterTab === 'out' ? 'on' : ''}" onclick="setLetterTab('out')">${mi('outbox')}おくった</button>`;
+        const who = id => state.members.find(x => x.id === id) || { name: '（退学した子）', icon: '' };
+        const list = letterTab === 'in' ? inbox : sent;
+        const box = document.getElementById('letterbox-list');
+        if (!lettersLoaded) { box.innerHTML = '<div class="adm-empty" style="text-align:center;padding:20px;">読み込み中…</div>'; return; }
+        if (!list.length) { box.innerHTML = `<div class="adm-empty" style="text-align:center;padding:20px;">${letterTab === 'in' ? 'まだファンレターは届いていません' : 'まだ送っていません。みんなのプロフィールから送れます'}</div>`; return; }
+        const left = letterRewardLeft();
+        box.innerHTML = list.map(l => {
+            const other = who(letterTab === 'in' ? l.from : l.to);
+            let foot = '';
+            if (l.reply) foot = `<div class="lt-reply"><div class="lt-reply-h">${mi('reply')}${letterTab === 'in' ? 'あなたのお返事' : `${escapeHtml(other.name)} さんからのお返事`}<span>${letterDate(l.replyTs)}</span></div><div class="lt-text">${escapeHtml(l.reply)}</div></div>`;
+            else if (letterTab === 'in') foot = `<div class="lt-reply-form"><textarea id="lt-reply-${l.id}" rows="3" maxlength="300" placeholder="お返事を書いてね"></textarea><button type="button" onclick="replyLetter('${l.id}')">${mi('reply')}お返事する${left ? '<small>お仕事P +1</small>' : ''}</button>${left ? '' : '<div class="lt-note">今日のP（1日3通まで）はもらい済み。お返事はいつでもできます</div>'}</div>`;
+            else foot = `<div class="lt-wait">${mi('hourglass_empty')}お返事を待っています</div>`;
+            return `<div class="lt-card${!l.reply && letterTab === 'in' ? ' new' : ''}"><div class="lt-head"><span class="lt-ic">${getIconHtml(other.icon, '30px')}</span><span class="lt-who">${letterTab === 'in' ? 'from' : 'to'} <b>${escapeHtml(other.name)}</b></span><span class="lt-date">${letterDate(l.ts)}</span></div><div class="lt-text">${escapeHtml(l.text)}</div>${foot}</div>`;
+        }).join('');
+    }
+    function replyLetter(id) {
+        const me = letterMe(); const el = document.getElementById('lt-reply-' + id); if (!me || !el || letterBusy) return;
+        const text = el.value.trim(); if (!text) { alert('お返事を書いてね'); return; }
+        letterBusy = true;
+        letterJsonp({ action: 'replyLetter', id: id, by: me.id, text: text }, r => {
+            letterBusy = false;
+            if (!r || r.error) { alert(r && /unknown action/.test(r.error) ? 'ファンレターを使うにはGASの更新が必要です' : 'お返事できませんでした。もう一度試してね'); return; }
+            const i = letters.findIndex(x => x.id === id); if (i >= 0 && r.letter) letters[i] = r.letter;
+            if (r.rewarded) {
+                // GAS側で足した分を手元にも反映（次の保存で消えないように）
+                me.wp = (me.wp || 0) + 1;
+                me.pointLog = parsePointLog(me.pointLog);
+                me.pointLog.unshift({ d: todayLabel(), s: 'ファンレターのお返事', wp: 1, lt: id });
+                if (me.pointLog.length > POINT_LOG_MAX) me.pointLog.length = POINT_LOG_MAX;
+                showWorkToast('お返事しました！お仕事ポイント +1P');
+            } else showWorkToast('お返事しました！', 'reply');
+            renderLetterBox(); render();
+        });
     }
     function syncToSheet(m, attempt) {
         attempt = attempt || 0;
@@ -2529,7 +2671,7 @@ setTimeout(() => {
         else if (beforeOpen() && !state.isAdmin) mode = 'wait';
         const bn = document.querySelector('.bottom-nav'); if (bn) bn.style.display = mode ? 'none' : 'flex';
         const el = document.getElementById('entry');
-        if (!mode) { el.style.display = 'none'; clearInterval(entryWaitTimer); document.body.classList.remove('entry-open'); setTimeout(checkWorkReward, 700); return; }
+        if (!mode) { el.style.display = 'none'; clearInterval(entryWaitTimer); document.body.classList.remove('entry-open'); setTimeout(checkWorkReward, 700); if (!lettersLoaded) setTimeout(fetchLetters, 900); return; }
         el.style.display = 'block'; document.body.classList.add('entry-open');
         if (mode === 'wait') { if (entryStep !== 'celebrate' && entryStep !== 'submitted' && entryStep !== 'wait') entryGo('wait'); }
         else if (entryStep === 'wait' || entryStep === 'celebrate') entryGo('welcome');
@@ -5053,6 +5195,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             <div class="home-cell home-cal" onclick="openCalendar()"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2zm-2 8h14v10H5z"/></svg>カレンダー</div>
             <div class="home-cell home-stamina">体力<br><span class="home-num">${remain}/${state.limit||2}</span></div>
             <div class="home-cell home-unit">ユニット<br>${unitHtml}</div>
+            ${isMe ? letterHomeCellHtml() : ''}
             <div class="home-cell home-wp"><div class="wp-coin">${mi('paid', 'mi-solo')}</div><div class="wp-main"><b>お仕事ポイント</b><span class="wp-num">${m.wp || 0}<small>P</small></span></div><div class="wp-daily">${isMe ? (parsePointLog(m.pointLog).some(x => x.dw === gameDayLabel()) ? `${mi('check_circle')}今日のデイリー達成！` : `今日のレッスン <b>${Math.min(m.r || 0, WORK_DAILY_LESSONS)}/${WORK_DAILY_LESSONS}</b> で +1P`) : ''}</div></div>
         </div>
         <div class="history-title">${mi('auto_awesome')}ポイント獲得のきろく</div>
@@ -5980,6 +6123,8 @@ state.members.forEach(m => {
             (kumiEmoji ? `<span class="plaza-kumi-badge">${kumiEmoji}</span>` : '');
         document.getElementById('member-profile-icon-wrap').innerHTML = getIconHtml(m.icon, '100%');
         document.getElementById('member-profile-name').innerText = m.name + (isMe ? '（わたし）' : '');
+        const letterSlot = document.getElementById('member-profile-letter');
+        if (letterSlot) letterSlot.innerHTML = (!isMe && isRegisteredUser()) ? `<button type="button" class="letter-send-btn" onclick="openLetterCompose('${m.id}')">${mi('mail')}ファンレターを送る</button>` : '';
         const kumiEl = document.getElementById('member-profile-kumi');
         kumiEl.innerHTML = kumiLabelHtml(m.kumi);
         kumiEl.className = 'kumi-tag ' + getKumiClass(m.kumi);
@@ -6748,6 +6893,23 @@ state.members.forEach(m => {
             <label>登場のひとこと</label><input type="text" id="sc-mc" maxlength="80" placeholder="例）みんなー！今日は来てくれてありがとう！">
             <div id="sc-yt-wrap"><label>YouTubeのURL<small>出番中にステージの背景で薄く流れます（埋め込み禁止の動画は流れません）</small></label><input type="text" id="sc-yt" maxlength="120" placeholder="https://youtu.be/..."></div>
             <div style="display:flex;gap:8px;margin-top:12px;"><button type="button" onclick="closeStageCard()" style="flex:1;background:#baabb0;box-shadow:0 3px 0 #9e8e93;">キャンセル</button><button type="button" onclick="saveStageCard()" style="flex:2;">保存する</button></div>
+        </div>
+    </div>
+   <div id="letter-modal" class="grant-modal" onclick="if(event.target===this)closeLetterCompose()">
+        <div class="grant-panel letter-panel">
+            <div class="letter-paper">
+                <div class="letter-to"><span id="letter-to-icon"></span><span id="letter-to-name"></span> さんへ</div>
+                <textarea id="letter-text" rows="7" maxlength="300" placeholder="応援の気持ちを書いてね（300文字まで）"></textarea>
+                <div class="letter-from">from <span id="letter-from-name"></span></div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:10px;"><button type="button" onclick="closeLetterCompose()" style="flex:1;background:#baabb0;box-shadow:0 3px 0 #9e8e93;">やめる</button><button type="button" onclick="sendLetter()" style="flex:2;"><span class="mi">send</span>送る</button></div>
+        </div>
+    </div>
+   <div id="letterbox-modal" class="grant-modal" onclick="if(event.target===this)closeLetterBox()">
+        <div class="grant-panel letterbox-panel">
+            <div class="grant-title"><span class="mi">mail</span>ファンレター<button type="button" class="rank-close" style="position:static;margin-left:auto;width:30px;height:30px;" onclick="closeLetterBox()"><span class="mi mi-solo">close</span></button></div>
+            <div class="letter-tabs" id="letter-tabs"></div>
+            <div id="letterbox-list" class="letterbox-list"></div>
         </div>
     </div>
    <div id="scene-transition-overlay" class="scene-transition-overlay">
