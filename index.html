@@ -1325,7 +1325,7 @@ html { -webkit-tap-highlight-color: transparent; }
                 <div class="adm-body">
                     <label>テーマ色</label>
                     <select id="theme" onchange="changeTheme()"><option value="pink">ピンク</option><option value="blue">ブルー</option><option value="teal">グリーン</option></select>
-                    <label>管理者の暗証番号</label><input type="password" id="pw" onchange="upPw()">
+                    <label>管理者の暗証番号を変える</label><input type="password" id="pw" placeholder="新しい暗証番号（4文字以上）" autocomplete="new-password" onchange="upPw()">
                     <label>1日のレッスン上限回数（体力）</label><div><input type="number" id="limit-input" min="1" max="10" onchange="upLimit()" style="width:80px; text-align:center;"> 回</div>
                 </div>
             </details>
@@ -1958,7 +1958,7 @@ html { -webkit-tap-highlight-color: transparent; }
             }
         } catch(e) {}
     }
-    let state = { theme: "pink", password: "1234", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1, voters: [], gimmick: null } };
+    let state = { theme: "pink", password: "", isAdmin: false, emojis: { ...EMOJIS }, probs: {}, meigen: [], members: [], bbsText: "", limit: 2, climbDesc: "", live: { showTab: false, status: "idle", performers: [], currentIndex: -1, voters: [], gimmick: null } };
     let user = ""; let currentView = "my";
       let currentProfileMemberId = null;
       let memberEditMode = false;
@@ -2884,7 +2884,7 @@ setTimeout(() => {
     }
     function entryFinish() { entryStep = 'welcome'; updateLoginBoxUI(); switchView('my'); }
     function entryLogout() { if (!confirm('別の名前で入りますか？')) return; user = ''; localStorage.removeItem('lesson_user_v21'); clearInterval(entryWaitTimer); entryGo('welcome'); updateLoginBoxUI(); }
-    function entryAdmin() { goAdmin(); updateLoginBoxUI(); }
+    function entryAdmin() { goAdmin(updateLoginBoxUI); }
       function getKumiClass(k) { if(k==='花の歌組🌸')return'kumi-hana'; if(k==='鳥の劇組🕊‎')return'kumi-tori'; if(k==='風の舞組🍃')return'kumi-kaze'; if(k==='月の美組🌙')return'kumi-tsuki'; return''; }
     function getLblClass(l) { if(l==='👑 大成功')return'lbl-daiseiko'; if(l==='✨ 成功')return'lbl-seiko'; if(l==='💦 失敗')return'lbl-shippai'; return'lbl-none'; }
     function getFortuneData() {
@@ -4398,7 +4398,16 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         else if (t === 'blue') { r.style.setProperty('--p', '#a5d8ff'); r.style.setProperty('--bg', '#e7f5ff'); }
         else if (t === 'teal') { r.style.setProperty('--p', '#96f2d7'); r.style.setProperty('--bg', '#e6fcf5'); }
     }
-    function upPw() { const p = document.getElementById('pw').value.trim(); if(p) { state.password = p; alert("変更しました"); saveLocal(); } }
+    function upPw() {
+        const el = document.getElementById('pw'); const p = el.value.trim(); if (!p) return;
+        if (p.length < 4) { alert('暗証番号は4文字以上にしてね'); return; }
+        if (!confirm(`管理者の暗証番号を「${p}」に変えますか？（どの端末でもこの番号になります）`)) return;
+        letterJsonp({ action: 'setAdminPw', old: adminPwSession, pw: p }, r => {
+            if (r && r.ok) { adminPwSession = p; el.value = ''; alert('変更しました。次からは新しい番号で入ってね'); }
+            else if (r && r.error && /unknown action/.test(r.error)) { state.password = p; saveLocal(); el.value = ''; alert('この端末でだけ変更しました（GASを更新すると、どの端末でも同じ番号になります）'); }
+            else alert(r && r.error === 'wrong' ? 'いまの暗証番号が確認できませんでした。いったん管理者から出て、入り直してから変えてね' : '変更できませんでした');
+        });
+    }
     function login() {
         const n = document.getElementById('login-in').value.trim(); if(!n) return;
         let m = state.members.find(m => m.name === n);
@@ -4425,7 +4434,22 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         }
     }
     function logout() { user = ""; localStorage.removeItem('lesson_user_v21'); document.getElementById('login-in').value = ""; updateLoginBoxUI(); render(); }
-    function goAdmin() { if (state.isAdmin) { state.isAdmin = false; } else { if (prompt("暗証番号:") === state.password) state.isAdmin = true; } updateUI(); render(); }
+    // 管理者ログイン：暗証番号はGAS側で確かめる（どの端末でも同じ番号。ページの中には番号を持たない）
+    let adminPwSession = '';
+    function goAdmin(after) {
+        if (state.isAdmin) { state.isAdmin = false; adminPwSession = ''; updateUI(); render(); if (after) after(); return; }
+        const pw = prompt("暗証番号:"); if (pw === null || pw === '') return;
+        letterJsonp({ action: 'checkAdmin', pw: pw }, r => {
+            if (r && typeof r.ok === 'boolean') {
+                if (!r.ok) { alert('暗証番号がちがいます'); return; }
+            } else if (r && r.error && /unknown action/.test(r.error)) {
+                // GASが古いときは、この端末で前に設定した番号でだけ入れる
+                if (!state.password || state.password === '1234' || pw !== state.password) { alert('暗証番号がちがいます（GASを更新すると、どの端末からでも同じ番号で入れます）'); return; }
+            } else { alert('通信に失敗しました。もう一度試してね'); return; }
+            state.isAdmin = true; adminPwSession = pw;
+            updateUI(); render(); if (after) after();
+        });
+    }
     function updateUI() {
         const b = document.body;
         if (state.isAdmin) { b.classList.add('is-admin'); const lb = document.getElementById('lock-btn'); if (lb) lb.innerHTML = mi('lock_open') + 'ロック'; }
@@ -4475,7 +4499,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         if (v !== null) { m.p[k] = parseInt(v) || 0; syncToSheet(m); }
     }
     function initForm() {
-        document.getElementById('pw').value = state.password; document.getElementById('limit-input').value = state.limit || 2;
+        document.getElementById('pw').value = ''; document.getElementById('limit-input').value = state.limit || 2;
         const con = document.getElementById('cfg-con'); con.innerHTML = '';
         LESSONS.forEach(l => {
             const blk = document.createElement('div'); blk.className = 'cfg-blk';
