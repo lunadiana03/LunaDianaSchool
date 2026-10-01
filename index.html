@@ -948,6 +948,49 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .lt-reply-form button small { font-size:.75em; background:rgba(255,255,255,.3); padding:1px 6px; border-radius:999px; }
 .lt-note { font-size:.72em; color:#9a6a82; text-align:right; }
 .lt-wait { margin-top:6px; font-size:.78em; color:#b0708f; display:flex; align-items:center; gap:4px; }
+/* ---- モデル：ランウェイ ---- */
+.runway { position:relative; height:400px; border-radius:18px; overflow:hidden; margin-bottom:10px; background:radial-gradient(ellipse at 50% 0%, #6b3fa0 0%, #2a1450 55%, #170b2e 100%); box-shadow:0 0 0 2px #f06aa8, 0 4px 0 2px #ffc2e0; user-select:none; -webkit-user-select:none; }
+.rw-path { position:absolute; left:0; right:0; top:8%; bottom:0; clip-path:polygon(41% 0, 59% 0, 96% 100%, 4% 100%); background:linear-gradient(180deg, #f6e7ff 0%, #ffffff 100%); overflow:hidden; }
+.rw-stripes { position:absolute; inset:-40px 0 0; background:repeating-linear-gradient(180deg, rgba(234,63,147,.08) 0 18px, transparent 18px 40px); }
+.runway.walking .rw-stripes { animation: rw-walk .7s linear infinite; }
+@keyframes rw-walk { to { transform:translateY(40px); } }
+.rw-zone { position:absolute; top:0; bottom:0; left:50%; width:var(--zw, 22%); transform:translateX(-50%); background:linear-gradient(180deg, rgba(255,216,107,.35), rgba(255,216,107,.6)); box-shadow:0 0 20px rgba(255,216,107,.7); transition: width .5s; }
+.rw-line { position:absolute; top:0; bottom:0; left:50%; width:3px; margin-left:-1.5px; background:repeating-linear-gradient(180deg, var(--ak-mag) 0 14px, transparent 14px 26px); opacity:.7; }
+.runway.walking .rw-line { animation: rw-walk .7s linear infinite; }
+.rw-lights { position:absolute; top:8%; bottom:0; width:12%; background:radial-gradient(circle, #fff 0 2px, transparent 3px) 50% 0 / 100% 34px; opacity:.8; }
+.rw-lights.l { left:4%; transform:skewX(-18deg); } .rw-lights.r { right:4%; transform:skewX(18deg); }
+.runway.walking .rw-lights { animation: rw-lightsmove .7s linear infinite; }
+@keyframes rw-lightsmove { to { background-position:50% 34px; } }
+.rw-crowd { position:absolute; bottom:0; width:16%; top:30%; background:radial-gradient(ellipse 9px 11px at 50% 50%, #0d0620 98%, transparent) 0 0 / 100% 30px; opacity:.85; }
+.rw-crowd.l { left:-2%; } .rw-crowd.r { right:-2%; }
+.rw-flashes { position:absolute; inset:0; pointer-events:none; z-index:3; }
+.rw-flash { position:absolute; width:26px; height:26px; margin:-13px 0 0 -13px; border-radius:50%; background:radial-gradient(circle, #fff 0 25%, rgba(255,255,255,.6) 40%, transparent 70%); animation: rw-flash .5s ease-out forwards; }
+@keyframes rw-flash { 0% { transform:scale(.3); opacity:1; } 100% { transform:scale(2.2); opacity:0; } }
+.rw-wind { position:absolute; top:10px; left:50%; transform:translateX(-50%); z-index:4; display:flex; align-items:center; gap:4px; color:#bfe9ff; font-weight:700; text-shadow:0 0 6px rgba(127,214,247,.8); }
+.rw-walker { position:absolute; bottom:16px; left:50%; z-index:2; width:110px; margin-left:-55px; transition:left .05s linear; transform-origin:50% 100%; transform:rotate(var(--tilt, 0deg)); }
+.rw-walker img { display:block; width:100%; filter:drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+.runway.walking .rw-walker img { animation: rw-step .35s ease-in-out infinite alternate; }
+@keyframes rw-step { from { transform:translateY(0) rotate(-3deg); } to { transform:translateY(-6px) rotate(3deg); } }
+.rw-shadow { position:absolute; left:15%; right:15%; bottom:-6px; height:12px; border-radius:50%; background:rgba(0,0,0,.25); z-index:-1; }
+.rw-walker.off img { filter:drop-shadow(0 0 10px #ff4d6d) drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+.rw-walker.posing img { animation: rw-posing .9s cubic-bezier(.34,1.56,.64,1); }
+@keyframes rw-posing { 0% { transform:scale(1); } 30% { transform:scale(1.15) rotate(-6deg); } 100% { transform:scale(1); } }
+.rw-warn { position:absolute; top:48px; left:50%; transform:translateX(-50%); z-index:5; padding:6px 14px 8px; border-radius:14px; background:rgba(255,255,255,.95); color:#e5484d; font-weight:700; font-size:.85em; text-align:center; box-shadow:0 0 0 2px #ff8a9a; opacity:0; transition:opacity .15s; pointer-events:none; }
+.rw-warn.show { opacity:1; animation: live-banner-pulse .5s ease-in-out infinite; }
+.rw-warn-bar { width:120px; height:6px; margin-top:4px; border-radius:3px; background:#ffe0e5; overflow:hidden; }
+.rw-warn-bar i { display:block; height:100%; width:0; background:#e5484d; }
+.rw-pose { position:absolute; left:0; right:0; top:34%; z-index:6; display:flex; flex-direction:column; align-items:center; opacity:0; pointer-events:none; }
+.rw-pose.show { opacity:1; }
+.rw-pose-t { font-family:'Mochiy Pop One', sans-serif; font-size:2em; color:#fff; letter-spacing:3px; text-shadow:0 2px 0 var(--ak-mag), 0 0 14px #ffd86b; animation: lv-fever-pop .3s ease-in-out infinite alternate; }
+.rw-pose-t.ok { color:#ffd86b; text-shadow:0 2px 0 #c77d12, 0 0 16px #fff; font-size:1.6em; animation:none; }
+.rw-pose-t.miss { color:#c9bcd6; text-shadow:0 2px 0 #5b4a6e; font-size:1.5em; animation:none; }
+.rw-pose-sub { color:#fff; font-weight:700; }
+.rw-pose-ring { width:90px; height:90px; margin-top:-70px; border-radius:50%; border:4px solid #ffd86b; box-shadow:0 0 14px #ffd86b; animation: rw-ring var(--pw, 1.3s) linear forwards; }
+@keyframes rw-ring { from { transform:scale(1.8); opacity:.3; } to { transform:scale(.6); opacity:1; } }
+.model-btns { grid-template-columns:1fr 1.1fr 1fr; }
+.model-pose-btn { margin:0; border-radius:16px; font-family:'Mochiy Pop One', sans-serif; background:#e8dcef; color:#9a86ad; box-shadow:0 4px 0 #cbbad8; display:flex; align-items:center; justify-content:center; gap:4px; }
+.model-pose-btn.ready { background:linear-gradient(180deg, #ffe89a, #f5b400); color:#7a4a00; box-shadow:0 4px 0 #c77d12, 0 0 16px rgba(255,216,107,.9); animation: live-banner-pulse .4s ease-in-out infinite; }
+.model-pose-count { display:inline-flex; align-items:center; gap:2px; margin-left:10px; color:#e08a00; }
 .lv-unit { display:flex; gap:4px; justify-content:center; flex-wrap:wrap; max-width:130px; }
 .lv-icon.mini { width:46px; height:46px; box-shadow:0 0 0 2px #fff, 0 0 0 4px var(--pc), 0 0 14px var(--pc); }
 .lv-one.small .lv-icon.mini { width:26px; height:26px; }
@@ -1633,10 +1676,21 @@ html { -webkit-tap-highlight-color: transparent; }
             <button id="model-exit-btn" class="game-exit-btn" onclick="exitModelGame()" style="display:none;"><span class="mi">logout</span>やめる</button>
             <div id="model-title" class="climb-title kira-text"><span class="mi">checkroom</span>モデルレッスン</div>
             <div id="model-desc" class="climb-desc"></div>
-            <div class="model-stats"><span class="mi">timer</span>キープ時間: <span id="model-seconds">0.0</span>秒</div>
-            <div class="model-track" id="model-track"><div class="model-safe-zone"></div><div id="model-needle" class="model-needle"></div><div id="model-countdown" class="climb-countdown"></div></div>
+            <div class="model-stats"><span class="mi">timer</span>ウォーキング: <span id="model-seconds">0.0</span>秒<span class="model-pose-count"><span class="mi">photo_camera</span><span id="model-poses">0</span>/3</span></div>
+            <div class="runway" id="model-track">
+                <div class="rw-lights l"></div><div class="rw-lights r"></div>
+                <div class="rw-path"><div class="rw-stripes"></div><div class="rw-zone" id="rw-zone"></div><div class="rw-line"></div></div>
+                <div class="rw-crowd l"></div><div class="rw-crowd r"></div>
+                <div class="rw-flashes" id="rw-flashes"></div>
+                <div class="rw-wind" id="rw-wind"></div>
+                <div class="rw-walker" id="model-needle"><img id="rw-walker-img" alt=""><div class="rw-shadow"></div></div>
+                <div class="rw-warn" id="rw-warn"><div class="rw-warn-t">ラインに戻って！</div><div class="rw-warn-bar"><i id="rw-warn-fill"></i></div></div>
+                <div class="rw-pose" id="rw-pose"></div>
+                <div id="model-countdown" class="climb-countdown"></div>
+            </div>
             <div class="model-btns" id="model-btns" style="display:none;">
                 <button class="climb-btn climb-btn-left" onmousedown="modelPress('left')" ontouchstart="modelPress('left')" onmouseup="modelRelease()" ontouchend="modelRelease()">←</button>
+                <button class="model-pose-btn" id="model-pose-btn" onclick="modelPose()" ontouchstart="event.preventDefault(); modelPose()" disabled><span class="mi">photo_camera</span>ポーズ</button>
                 <button class="climb-btn climb-btn-right" onmousedown="modelPress('right')" ontouchstart="modelPress('right')" onmouseup="modelRelease()" ontouchend="modelRelease()">→</button>
             </div>
             <div id="model-result" class="climb-result" style="display:none;"></div>
@@ -5859,45 +5913,96 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
             else { clearInterval(iv); cd.style.display = 'none'; actuallyStartModel(me); }
         }, 1200);
     }
+    // ===== モデル：ランウェイ =====
+    // 中央のライン（光っている帯）を歩き続ける。帯から出たまま3秒たつか、端まで流されたらおしまい。
+    // 10秒・20秒・29秒の地点で「ポーズ！」の合図。タイミングよく押すと +2秒
+    const MODEL_RULE = { goal: 30, offMax: 3, zoneStart: 11, zoneEnd: 6, poseAt: [9.5, 19.5, 28.5], poseWindow: 1.3, poseBonus: 2 };
     function actuallyStartModel(me) {
         LiveBGM.play('lesson');
         playSound('start'); setGameMode(true);
         document.getElementById('model-exit-btn').style.display = 'block';
         document.getElementById('model-btns').style.display = 'grid';
-        model = { active:true, pos:50, vel:0, holding:null, seconds:0, targetId:me.id, tick:null, wind:0, windTarget:0, windTimer:0 };
+        const ms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0];
+        document.getElementById('rw-walker-img').src = spriteReady[ms.img] || ms.img;
+        model = { active: true, pos: 50, vel: 0, holding: null, seconds: 0, targetId: me.id, tick: null, wind: 0, windTarget: 0, windTimer: 0, off: 0, poseIdx: 0, poseOpen: null, poses: 0, bonus: 0, reason: '' };
         document.getElementById('model-seconds').innerText = '0.0';
-        document.getElementById('model-needle').style.left = '50%';
+        document.getElementById('model-poses').innerText = '0';
+        document.getElementById('model-track').classList.add('walking');
+        modelRender();
         clearInterval(model.tick);
         model.tick = setInterval(modelLoop, 50);
     }
+    function modelZone() { return MODEL_RULE.zoneStart - (MODEL_RULE.zoneStart - MODEL_RULE.zoneEnd) * Math.min(1, model.seconds / MODEL_RULE.goal); }
+    function modelRender() {
+        const zone = modelZone();
+        const z = document.getElementById('rw-zone'); if (z) z.style.setProperty('--zw', (zone * 2) + '%');
+        const w = document.getElementById('model-needle');
+        if (w) { w.style.left = (50 + (model.pos - 50) * 0.9) + '%'; w.style.setProperty('--tilt', (model.vel * 6 + model.wind * 5).toFixed(1) + 'deg'); w.classList.toggle('off', Math.abs(model.pos - 50) > zone); }
+        const wi = document.getElementById('rw-wind');
+        if (wi) { const n = Math.min(3, Math.round(Math.abs(model.wind) / 0.6)); wi.innerHTML = n ? `${mi('air')}<span>${model.wind < 0 ? '←'.repeat(n) : '→'.repeat(n)}</span>` : ''; }
+        const warn = document.getElementById('rw-warn');
+        if (warn) { warn.classList.toggle('show', model.off > 0); const f = document.getElementById('rw-warn-fill'); if (f) f.style.width = Math.min(100, model.off / MODEL_RULE.offMax * 100) + '%'; }
+    }
+    function modelFlash(n) {
+        const box = document.getElementById('rw-flashes'); if (!box) return;
+        for (let i = 0; i < n; i++) setTimeout(() => { const f = document.createElement('div'); f.className = 'rw-flash'; f.style.left = (Math.random() < 0.5 ? 2 + Math.random() * 18 : 80 + Math.random() * 18) + '%'; f.style.top = (25 + Math.random() * 60) + '%'; box.appendChild(f); setTimeout(() => f.remove(), 500); }, i * 90);
+    }
     function modelLoop() {
         if (!model.active) return;
-        // 風：向きと強さが1〜2秒ごとに変わり、時間がたつほど強くなる。放っておくと端へ流される
+        const dt = 0.05;
+        // 風：向きと強さが1〜2秒ごとに変わり、時間がたつほど強くなる
         model.windTimer -= 50;
         if (model.windTimer <= 0) {
-            const maxW = 0.9 + Math.min(1.2, model.seconds / 18);
+            const maxW = 1.0 + Math.min(1.4, model.seconds / 15);
             const dir = Math.random() < 0.5 ? -1 : 1;
-            model.windTarget = dir * maxW * (0.6 + Math.random() * 0.4);
-            model.windTimer = 1000 + Math.random() * 1000;
+            model.windTarget = dir * maxW * (0.55 + Math.random() * 0.45);
+            model.windTimer = 900 + Math.random() * 1100;
         }
         model.wind += (model.windTarget - model.wind) * 0.08;
-        const push = (Math.random() - 0.5) * 0.6;
+        const push = (Math.random() - 0.5) * 0.7;
         let force = 0;
-        if (model.holding === 'left') force = -1.1;
-        if (model.holding === 'right') force = 1.1;
+        if (model.holding === 'left') force = -1.15;
+        if (model.holding === 'right') force = 1.15;
         model.vel = model.vel * 0.9 + model.wind * 0.45 + push + force;
         model.pos += model.vel * 0.3;
-        const needle = document.getElementById('model-needle');
-        if (needle) needle.style.setProperty('--tilt', (model.wind * 8).toFixed(1) + 'deg');
-        if (model.pos <= 2 || model.pos >= 98) {
-            model.pos = Math.max(0, Math.min(100, model.pos));
-            document.getElementById('model-needle').style.left = model.pos + '%';
-            endModel(); return;
+        if (model.pos <= 2 || model.pos >= 98) { model.pos = Math.max(0, Math.min(100, model.pos)); model.reason = 'ランウェイから落ちちゃった…'; modelRender(); endModel(); return; }
+        // ラインから外れている時間（戻ればリセット）
+        if (Math.abs(model.pos - 50) > modelZone()) { model.off += dt; if (model.off >= MODEL_RULE.offMax) { model.reason = 'ラインから外れたまま3秒たっちゃった…'; modelRender(); endModel(); return; } }
+        else model.off = 0;
+        // ポーズの合図
+        const pa = MODEL_RULE.poseAt[model.poseIdx];
+        if (pa != null && model.poseOpen == null && model.seconds >= pa) {
+            model.poseOpen = model.seconds;
+            const btn = document.getElementById('model-pose-btn'); if (btn) { btn.disabled = false; btn.classList.add('ready'); }
+            const p = document.getElementById('rw-pose'); if (p) { p.innerHTML = `<div class="rw-pose-t">POSE!</div><div class="rw-pose-ring"></div>`; p.className = 'rw-pose show'; p.style.setProperty('--pw', MODEL_RULE.poseWindow + 's'); }
+            LiveBGM.sfx('voteStart');
         }
-        document.getElementById('model-needle').style.left = model.pos + '%';
-        model.seconds += 0.05;
+        if (model.poseOpen != null && model.seconds - model.poseOpen > MODEL_RULE.poseWindow) modelPoseResult(false);
+        model.seconds += dt;
         document.getElementById('model-seconds').innerText = model.seconds.toFixed(1);
-        if (model.seconds >= 30) { endModel(); return; }
+        modelRender();
+        if (model.seconds >= MODEL_RULE.goal) { model.reason = 'ランウェイ完走！'; endModel(); return; }
+    }
+    function modelPose() {
+        if (!model.active || model.poseOpen == null) return;
+        // ラインの上でポーズしたときだけ成功
+        modelPoseResult(Math.abs(model.pos - 50) <= modelZone());
+    }
+    function modelPoseResult(ok) {
+        model.poseOpen = null; model.poseIdx++;
+        const btn = document.getElementById('model-pose-btn'); if (btn) { btn.disabled = true; btn.classList.remove('ready'); }
+        const p = document.getElementById('rw-pose');
+        if (ok) {
+            model.poses++; model.bonus += MODEL_RULE.poseBonus;
+            document.getElementById('model-poses').innerText = model.poses;
+            if (p) { p.innerHTML = `<div class="rw-pose-t ok">PERFECT POSE!</div><div class="rw-pose-sub">+${MODEL_RULE.poseBonus}秒</div>`; p.className = 'rw-pose show done'; }
+            modelFlash(10); playSound('correct');
+            const w = document.getElementById('model-needle'); if (w) { w.classList.remove('posing'); void w.offsetWidth; w.classList.add('posing'); }
+        } else {
+            if (p) { p.innerHTML = `<div class="rw-pose-t miss">MISS…</div>`; p.className = 'rw-pose show done'; }
+            playSound('wrong');
+        }
+        setTimeout(() => { const q = document.getElementById('rw-pose'); if (q && q.classList.contains('done')) q.className = 'rw-pose'; }, 1100);
     }
     function modelPress(dir) { if (model.active) model.holding = dir; }
     function modelRelease() { model.holding = null; }
@@ -5906,14 +6011,20 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         model.active = false; clearInterval(model.tick); setGameMode(false);
         document.getElementById('model-exit-btn').style.display = 'none';
         document.getElementById('model-btns').style.display = 'none';
+        document.getElementById('model-track').classList.remove('walking');
+        const warn = document.getElementById('rw-warn'); if (warn) warn.classList.remove('show');
+        const pz = document.getElementById('rw-pose'); if (pz) pz.className = 'rw-pose';
         playSound('timeup');
         const m = state.members.find(x => x.id === model.targetId); if (!m) return;
-        const seconds = Math.round(model.seconds * 10) / 10;
+        const walked = Math.round(Math.min(model.seconds, MODEL_RULE.goal) * 10) / 10;
+        const seconds = Math.round((walked + model.bonus) * 10) / 10;
         let earned = { vo:0, pl:0, da:0, vi:0 };
         Object.assign(earned, lessonEarnedByValue('model', seconds));
         m.r++; addPointsWithLog(m, earned, 'モデル', false, 'model');
         const ms = (MASCOTS.find(x => x.id === m.mascotId)) || MASCOTS[0];
         showLessonResult('model-result', 'model-result-canvas', ms, mi('checkroom') + '結果！', seconds + '秒', earned, 'model');
+        const rb = document.getElementById('model-result');
+        if (rb) rb.insertAdjacentHTML('beforeend', `<div class="dance-result-detail">${escapeHtml(model.reason)}<br>ウォーキング ${walked}秒 ＋ ポーズ成功 ${model.poses}回（+${model.bonus}秒）</div>`);
         document.getElementById('model-start-btn').style.display = 'block';
         syncToSheet(m);
     }
@@ -5929,7 +6040,10 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         const btns = document.getElementById('model-btns'); if (btns) btns.style.display = 'none';
         const descEl = document.getElementById('model-desc'); if (descEl) descEl.style.display = 'block';
         document.getElementById('model-seconds').innerText = '0.0';
-        const needle = document.getElementById('model-needle'); if (needle) needle.style.left = '50%';
+        const needle = document.getElementById('model-needle'); if (needle) { needle.style.left = '50%'; needle.classList.remove('off'); }
+        const me0 = state.members.find(m => m.name === user); const ms0 = (me0 && MASCOTS.find(x => x.id === me0.mascotId)) || MASCOTS[0];
+        const wimg = document.getElementById('rw-walker-img'); if (wimg && !wimg.getAttribute('src')) wimg.src = ms0.img;
+        const pc = document.getElementById('model-poses'); if (pc) pc.innerText = '0';
         const me = state.members.find(m => m.name === user);
         const startBtn = document.getElementById('model-start-btn');
         if (!startBtn) return;
