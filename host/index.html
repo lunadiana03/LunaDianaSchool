@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Host Club</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Shippori+Mincho+B1:wght@700;800&family=Zen+Maru+Gothic:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,500,0..1,0&display=block" rel="stylesheet">
+<style>
+:root {
+  --bg0: #0f0819; --bg1: #1c0f30; --bg2: #2a1546;
+  --card: rgba(255,255,255,.06); --card-b: rgba(243,211,139,.22);
+  --gold: #f3d38b; --gold2: #c9973f; --gold3: #fff4d6;
+  --rose: #ff7eb6; --rose2: #e0448c; --lav: #b9a4ff;
+  --text: #f7eefc; --sub: #bda9cf; --mute: #8a779e;
+  --silver: #dfe6f0; --bronze: #e0a476;
+  --t1: #ffb3d1; --t2: #ff7eb6; --t3: #f3d38b; --t4: #c9b0ff; --t5: #fff1b8;
+  --ease-pop: cubic-bezier(.34,1.56,.64,1);
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  font-family: 'Zen Maru Gothic', 'Hiragino Maru Gothic ProN', sans-serif; font-weight: 500;
+  color: var(--text); font-size: 14px; min-height: 100vh; padding-bottom: 96px;
+  background: radial-gradient(120% 70% at 50% -10%, #3b1d5e 0%, var(--bg1) 45%, var(--bg0) 100%) fixed, var(--bg0);
+  overflow-x: hidden;
+}
+/* ダイヤ格子 + ふわっと漂うボケ */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none; opacity: .5;
+  background:
+    repeating-linear-gradient(45deg, transparent 0 27px, rgba(243,211,139,.07) 27px 28px),
+    repeating-linear-gradient(-45deg, transparent 0 27px, rgba(243,211,139,.07) 27px 28px);
+}
+.bokeh { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.bokeh i { position: absolute; border-radius: 50%; filter: blur(2px); opacity: .0; animation: bokeh 14s ease-in-out infinite; }
+@keyframes bokeh { 0%,100% { opacity: 0; transform: translateY(20px) scale(.9); } 50% { opacity: .55; transform: translateY(-30px) scale(1.05); } }
+
+.mi { font-family: 'Material Symbols Rounded'; font-weight: normal; font-style: normal; font-size: 1.25em; line-height: 1; letter-spacing: normal; text-transform: none; display: inline-block; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; vertical-align: -.2em; font-variation-settings: 'FILL' 1; }
+.wrap { max-width: 520px; margin: 0 auto; padding: 0 16px; }
+button { font-family: inherit; cursor: pointer; border: 0; }
+input, textarea, select { font-family: inherit; font-size: 16px; }
+
+/* ---------- ヘッダー ---------- */
+header { text-align: center; padding: 22px 16px 6px; position: relative; }
+.logo { font-family: 'Cinzel', serif; font-weight: 800; font-size: 26px; letter-spacing: .14em; margin: 0;
+  background: linear-gradient(100deg, var(--gold2) 0%, var(--gold3) 30%, var(--gold) 45%, var(--gold2) 60%, var(--gold3) 80%, var(--gold2) 100%);
+  background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 6s linear infinite; }
+@keyframes shimmer { to { background-position: 250% center; } }
+.logo-sub { font-size: 11px; color: var(--sub); letter-spacing: .3em; margin-top: 4px; }
+.logo-line { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; color: var(--gold); opacity: .8; }
+.logo-line::before, .logo-line::after { content: ''; height: 1px; width: 70px; background: linear-gradient(90deg, transparent, var(--gold)); }
+.logo-line::after { transform: scaleX(-1); }
+.logo-line .mi { font-size: 14px; }
+.demo-note { margin: 10px auto 0; max-width: 520px; font-size: 11.5px; color: var(--gold3); background: rgba(243,211,139,.12); border: 1px dashed rgba(243,211,139,.4); border-radius: 12px; padding: 8px 12px; }
+
+/* ---------- 画面切り替え ---------- */
+.view { display: none; }
+.view.active { display: block; animation: viewIn .45s ease both; }
+@keyframes viewIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 共通パーツ ---------- */
+.heading { display: flex; align-items: center; gap: 10px; margin: 26px 0 12px; }
+.heading .en { font-family: 'Cinzel', serif; font-weight: 600; font-size: 11px; letter-spacing: .25em; color: var(--gold); }
+.heading .ja { font-family: 'Shippori Mincho B1', serif; font-size: 17px; font-weight: 800; }
+.heading::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(243,211,139,.5), transparent); }
+.card { background: var(--card); border: 1px solid var(--card-b); border-radius: 20px; padding: 16px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 22px; border-radius: 999px; font-weight: 700; font-size: 15px; color: #2a1546;
+  background: linear-gradient(180deg, var(--gold3), var(--gold) 55%, var(--gold2)); box-shadow: 0 4px 0 #8f6826, 0 8px 18px rgba(243,211,139,.25); transition: transform .18s var(--ease-pop), box-shadow .18s; }
+.btn:active { transform: translateY(3px) scale(.98); box-shadow: 0 1px 0 #8f6826, 0 3px 8px rgba(243,211,139,.2); }
+.btn.rose { color: #fff; background: linear-gradient(180deg, #ffb0d4, var(--rose) 55%, var(--rose2)); box-shadow: 0 4px 0 #a52a63, 0 8px 18px rgba(255,126,182,.3); }
+.btn.rose:active { box-shadow: 0 1px 0 #a52a63; }
+.btn.ghost { color: var(--text); background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.btn.ghost:active { box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
+.btn.block { width: 100%; }
+.btn:disabled { opacity: .45; pointer-events: none; }
+.seg { display: flex; background: rgba(255,255,255,.07); border-radius: 999px; padding: 4px; gap: 4px; }
+.seg button { flex: 1; padding: 9px 0; border-radius: 999px; background: transparent; color: var(--sub); font-weight: 700; font-size: 13.5px; transition: background .3s, color .3s; }
+.seg button.on { background: linear-gradient(180deg, rgba(243,211,139,.95), var(--gold2)); color: #2a1546; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; color: var(--sub); margin-bottom: 5px; }
+.field input, .field textarea, .field select { width: 100%; padding: 11px 14px; border-radius: 14px; border: 1px solid rgba(243,211,139,.25); background: rgba(0,0,0,.25); color: var(--text); outline: none; transition: border-color .2s; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--gold); }
+.muted { color: var(--sub); font-size: 12px; }
+.pt { font-family: 'Cinzel', serif; font-weight: 800; letter-spacing: .02em; }
+.pt small { font-size: .6em; margin-left: 2px; color: var(--gold); letter-spacing: .1em; }
+.empty { text-align: center; color: var(--mute); padding: 22px 0; font-size: 13px; }
+
+/* ---------- アイコン（アバター） ---------- */
+.av { --s: 48px; position: relative; width: var(--s); height: var(--s); flex: none; border-radius: 50%; }
+.av .face { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: linear-gradient(145deg, #4a2a74, #2a1546); display: flex; align-items: center; justify-content: center;
+  font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: calc(var(--s) * .42); color: var(--gold3); box-shadow: 0 0 0 2px rgba(255,255,255,.85); z-index: 1; }
+.av .face img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.av.r1 .face { box-shadow: 0 0 0 3px var(--gold), 0 0 18px rgba(243,211,139,.55); }
+.av.r2 .face { box-shadow: 0 0 0 3px var(--silver), 0 0 12px rgba(223,230,240,.4); }
+.av.r3 .face { box-shadow: 0 0 0 3px var(--bronze), 0 0 12px rgba(224,164,118,.4); }
+/* 24時間以内にもらった一番高い貢ぎ物で光る */
+.av::before, .av::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
+.av.aura-2::before { inset: -5px; background: radial-gradient(circle, rgba(255,126,182,.55), transparent 70%); animation: auraPulse 2.6s ease-in-out infinite; }
+.av.aura-3::before { inset: -8px; background: radial-gradient(circle, rgba(243,211,139,.7), transparent 70%); animation: auraPulse 2.2s ease-in-out infinite; }
+.av.aura-4::before { inset: -6px; background: conic-gradient(from 0deg, var(--gold), var(--lav), var(--rose), var(--gold), var(--lav), var(--rose), var(--gold)); animation: spin 4s linear infinite; filter: blur(1px); }
+.av.aura-4::after { inset: -14px; background: radial-gradient(circle, rgba(201,176,255,.45), transparent 70%); animation: auraPulse 2s ease-in-out infinite; }
+.av.aura-5::before { inset: -7px; background: conic-gradient(from 0deg, #fff4d6, #f3d38b, #ff9ccf, #b9a4ff, #8ee8ff, #fff4d6, #f3d38b, #ff9ccf, #fff4d6); animation: spin 3s linear infinite; filter: blur(.5px); }
+.av.aura-5::after { inset: -20px; background: radial-gradient(circle, rgba(255,244,214,.6), rgba(255,156,207,.25) 45%, transparent 70%); animation: auraPulse 1.6s ease-in-out infinite; }
+.av .twinkle { position: absolute; z-index: 2; color: #fff; font-size: calc(var(--s) * .22); text-shadow: 0 0 6px var(--gold); animation: twinkle 2s ease-in-out infinite; pointer-events: none; }
+@keyframes auraPulse { 0%,100% { opacity: .55; transform: scale(.96); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes twinkle { 0%,100% { opacity: 0; transform: scale(.4) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
+
+/* ---------- ランキング：表彰台 ---------- */
+.podium { position: relative; display: grid; grid-template-columns: 1fr 1.25fr 1fr; align-items: end; gap: 8px; margin-top: 14px; padding-top: 40px; }
+.podium .stage-light { position: absolute; left: 50%; top: -30px; width: 340px; height: 340px; transform: translateX(-50%); pointer-events: none;
+  background: repeating-conic-gradient(from 0deg, rgba(243,211,139,.16) 0 8deg, transparent 8deg 22deg);
+  -webkit-mask: radial-gradient(circle, #000 0%, transparent 65%); mask: radial-gradient(circle, #000 0%, transparent 65%); animation: spin 40s linear infinite; }
+.pd { position: relative; text-align: center; cursor: pointer; }
+.pd .crown { color: var(--gold); font-size: 30px; filter: drop-shadow(0 0 8px rgba(243,211,139,.8)); display: block; margin-bottom: 2px; animation: crownBob 2.4s ease-in-out infinite; }
+@keyframes crownBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
+.pd .av { margin: 0 auto; }
+.pd.p1 .av { --s: 112px; } .pd.p2 .av, .pd.p3 .av { --s: 76px; }
+.pd .rk { font-family: 'Cinzel', serif; font-weight: 800; font-size: 12px; letter-spacing: .15em; margin-top: 10px; }
+.pd.p1 .rk { color: var(--gold); font-size: 14px; } .pd.p2 .rk { color: var(--silver); } .pd.p3 .rk { color: var(--bronze); }
+.pd .nm { font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 15px; margin-top: 2px; word-break: break-all; }
+.pd.p1 .nm { font-size: 19px; }
+.pd .pt { font-size: 15px; color: var(--gold3); margin-top: 2px; }
+.pd.p1 .pt { font-size: 22px; }
+.pd .base { margin-top: 10px; border-radius: 14px 14px 4px 4px; background: linear-gradient(180deg, rgba(243,211,139,.25), rgba(243,211,139,.04)); border: 1px solid rgba(243,211,139,.3); border-bottom: 0; }
+.pd.p1 .base { height: 56px; } .pd.p2 .base { height: 36px; } .pd.p3 .base { height: 24px; }
+.pd.p2 .base { background: linear-gradient(180deg, rgba(223,230,240,.2), rgba(223,230,240,.03)); border-color: rgba(223,230,240,.3); }
+.pd.p3 .base { background: linear-gradient(180deg, rgba(224,164,118,.2), rgba(224,164,118,.03)); border-color: rgba(224,164,118,.3); }
+.pd.vacant { opacity: .35; pointer-events: none; }
+/* 登場演出（バーン） */
+.podium.enter .pd.p1 { animation: bang .9s var(--ease-pop) both .35s; }
+.podium.enter .pd.p2 { animation: rise .6s ease both .15s; }
+.podium.enter .pd.p3 { animation: rise .6s ease both .25s; }
+.podium.enter .burst { animation: burst 1.2s ease-out both .45s; }
+.burst { position: absolute; left: 50%; top: 70px; width: 10px; height: 10px; border-radius: 50%; transform: translate(-50%,-50%); pointer-events: none; opacity: 0; box-shadow: 0 0 0 0 rgba(243,211,139,.7); }
+@keyframes bang { 0% { opacity: 0; transform: scale(.3) translateY(30px); } 60% { opacity: 1; transform: scale(1.08); } 100% { transform: none; } }
+@keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes burst { 0% { opacity: 1; box-shadow: 0 0 0 0 rgba(243,211,139,.7), 0 0 0 0 rgba(255,126,182,.4); } 100% { opacity: 0; box-shadow: 0 0 0 140px rgba(243,211,139,0), 0 0 0 200px rgba(255,126,182,0); } }
+
+/* ---------- ランキング：リスト ---------- */
+.rank-list { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.rrow { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 16px; background: var(--card); border: 1px solid rgba(255,255,255,.08); cursor: pointer; position: relative; overflow: hidden; transition: transform .2s var(--ease-pop); }
+.rrow:active { transform: scale(.98); }
+.rrow.me { border-color: var(--rose); background: rgba(255,126,182,.12); }
+.rrow .no { width: 26px; text-align: center; font-family: 'Cinzel', serif; font-weight: 800; font-size: 16px; color: var(--sub); }
+.rrow .no.n1 { color: var(--gold); } .rrow .no.n2 { color: var(--silver); } .rrow .no.n3 { color: var(--bronze); }
+.rrow .who { flex: 1; min-width: 0; }
+.rrow .who b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rrow .who span { display: block; font-size: 11.5px; color: var(--sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rrow .bar { position: absolute; left: 0; bottom: 0; height: 2px; background: linear-gradient(90deg, var(--gold2), var(--gold)); transition: width 1s ease; }
+.rrow .pt { font-size: 15px; color: var(--gold3); white-space: nowrap; }
+.rank-list.enter .rrow { animation: rise .5s ease both; }
+
+/* ---------- 貢ぎ物フィード ---------- */
+.feed { display: flex; flex-direction: column; gap: 8px; }
+.fi { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); }
+.gi { --c: var(--t1); width: 40px; height: 40px; flex: none; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent); position: relative; overflow: hidden; }
+.gi .mi { font-size: 22px; }
+.gi.t3, .gi.t4, .gi.t5 { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), 0 0 12px color-mix(in srgb, var(--c) 45%, transparent); }
+.gi.t4::after, .gi.t5::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.55) 50%, transparent 65%); background-size: 250% 100%; animation: sweep 2.6s ease-in-out infinite; }
+@keyframes sweep { 0% { background-position: 130% 0; } 60%,100% { background-position: -30% 0; } }
+.t1 { --c: var(--t1); } .t2 { --c: var(--t2); } .t3 { --c: var(--t3); } .t4 { --c: var(--t4); } .t5 { --c: var(--t5); }
+.fi .txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.5; }
+.fi .txt b { color: var(--gold3); }
+.fi .txt .msg { display: block; color: var(--sub); font-size: 12px; margin-top: 2px; }
+.fi .side { text-align: right; white-space: nowrap; }
+.fi .side .pt { font-size: 13px; color: var(--gold3); display: block; }
+.fi .side .ago { font-size: 10.5px; color: var(--mute); }
+
+/* ---------- ホスト一覧 ---------- */
+.host-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.hcard { text-align: center; padding: 18px 10px 14px; border-radius: 20px; background: var(--card); border: 1px solid rgba(243,211,139,.16); cursor: pointer; transition: transform .2s var(--ease-pop); }
+.hcard:active { transform: scale(.97); }
+.hcard .av { --s: 76px; margin: 0 auto 10px; }
+.hcard b { font-family: 'Shippori Mincho B1', serif; font-size: 16px; display: block; }
+.hcard span { display: block; font-size: 11.5px; color: var(--sub); margin-top: 3px; min-height: 1.3em; }
+
+/* ---------- ホスト詳細 ---------- */
+.back { display: inline-flex; align-items: center; gap: 4px; color: var(--sub); background: none; font-size: 13px; padding: 14px 0 0; }
+.profile { text-align: center; padding: 26px 16px 20px; margin-top: 10px; position: relative; overflow: hidden; }
+.profile .av { --s: 128px; margin: 0 auto 14px; }
+.profile h2 { font-family: 'Shippori Mincho B1', serif; font-size: 26px; margin: 0; }
+.profile .catch { color: var(--sub); margin-top: 6px; font-size: 13px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 18px; }
+.stat { background: rgba(0,0,0,.22); border-radius: 14px; padding: 10px 4px; }
+.stat .k { font-size: 10.5px; color: var(--sub); letter-spacing: .1em; }
+.stat .v { font-size: 18px; color: var(--gold3); margin-top: 2px; }
+.stat .v.big { font-size: 22px; color: var(--gold); }
+.patrons { display: flex; flex-direction: column; gap: 8px; }
+.patron { display: flex; align-items: center; gap: 10px; }
+.patron .medal { width: 22px; text-align: center; font-family: 'Cinzel', serif; font-weight: 800; }
+.patron .who { flex: 1; font-weight: 700; }
+
+/* ---------- マイページ ---------- */
+.wallet { text-align: center; padding: 22px 16px; position: relative; overflow: hidden;
+  background: linear-gradient(140deg, rgba(243,211,139,.22), rgba(255,126,182,.12) 60%, rgba(185,164,255,.14)); }
+.wallet .k { font-size: 12px; color: var(--gold3); letter-spacing: .2em; }
+.wallet .v { font-size: 38px; color: var(--gold3); margin: 4px 0 14px; text-shadow: 0 0 18px rgba(243,211,139,.45); }
+.me-head { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
+.me-head .av { --s: 64px; }
+.me-head b { font-family: 'Shippori Mincho B1', serif; font-size: 20px; display: block; }
+.me-head .role { font-size: 11px; color: var(--gold); letter-spacing: .2em; font-family: 'Cinzel', serif; }
+.me-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; }
+.me-actions .btn { flex: 1; font-size: 13px; padding: 10px 12px; }
+.host-board { display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 8px; text-align: center; padding: 18px 12px; background: linear-gradient(140deg, rgba(243,211,139,.2), rgba(185,164,255,.12)); }
+.host-board .k { font-size: 10.5px; color: var(--sub); letter-spacing: .1em; }
+.host-board .v { font-size: 24px; color: var(--gold3); margin-top: 4px; }
+.host-board .v.rank { font-size: 32px; color: var(--gold); text-shadow: 0 0 14px rgba(243,211,139,.6); }
+.host-board .gap { grid-column: 1 / -1; font-size: 12px; color: var(--gold3); margin-top: 6px; }
+
+/* ---------- ログイン ---------- */
+.auth .icon-pick { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.auth .icon-pick .av { --s: 72px; }
+.auth .icon-pick label.btn { font-size: 13px; padding: 9px 16px; }
+
+/* ---------- 下のナビ ---------- */
+nav.bn { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: center; gap: 4px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(15,8,25,0), rgba(15,8,25,.92) 35%); }
+nav.bn button { flex: 1; max-width: 130px; background: none; color: var(--mute); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 6px 0; transition: color .25s; }
+nav.bn button .ic { width: 46px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; transition: background .3s, transform .3s var(--ease-pop); }
+nav.bn button .ic .mi { font-size: 24px; }
+nav.bn button.on { color: var(--gold); }
+nav.bn button.on .ic { background: rgba(243,211,139,.16); transform: translateY(-2px); }
+
+/* ---------- 貢ぐシート ---------- */
+.sheet-bg { position: fixed; inset: 0; z-index: 80; background: rgba(5,2,10,.6); opacity: 0; pointer-events: none; transition: opacity .3s; }
+.sheet-bg.show { opacity: 1; pointer-events: auto; }
+.sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 81; max-width: 560px; margin: 0 auto; max-height: 88vh; overflow-y: auto; border-radius: 26px 26px 0 0;
+  background: linear-gradient(180deg, #2a1546, #1a0d2c); border: 1px solid rgba(243,211,139,.3); border-bottom: 0;
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom)); transform: translateY(105%); transition: transform .42s cubic-bezier(.2,.9,.25,1); }
+.sheet.show { transform: none; }
+.sheet .grab { width: 44px; height: 5px; border-radius: 9px; background: rgba(255,255,255,.25); margin: 0 auto 12px; }
+.sheet h3 { font-family: 'Shippori Mincho B1', serif; margin: 0 0 4px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+.sheet h3 .av { --s: 36px; }
+.sheet .bal { font-size: 12.5px; color: var(--sub); margin-bottom: 12px; }
+.sheet .bal b { color: var(--gold3); font-family: 'Cinzel', serif; }
+.gift-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.gcard { position: relative; padding: 12px 4px 10px; border-radius: 16px; text-align: center; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: var(--text); transition: transform .2s var(--ease-pop), border-color .2s, background .2s; overflow: hidden; }
+.gcard:active { transform: scale(.96); }
+.gcard .gi { margin: 0 auto 6px; width: 44px; height: 44px; }
+.gcard .n { font-size: 12.5px; font-weight: 700; line-height: 1.3; }
+.gcard .p { font-family: 'Cinzel', serif; font-weight: 800; font-size: 12px; color: var(--gold3); margin-top: 2px; }
+.gcard .tl { font-family: 'Cinzel', serif; font-size: 8.5px; letter-spacing: .15em; color: var(--c); opacity: .9; }
+.gcard.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); box-shadow: 0 0 16px color-mix(in srgb, var(--c) 35%, transparent); }
+.gcard.ng { opacity: .35; }
+.qty { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 14px 0 10px; }
+.qty button { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,.1); color: var(--text); font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.qty b { font-family: 'Cinzel', serif; font-size: 20px; min-width: 40px; text-align: center; }
+
+/* ---------- 貢ぎ演出 ---------- */
+.fx { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; overflow: hidden; pointer-events: none; }
+.fx.show { display: flex; pointer-events: auto; }
+.fx .dim { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, rgba(30,12,50,.82), rgba(8,3,15,.94)); opacity: 0; transition: opacity .5s; }
+.fx.show .dim { opacity: 1; }
+.fx.t1 .dim, .fx.t2 .dim { background: radial-gradient(circle at 50% 45%, rgba(42,21,70,.25), rgba(8,3,15,.55)); }
+.fx .rays { position: absolute; left: 50%; top: 45%; width: 900px; height: 900px; margin: -450px 0 0 -450px; opacity: 0; pointer-events: none;
+  -webkit-mask: radial-gradient(circle, #000 5%, transparent 60%); mask: radial-gradient(circle, #000 5%, transparent 60%); }
+.fx.t3 .rays, .fx.t4 .rays, .fx.t5 .rays { animation: raysIn 1s ease both .2s, spin 18s linear infinite; }
+.fx.t3 .rays { background: repeating-conic-gradient(rgba(243,211,139,.22) 0 6deg, transparent 6deg 20deg); }
+.fx.t4 .rays { background: repeating-conic-gradient(rgba(201,176,255,.28) 0 5deg, transparent 5deg 12deg, rgba(243,211,139,.28) 12deg 17deg, transparent 17deg 24deg); }
+.fx.t5 .rays { background: repeating-conic-gradient(rgba(255,244,214,.4) 0 4deg, transparent 4deg 10deg, rgba(255,156,207,.3) 10deg 14deg, transparent 14deg 20deg); }
+@keyframes raysIn { from { opacity: 0; } to { opacity: 1; } }
+.fx .flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 45%, #fff, rgba(255,244,214,.6) 40%, transparent 75%); opacity: 0; pointer-events: none; }
+.fx.t5 .flash { animation: flash 1.1s ease-out both .15s; }
+.fx.t4 .flash { animation: flash .9s ease-out both .15s; opacity: 0; }
+@keyframes flash { 0% { opacity: 0; } 18% { opacity: .9; } 100% { opacity: 0; } }
+.fx .ring { position: absolute; left: 50%; top: 45%; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; border: 2px solid var(--c); opacity: 0; pointer-events: none; }
+.fx.show .ring { animation: ring 1.6s ease-out both; }
+.fx.show .ring.r2 { animation-delay: .35s; } .fx.show .ring.r3 { animation-delay: .7s; }
+@keyframes ring { 0% { opacity: .9; transform: scale(.3); } 100% { opacity: 0; transform: scale(3.2); } }
+.fx .parts { position: absolute; inset: 0; pointer-events: none; }
+.fx .parts > * { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
+.fx .p-heart { color: var(--rose); font-size: 26px; text-shadow: 0 0 10px rgba(255,126,182,.6); }
+.fx .p-spark { color: #fff; font-size: 18px; text-shadow: 0 0 8px var(--gold), 0 0 16px var(--gold); }
+.fx .p-bubble { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, rgba(255,244,214,.7) 30%, rgba(243,211,139,.25) 70%); box-shadow: 0 0 8px rgba(243,211,139,.6); }
+.fx .p-conf { width: 8px; height: 14px; border-radius: 2px; }
+.fx .p-petal { width: 16px; height: 12px; border-radius: 100% 0 100% 0; background: linear-gradient(135deg, #ffd6e8, var(--rose)); }
+.fx-card { position: relative; z-index: 2; text-align: center; padding: 0 24px; animation: cardIn .8s var(--ease-pop) both .1s; }
+@keyframes cardIn { 0% { opacity: 0; transform: scale(.4); } 100% { opacity: 1; transform: none; } }
+.fx-card .lb { font-family: 'Cinzel', serif; font-weight: 800; letter-spacing: .4em; font-size: 13px; color: var(--c); text-shadow: 0 0 10px color-mix(in srgb, var(--c) 70%, transparent); }
+.fx-card .gift { position: relative; width: 130px; height: 130px; margin: 14px auto; border-radius: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 45%, #fff), color-mix(in srgb, var(--c) 35%, #2a1546)); box-shadow: 0 0 0 3px rgba(255,255,255,.75), 0 0 40px color-mix(in srgb, var(--c) 70%, transparent); animation: giftFloat 2.4s ease-in-out infinite .9s; }
+.fx-card .gift .mi { font-size: 76px; color: #fff; filter: drop-shadow(0 3px 6px rgba(0,0,0,.25)); }
+.fx-card .gift::after { content: ''; position: absolute; inset: 0; background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%); background-size: 250% 100%; animation: sweep 2.2s ease-in-out infinite .6s; }
+@keyframes giftFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.fx.t1 .fx-card .gift, .fx.t2 .fx-card .gift { width: 104px; height: 104px; border-radius: 30px; }
+.fx.t1 .fx-card .gift .mi, .fx.t2 .fx-card .gift .mi { font-size: 58px; }
+.fx.t5 .fx-card .gift { width: 160px; height: 160px; border-radius: 44px; }
+.fx.t5 .fx-card .gift .mi { font-size: 96px; }
+.fx-card .gn { font-family: 'Shippori Mincho B1', serif; font-weight: 800; font-size: 26px; text-shadow: 0 2px 12px rgba(0,0,0,.4); }
+.fx.t5 .fx-card .gn { font-size: 29px; background: linear-gradient(100deg, var(--gold2), var(--gold3) 30%, var(--gold) 50%, var(--gold3) 70%, var(--gold2)); background-size: 250% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shimmer 3s linear infinite; text-shadow: none; filter: drop-shadow(0 2px 10px rgba(243,211,139,.4)); }
+.fx-card .gp { font-family: 'Cinzel', serif; font-weight: 800; color: var(--gold3); font-size: 18px; margin-top: 2px; }
+.fx-card .gf { margin-top: 12px; font-size: 14px; color: var(--text); }
+.fx-card .gf b { color: var(--gold); font-size: 16px; }
+.fx-card .gm { margin-top: 8px; font-size: 13px; color: var(--sub); max-width: 300px; margin-left: auto; margin-right: auto; }
+.fx-card .tap { margin-top: 20px; font-size: 11px; color: var(--mute); opacity: 0; animation: rise .5s ease both 1.6s; }
+.fx.out { animation: fxOut .5s ease both; }
+@keyframes fxOut { to { opacity: 0; } }
+
+/* ---------- トースト・読み込み ---------- */
+.toasts { position: fixed; top: 12px; left: 0; right: 0; z-index: 150; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; padding: 0 16px; }
+.toast { display: flex; align-items: center; gap: 10px; max-width: 480px; width: 100%; padding: 10px 14px; border-radius: 16px; background: rgba(36,18,60,.94); border: 1px solid rgba(243,211,139,.35); box-shadow: 0 8px 24px rgba(0,0,0,.35); font-size: 13px; animation: toastIn .45s var(--ease-pop) both; }
+.toast.err { border-color: rgba(255,126,182,.6); }
+.toast.bye { animation: toastOut .4s ease both; }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-14px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+.loading { position: fixed; inset: 0; z-index: 300; display: none; align-items: center; justify-content: center; background: rgba(8,3,15,.55); }
+.loading.show { display: flex; }
+.loading .dots { display: flex; gap: 8px; }
+.loading .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--gold); animation: dot 1s ease-in-out infinite; }
+.loading .dots i:nth-child(2) { animation-delay: .15s; } .loading .dots i:nth-child(3) { animation-delay: .3s; }
+@keyframes dot { 0%,100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(-8px); opacity: 1; } }
+.skeleton { height: 280px; border-radius: 20px; background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.09), rgba(255,255,255,.04)); background-size: 200% 100%; animation: shimmer 1.6s linear infinite; margin-top: 20px; }
+
+/* ---------- 画像切り抜き ---------- */
+.crop { position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.75); padding: 16px; }
+.crop.show { display: flex; }
+.crop .panel { background: #22113a; border: 1px solid rgba(243,211,139,.3); border-radius: 20px; padding: 14px; width: 100%; max-width: 380px; text-align: center; }
+.crop .stage { position: relative; display: inline-block; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; line-height: 0; margin-top: 8px; }
+.crop .stage img { display: block; max-width: 100%; max-height: 55vh; pointer-events: none; }
+.crop .box { position: absolute; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 0 9999px rgba(0,0,0,.55); cursor: move; }
+.crop .handle { position: absolute; right: 2px; bottom: 2px; width: 24px; height: 24px; border-radius: 50%; background: var(--gold); border: 2px solid #fff; cursor: nwse-resize; }
+
+/* ---------- 管理 ---------- */
+.admin-gift { display: grid; grid-template-columns: 40px 1fr 92px 32px; gap: 6px; align-items: center; margin-bottom: 6px; }
+.admin-gift input { padding: 8px 10px; border-radius: 10px; border: 1px solid rgba(243,211,139,.25); background: rgba(0,0,0,.25); color: var(--text); width: 100%; font-size: 14px; }
+.admin-gift .icon-in { grid-column: 2 / 4; }
+.admin-gift .del { background: none; color: var(--mute); }
+.admin-user { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+.admin-user .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-user button { background: rgba(255,255,255,.08); color: var(--text); border-radius: 999px; padding: 6px 10px; font-size: 12px; }
+footer { text-align: center; margin: 36px 0 10px; }
+footer button { background: none; color: var(--mute); font-size: 11px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="bokeh" id="bokeh"></div>
+
+<header>
+  <h1 class="logo" id="club-name">CLUB NOCTURNE</h1>
+  <div class="logo-sub">HOST CLUB</div>
+  <div class="logo-line"><span class="mi">diamond</span></div>
+  <div class="demo-note" id="demo-note" hidden></div>
+</header>
+
+<main class="wrap">
+  <!-- ランキング -->
+  <section class="view active" id="v-rank">
+    <div class="seg" id="rank-seg" style="margin-top:14px">
+      <button data-p="month" class="on">今月のランキング</button>
+      <button data-p="total">累計ランキング</button>
+    </div>
+    <div id="rank-body"><div class="skeleton"></div></div>
+    <div class="heading"><span class="en">GIFTS</span><span class="ja">最新の貢ぎ物</span></div>
+    <div class="feed" id="feed"></div>
+  </section>
+
+  <!-- ホスト一覧 -->
+  <section class="view" id="v-hosts">
+    <div class="heading"><span class="en">CAST</span><span class="ja">在籍ホスト</span></div>
+    <div class="host-grid" id="host-grid"></div>
+  </section>
+
+  <!-- ホスト詳細 -->
+  <section class="view" id="v-host"></section>
+
+  <!-- マイページ -->
+  <section class="view" id="v-me"></section>
+
+  <!-- 管理 -->
+  <section class="view" id="v-admin"></section>
+
+  <footer><button id="admin-link">管理</button></footer>
+</main>
+
+<nav class="bn" id="bn">
+  <button data-v="rank" class="on"><span class="ic"><span class="mi">trophy</span></span>ランキング</button>
+  <button data-v="hosts"><span class="ic"><span class="mi">groups</span></span>ホスト</button>
+  <button data-v="me"><span class="ic"><span class="mi">person</span></span>マイページ</button>
+</nav>
+
+<div class="sheet-bg" id="sheet-bg"></div>
+<div class="sheet" id="sheet"></div>
+<div class="fx" id="fx"></div>
+<div class="toasts" id="toasts"></div>
+<div class="loading" id="loading"><div class="dots"><i></i><i></i><i></i></div></div>
+<div class="crop" id="crop">
+  <div class="panel">
+    <div style="font-weight:700;color:var(--gold)"><span class="mi">crop</span> 丸の中がアイコンになります</div>
+    <div class="muted" style="margin-top:4px">ドラッグで移動、右下の丸で大きさを変えられます</div>
+    <div class="stage" id="crop-stage"><img id="crop-img" alt=""><div class="box" id="crop-box"><div class="handle" id="crop-handle"></div></div></div>
+    <input type="range" id="crop-size" min="0" max="100" value="100" style="width:100%;margin-top:10px;accent-color:#f3d38b">
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn ghost" id="crop-cancel" style="flex:1">キャンセル</button>
+      <button class="btn" id="crop-ok" style="flex:1">決定</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// GASのウェブアプリURL。空のままだとデモ表示（この端末の中だけで動くお試し版）になります。
+const API_URL = "";
+
+const DEMO = !API_URL || new URLSearchParams(location.search).has('demo');
+const TIERS = [
+  null,
+  { label: 'SWEET',    min: 0 },
+  { label: 'LOVELY',   min: 1000 },
+  { label: 'GORGEOUS', min: 5000 },
+  { label: 'LUXURY',   min: 20000 },
+  { label: 'LEGEND',   min: 50000 }
+];
+function tierOf(price) { let t = 1; for (let i = 1; i < TIERS.length; i++) if (price >= TIERS[i].min) t = i; return t; }
+function mi(name, cls) { return `<span class="mi${cls ? ' ' + cls : ''}">${name}</span>`; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+function fmt(n) { return Math.round(Number(n) || 0).toLocaleString('ja-JP'); }
+function $(id) { return document.getElementById(id); }
+function ago(iso) {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'たった今';
+  if (s < 3600) return Math.floor(s / 60) + '分前';
+  if (s < 86400) return Math.floor(s / 3600) + '時間前';
+  if (s < 86400 * 30) return Math.floor(s / 86400) + '日前';
+  const d = new Date(iso); return (d.getMonth() + 1) + '/' + d.getDate();
+}
+const store = {
+  get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+// ---------- 状態 ----------
+const S = {
+  data: null,
+  session: store.get('hc_session'),   // { role, token, id }
+  period: 'month',
+  view: 'rank',
+  hostId: null,
+  seen: null,                          // 演出済みの貢ぎ物ID
+  adminPass: null,
+  adminData: null
+};
+
+// ---------- 通信 ----------
+function api(action, payload) {
+  const body = Object.assign({ action }, payload || {});
+  if (DEMO) return Demo.handle(body);
+  return fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+    .then(r => r.text())
+    .then(t => {
+      let res;
+      try { res = JSON.parse(t); } catch (e) { throw new Error('GASの応答が読めませんでした（デプロイ設定を確認してください）'); }
+      if (res && res.error) throw new Error(res.error);
+      return res;
+    });
+}
+function authBody() { return S.session ? { role: S.session.role, token: S.session.token } : {}; }
+function loading(on) { $('loading').classList.toggle('show', !!on); }
+
+function load(opts) {
+  opts = opts || {};
+  return api('readAll', authBody()).then(d => {
+    const first = !S.data;
+    S.data = d;
+    store.set('hc_cache', d);
+    if (S.session && !d.me) { S.session = null; store.del('hc_session'); }
+    detectNew(first);
+    renderAll(opts.animate || first);
+    return d;
+  }).catch(err => { if (!opts.silent) toast(err.message, true); });
+}
+
+// 他の人の新しい貢ぎ物を見つけたら知らせる（高い物は演出も）
+function detectNew(first) {
+  const list = S.data.tributes || [];
+  if (!S.seen || first) { S.seen = new Set(list.map(t => t.id)); return; }
+  const fresh = list.filter(t => !S.seen.has(t.id));
+  fresh.forEach(t => S.seen.add(t.id));
+  if (!fresh.length || document.hidden) return;
+  const best = fresh.slice().sort((a, b) => b.price - a.price)[0];
+  if (tierOf(best.price) >= 4 && !$('fx').classList.contains('show')) playFx(best);
+  fresh.slice(0, 3).forEach(t => toast(`${mi('redeem')}<span><b>${esc(guestName(t.guestId))}</b> 様が <b>${esc(hostById(t.hostId)?.name || '')}</b> に「${esc(t.giftName)}」</span>`));
+}
+
+// ---------- 参照 ----------
+function hostById(id) { return (S.data?.hosts || []).find(h => h.id === id); }
+function guestById(id) { return (S.data?.guests || []).find(g => g.id === id); }
+function guestName(id) { return guestById(id)?.name || '退店したお客様'; }
+function ranked(period) {
+  const key = period || S.period;
+  const list = (S.data?.hosts || []).slice().sort((a, b) => (b[key] - a[key]) || (b.total - a.total) || String(a.name).localeCompare(b.name));
+  let prev = null, rank = 0;
+  return list.map((h, i) => { if (h[key] !== prev) { rank = i + 1; prev = h[key]; } return Object.assign({}, h, { rank, score: h[key] }); });
+}
+function rankOf(id, period) { return ranked(period).find(h => h.id === id); }
+
+// アイコン（画像がなければ名前の1文字目）
+function avatar(p, opts) {
+  opts = opts || {};
+  const cls = ['av'];
+  if (opts.rank && opts.rank <= 3 && opts.score > 0) cls.push('r' + opts.rank);
+  const aura = p && p.auraPrice ? tierOf(p.auraPrice) : 0;
+  if (aura >= 2 && !opts.noAura) cls.push('aura-' + aura);
+  const style = opts.size ? ` style="--s:${opts.size}px"` : '';
+  const face = p && p.icon ? `<img src="${esc(p.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : esc(String(p?.name || '?').slice(0, 1));
+  const tw = aura >= 4 && !opts.noAura ? `<span class="mi twinkle" style="right:-2%;top:2%">auto_awesome</span><span class="mi twinkle" style="left:-4%;bottom:10%;animation-delay:1s">auto_awesome</span>` : '';
+  return `<div class="${cls.join(' ')}"${style}><div class="face">${face}</div>${tw}</div>`;
+}
+function giftIcon(icon, price, size) {
+  const st = size ? ` style="width:${size}px;height:${size}px"` : '';
+  return `<div class="gi t${tierOf(price)}"${st}>${mi(esc(icon || 'redeem'))}</div>`;
+}
+
+// ---------- 描画 ----------
+function renderAll(animate) {
+  if (!S.data) return;
+  $('club-name').textContent = S.data.settings.clubName || 'HOST CLUB';
+  document.title = S.data.settings.clubName || 'Host Club';
+  renderRank(animate && S.view === 'rank');
+  renderFeed();
+  renderHosts();
+  if (S.view === 'host') renderHost();
+  // 入力中や未ログインのフォームは書き換えない
+  const typing = document.activeElement && $('v-me').contains(document.activeElement);
+  if (S.view === 'me' && S.data.me && !typing) renderMe();
+}
+
+function countUp(root) {
+  root.querySelectorAll('[data-count]').forEach(el => {
+    const to = Number(el.dataset.count) || 0, t0 = performance.now(), dur = 1200;
+    const step = now => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.firstChild.nodeValue = fmt(to * e);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    el.firstChild.nodeValue = '0';
+    requestAnimationFrame(step);
+  });
+}
+
+function podiumHtml(list, animate) {
+  const slot = (h, n) => {
+    if (!h) return `<div class="pd p${n} vacant">${avatar({ name: '?' }, {})}<div class="rk">No.${n}</div><div class="nm">―</div><div class="base"></div></div>`;
+    return `<div class="pd p${n}" data-host="${esc(h.id)}">
+      ${n === 1 ? mi('crown', 'crown') : ''}
+      ${avatar(h, { rank: n, score: h.score })}
+      <div class="rk">No.${n}</div>
+      <div class="nm">${esc(h.name)}</div>
+      <div class="pt"><span data-count="${h.score}">${fmt(h.score)}</span><small>pt</small></div>
+      <div class="base"></div>
+    </div>`;
+  };
+  return `<div class="podium${animate ? ' enter' : ''}"><div class="stage-light"></div><div class="burst"></div>${slot(list[1], 2)}${slot(list[0], 1)}${slot(list[2], 3)}</div>`;
+}
+function rankListHtml(list, opts) {
+  opts = opts || {};
+  const top = Math.max(1, list[0]?.score || 0);
+  return `<div class="rank-list${opts.animate ? ' enter' : ''}">${list.map((h, i) => `
+    <div class="rrow${opts.meId === h.id ? ' me' : ''}" data-host="${esc(h.id)}" style="animation-delay:${.5 + i * .05}s">
+      <div class="no${h.score > 0 && h.rank <= 3 ? ' n' + h.rank : ''}">${h.rank}</div>
+      ${avatar(h, { size: 44, rank: h.rank, score: h.score })}
+      <div class="who"><b>${esc(h.name)}</b><span>${esc(h.catch || '')}</span></div>
+      <div class="pt">${fmt(h.score)}<small>pt</small></div>
+      <div class="bar" style="width:${Math.round(h.score / top * 100)}%"></div>
+    </div>`).join('')}</div>`;
+}
+function renderRank(animate) {
+  const list = ranked();
+  const body = $('rank-body');
+  if (!list.length) { body.innerHTML = `<div class="empty" style="padding:50px 0">${mi('nightlife')} まだホストが登録されていません<br><span class="muted">マイページから「ホスト」として登録できます</span></div>`; return; }
+  body.innerHTML = podiumHtml(list.slice(0, 3), animate) + (list.length > 3 ? rankListHtml(list.slice(3), { animate, meId: S.session?.role === 'host' ? S.session.id : null }) : '');
+  if (animate) countUp(body);
+}
+function feedHtml(list, opts) {
+  opts = opts || {};
+  if (!list.length) return `<div class="empty">${opts.empty || 'まだ貢ぎ物はありません'}</div>`;
+  return list.map(t => {
+    const host = hostById(t.hostId);
+    const line = opts.mode === 'guest' ? `<b>${esc(host?.name || '退店したホスト')}</b> に「${esc(t.giftName)}」`
+      : opts.mode === 'host' ? `<b>${esc(guestName(t.guestId))}</b> 様から「${esc(t.giftName)}」`
+      : `<b>${esc(guestName(t.guestId))}</b> 様 → <b>${esc(host?.name || '退店したホスト')}</b><br>「${esc(t.giftName)}」`;
+    return `<div class="fi">${giftIcon(t.icon, t.price)}<div class="txt">${line}${t.message ? `<span class="msg">${mi('chat_bubble')} ${esc(t.message)}</span>` : ''}</div>
+      <div class="side"><span class="pt">${fmt(t.price)}<small>pt</small></span><span class="ago">${ago(t.at)}</span></div></div>`;
+  }).join('');
+}
+function renderFeed() { $('feed').innerHTML = feedHtml((S.data.tributes || []).slice(0, 20)); }
+
+function renderHosts() {
+  const list = ranked('month');
+  $('host-grid').innerHTML = list.length ? list.map(h => `
+    <div class="hcard" data-host="${esc(h.id)}">${avatar(h, { rank: h.rank, score: h.score })}<b>${esc(h.name)}</b><span>${esc(h.catch || '')}</span></div>`).join('')
+    : `<div class="empty" style="grid-column:1/-1">まだホストがいません</div>`;
+}
+
+function renderHost() {
+  const h = hostById(S.hostId);
+  const el = $('v-host');
+  if (!h) { el.innerHTML = `<button class="back" data-go="rank">${mi('chevron_left')}戻る</button><div class="empty">ホストが見つかりません</div>`; return; }
+  const rm = rankOf(h.id, 'month'), rt = rankOf(h.id, 'total');
+  const isGuest = S.session?.role === 'guest';
+  const history = (S.data.tributes || []).filter(t => t.hostId === h.id).slice(0, 15);
+  el.innerHTML = `
+    <button class="back" data-go="back">${mi('chevron_left')}戻る</button>
+    <div class="card profile">
+      ${avatar(h, { rank: rm.rank, score: rm.score })}
+      <h2>${esc(h.name)}</h2>
+      <div class="catch">${esc(h.catch || '')}</div>
+      <div class="stats">
+        <div class="stat"><div class="k">今月の順位</div><div class="v big pt">${rm.score > 0 ? 'No.' + rm.rank : '―'}</div></div>
+        <div class="stat"><div class="k">今月</div><div class="v pt">${fmt(h.month)}<small>pt</small></div></div>
+        <div class="stat"><div class="k">累計（${rt.score > 0 ? 'No.' + rt.rank : '―'}）</div><div class="v pt">${fmt(h.total)}<small>pt</small></div></div>
+      </div>
+      <div style="margin-top:18px">
+        ${isGuest ? `<button class="btn rose block" data-tribute="${esc(h.id)}">${mi('redeem')}貢ぐ</button>`
+          : S.session ? '' : `<button class="btn ghost block" data-go="me">${mi('login')}お客様としてログインすると貢げます</button>`}
+      </div>
+    </div>
+    <div class="heading"><span class="en">PATRONS</span><span class="ja">太客ランキング</span></div>
+    <div class="card patrons">${(h.patrons || []).length ? h.patrons.map((p, i) => `
+      <div class="patron"><span class="medal" style="color:${['var(--gold)', 'var(--silver)', 'var(--bronze)'][i]}">${i + 1}</span>
+      ${avatar(guestById(p.id) || { name: '?' }, { size: 36, noAura: true })}<span class="who">${esc(guestName(p.id))} 様</span><span class="pt" style="color:var(--gold3)">${fmt(p.total)}<small>pt</small></span></div>`).join('')
+      : '<div class="empty">まだいません。一番乗りのチャンスです</div>'}</div>
+    <div class="heading"><span class="en">GIFTS</span><span class="ja">もらった貢ぎ物</span></div>
+    <div class="feed">${feedHtml(history, { mode: 'host' })}</div>`;
+}
+
+// ---------- マイページ ----------
+let authRole = 'guest', authMode = 'login', pendingIcon = null;
+function renderMe() {
+  const el = $('v-me');
+  const me = S.data?.me;
+  if (!me) { renderAuth(el); return; }
+  if (me.role === 'guest') renderGuestMe(el, me); else renderHostMe(el, me);
+}
+function renderAuth(el) {
+  const needsKey = S.data?.settings?.needsKey;
+  const reg = authMode === 'register';
+  el.innerHTML = `
+    <div class="heading"><span class="en">${reg ? 'ENTRY' : 'LOGIN'}</span><span class="ja">${reg ? '新規登録' : 'ログイン'}</span></div>
+    <div class="card auth">
+      <div class="seg" id="role-seg" style="margin-bottom:16px">
+        <button data-r="guest" class="${authRole === 'guest' ? 'on' : ''}">${mi('favorite')} お客様</button>
+        <button data-r="host" class="${authRole === 'host' ? 'on' : ''}">${mi('nightlife')} ホスト</button>
+      </div>
+      ${reg ? `<div class="icon-pick"><div id="icon-prev">${avatar({ name: '?', icon: pendingIcon }, { noAura: true, size: 72 })}</div>
+        <label class="btn ghost">${mi('add_photo_alternate')}アイコンを選ぶ<input type="file" accept="image/*" id="icon-file" hidden></label></div>` : ''}
+      <div class="field"><label>名前（なりきりの名前）</label><input id="f-name" maxlength="20" autocomplete="username"></div>
+      <div class="field"><label>パスワード（4文字以上）</label><input id="f-pass" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}"></div>
+      ${reg && authRole === 'host' ? `<div class="field"><label>キャッチコピー（任意・40文字まで）</label><input id="f-catch" maxlength="40" placeholder="例：今夜、君だけの王子様"></div>` : ''}
+      ${reg && needsKey ? `<div class="field"><label>合言葉</label><input id="f-key"></div>` : ''}
+      ${reg && authRole === 'guest' ? `<p class="muted" style="margin:0 0 12px">${mi('paid')} 登録すると ${fmt(S.data?.settings?.initialPoints)}pt もらえます。毎日 ${fmt(S.data?.settings?.dailyBonus)}pt のボーナスも。</p>` : ''}
+      ${reg && authRole === 'host' ? `<p class="muted" style="margin:0 0 12px">${mi('info')} ホストは登録するだけでOK。お客様からの貢ぎ物でランキングが決まります。</p>` : ''}
+      <button class="btn block" id="auth-go">${reg ? mi('how_to_reg') + '登録する' : mi('login') + 'ログイン'}</button>
+      <p style="text-align:center;margin:14px 0 0"><button class="btn ghost" id="auth-switch" style="font-size:12.5px;padding:8px 16px">${reg ? 'アカウントがある方はこちら' : 'はじめての方は新規登録'}</button></p>
+    </div>`;
+}
+function renderGuestMe(el, me) {
+  const g = guestById(me.id) || { name: me.name };
+  const oshi = Object.keys(me.byPartner || {}).map(id => ({ h: hostById(id), v: me.byPartner[id] })).filter(x => x.h).sort((a, b) => b.v - a.v);
+  el.innerHTML = `
+    <div class="me-head">${avatar(g, { noAura: true })}<div><span class="role">GUEST</span><b>${esc(me.name)} 様</b></div></div>
+    <div class="card wallet" style="margin-top:16px">
+      <div class="k">所持ポイント</div>
+      <div class="v pt"><span data-count="${me.points}">${fmt(me.points)}</span><small>pt</small></div>
+      <button class="btn ${me.bonusReady ? 'rose' : 'ghost'}" id="bonus" ${me.bonusReady ? '' : 'disabled'}>${mi('featured_seasonal_and_gifts')}${me.bonusReady ? `今日のボーナス +${fmt(S.data.settings.dailyBonus)}pt` : '今日のボーナスは受け取り済み'}</button>
+    </div>
+    <div class="heading"><span class="en">MY HOST</span><span class="ja">推しホスト</span></div>
+    ${oshi.length ? `<div class="rank-list" style="margin-top:0">${oshi.map(x => `
+      <div class="rrow" data-host="${esc(x.h.id)}">${avatar(x.h, { size: 44 })}<div class="who"><b>${esc(x.h.name)}</b><span>今月 No.${rankOf(x.h.id, 'month').rank}</span></div>
+      <div class="pt">${fmt(x.v)}<small>pt</small></div></div>`).join('')}</div>`
+      : `<div class="card empty">まだ誰にも貢いでいません<br><button class="btn rose" data-go="hosts" style="margin-top:12px">${mi('groups')}ホストを選ぶ</button></div>`}
+    <div class="heading"><span class="en">HISTORY</span><span class="ja">貢いだ記録</span></div>
+    <div class="feed">${feedHtml(me.history || [], { mode: 'guest', empty: 'まだ記録はありません' })}</div>
+    ${settingsHtml(g)}`;
+  countUp(el.querySelector('.wallet'));
+}
+function renderHostMe(el, me) {
+  const h = hostById(me.id) || { name: me.name };
+  const p = S.period;
+  const r = rankOf(me.id, p) || { rank: '-', score: 0 };
+  const list = ranked(p);
+  const above = list.filter(x => x.score > r.score).slice(-1)[0];
+  el.innerHTML = `
+    <div class="me-head">${avatar(h, { rank: r.rank, score: r.score })}<div><span class="role">HOST</span><b>${esc(me.name)}</b></div></div>
+    <div class="seg" id="me-seg" style="margin-top:16px">
+      <button data-p="month" class="${p === 'month' ? 'on' : ''}">今月</button>
+      <button data-p="total" class="${p === 'total' ? 'on' : ''}">累計</button>
+    </div>
+    <div class="card host-board" style="margin-top:10px">
+      <div><div class="k">順位</div><div class="v rank pt">${r.score > 0 ? 'No.' + r.rank : '―'}</div></div>
+      <div><div class="k">${p === 'month' ? '今月' : '累計'}のポイント</div><div class="v pt"><span data-count="${r.score}">${fmt(r.score)}</span></div></div>
+      <div><div class="k">${p === 'month' ? '累計' : '今月'}</div><div class="v pt" style="font-size:18px;margin-top:8px">${fmt(p === 'month' ? h.total : h.month)}</div></div>
+      <div class="gap">${r.rank === 1 && r.score > 0 ? mi('crown') + ' 現在 No.1 です' : above ? `${mi('trending_up')} ${esc(above.name)}（No.${above.rank}）まであと <b class="pt">${fmt(above.score - r.score + 1)}</b>pt` : ''}</div>
+    </div>
+    <div class="heading"><span class="en">RANKING</span><span class="ja">${p === 'month' ? '今月' : '累計'}のランキング</span></div>
+    ${rankListHtml(list, { meId: me.id })}
+    <div class="heading"><span class="en">PATRONS</span><span class="ja">あなたの太客</span></div>
+    <div class="card patrons">${Object.keys(me.byPartner || {}).length ? Object.keys(me.byPartner).map(id => ({ id, v: me.byPartner[id] })).sort((a, b) => b.v - a.v).slice(0, 5).map((x, i) => `
+      <div class="patron"><span class="medal" style="color:${['var(--gold)', 'var(--silver)', 'var(--bronze)'][i] || 'var(--sub)'}">${i + 1}</span>
+      ${avatar(guestById(x.id) || { name: '?' }, { size: 36, noAura: true })}<span class="who">${esc(guestName(x.id))} 様</span><span class="pt" style="color:var(--gold3)">${fmt(x.v)}<small>pt</small></span></div>`).join('')
+      : '<div class="empty">まだいません</div>'}</div>
+    <div class="heading"><span class="en">GIFTS</span><span class="ja">もらった貢ぎ物</span></div>
+    <div class="feed">${feedHtml(me.history || [], { mode: 'host', empty: 'まだ記録はありません' })}</div>
+    ${settingsHtml(h, true)}`;
+  countUp(el.querySelector('.host-board'));
+}
+function settingsHtml(p, isHost) {
+  return `
+    <div class="heading"><span class="en">SETTING</span><span class="ja">プロフィール設定</span></div>
+    <div class="card auth">
+      <div class="icon-pick"><div id="icon-prev">${avatar({ name: p.name, icon: pendingIcon || p.icon }, { noAura: true, size: 72 })}</div>
+        <label class="btn ghost">${mi('add_photo_alternate')}アイコンを変える<input type="file" accept="image/*" id="icon-file" hidden></label></div>
+      ${isHost ? `<div class="field"><label>キャッチコピー</label><input id="f-catch" maxlength="40" value="${esc(p.catch || '')}"></div>` : ''}
+      <div class="field"><label>新しいパスワード（変えるときだけ）</label><input id="f-newpass" type="password" autocomplete="new-password"></div>
+      <button class="btn block" id="profile-save">${mi('check')}保存する</button>
+      <div class="me-actions"><button class="btn ghost" id="logout">${mi('logout')}ログアウト</button></div>
+    </div>`;
+}
+
+// ---------- 貢ぐシート ----------
+let sheetState = null;
+function openTribute(hostId) {
+  const h = hostById(hostId);
+  if (!h || !S.data.me) return;
+  const gifts = S.data.gifts || [];
+  const pts = S.data.me.points;
+  const firstOk = gifts.slice().reverse().find(g => g.price <= pts) || gifts[0];
+  sheetState = { hostId, giftId: firstOk?.id, count: 1 };
+  drawSheet();
+  $('sheet-bg').classList.add('show'); $('sheet').classList.add('show');
+}
+function drawSheet() {
+  const h = hostById(sheetState.hostId), gifts = S.data.gifts || [], pts = S.data.me.points;
+  const g = gifts.find(x => x.id === sheetState.giftId);
+  const total = g ? g.price * sheetState.count : 0;
+  const msg = $('t-msg')?.value || '';
+  $('sheet').innerHTML = `
+    <div class="grab"></div>
+    <h3>${avatar(h, { size: 36 })}${esc(h.name)} に貢ぐ</h3>
+    <div class="bal">所持 <b>${fmt(pts)}pt</b></div>
+    <div class="gift-grid">${gifts.map(x => {
+      const t = tierOf(x.price);
+      return `<button class="gcard t${t}${x.id === sheetState.giftId ? ' on' : ''}${x.price > pts ? ' ng' : ''}" data-gift="${esc(x.id)}">
+        ${giftIcon(x.icon, x.price)}<div class="tl">${TIERS[t].label}</div><div class="n">${esc(x.name)}</div><div class="p">${fmt(x.price)}pt</div></button>`;
+    }).join('')}</div>
+    <div class="qty"><button data-q="-1">${mi('remove')}</button><b>×${sheetState.count}</b><button data-q="1">${mi('add')}</button></div>
+    <div class="field"><input id="t-msg" maxlength="60" placeholder="ひとことメッセージ（任意）" value="${esc(msg)}"></div>
+    <button class="btn rose block" id="t-go" ${!g || total > pts ? 'disabled' : ''}>${mi('redeem')}${g ? `${fmt(total)}pt で貢ぐ` : '選んでください'}</button>
+    ${g && total > pts ? `<p class="muted" style="text-align:center;margin:8px 0 0">ポイントが ${fmt(total - pts)}pt 足りません</p>` : ''}`;
+}
+function closeSheet() { $('sheet-bg').classList.remove('show'); $('sheet').classList.remove('show'); }
+function doTribute() {
+  const g = (S.data.gifts || []).find(x => x.id === sheetState.giftId);
+  if (!g) return;
+  const msg = $('t-msg').value;
+  loading(true);
+  api('tribute', Object.assign(authBody(), { hostId: sheetState.hostId, giftId: g.id, count: sheetState.count, message: msg }))
+    .then(res => {
+      loading(false); closeSheet();
+      S.seen && S.seen.add(res.tribute.id);
+      playFx(res.tribute);
+      load();
+    })
+    .catch(err => { loading(false); toast(err.message, true); });
+}
+
+// ---------- 貢ぎ演出 ----------
+const FX = {
+  1: { dur: 2200, heart: 10, spark: 6 },
+  2: { dur: 2800, heart: 18, spark: 14, petal: 12 },
+  3: { dur: 3600, spark: 22, bubble: 34, heart: 6 },
+  4: { dur: 4400, spark: 30, bubble: 34, conf: 70 },
+  5: { dur: 5600, spark: 44, bubble: 44, conf: 150, heart: 16, petal: 20 }
+};
+let fxTimer = null;
+function playFx(t) {
+  const tier = tierOf(t.price), cfg = FX[tier];
+  const fx = $('fx');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const host = hostById(t.hostId);
+  clearTimeout(fxTimer);
+  fx.className = 'fx show t' + tier;
+  fx.style.setProperty('--c', `var(--t${tier})`);
+  fx.innerHTML = `<div class="dim"></div><div class="rays"></div><div class="flash"></div>
+    <div class="ring"></div>${tier >= 3 ? '<div class="ring r2"></div>' : ''}${tier >= 5 ? '<div class="ring r3"></div>' : ''}
+    <div class="parts"></div>
+    <div class="fx-card">
+      <div class="lb">${TIERS[tier].label}</div>
+      <div class="gift">${mi(esc(t.icon || 'redeem'))}</div>
+      <div class="gn">${esc(t.giftName)}${tier >= 4 ? ' 入りました' : ''}</div>
+      ${t.price ? `<div class="gp">${fmt(t.price)} pt</div>` : ''}
+      <div class="gf">${t.line ? esc(t.line) : `${esc(guestName(t.guestId))} 様より <b>${esc(host?.name || '')}</b> へ`}</div>
+      ${t.message ? `<div class="gm">${mi('chat_bubble')} ${esc(t.message)}</div>` : ''}
+      <div class="tap">タップで閉じる</div>
+    </div>`;
+  const parts = fx.querySelector('.parts');
+  const W = innerWidth, H = innerHeight, cx = W / 2, cy = H * .45;
+  const n = k => Math.round((cfg[k] || 0) * (reduce ? .2 : 1));
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const add = (cls, html, kf, opt) => {
+    const e = document.createElement('div'); e.className = cls; if (html) e.innerHTML = html;
+    parts.appendChild(e); e.animate(kf, Object.assign({ easing: 'ease-out', fill: 'both' }, opt));
+    return e;
+  };
+  for (let i = 0; i < n('heart'); i++) {
+    const x = rnd(0, W), s = rnd(.6, 1.3), d = rnd(1600, 2800);
+    add('p-heart', mi('favorite'), [
+      { transform: `translate(${x}px, ${H + 30}px) scale(${s})`, opacity: 0 },
+      { opacity: 1, offset: .2 },
+      { transform: `translate(${x + rnd(-60, 60)}px, ${rnd(-40, H * .4)}px) scale(${s}) rotate(${rnd(-25, 25)}deg)`, opacity: 0 }
+    ], { duration: d, delay: rnd(0, cfg.dur * .45) });
+  }
+  for (let i = 0; i < n('spark'); i++) {
+    const a = rnd(0, Math.PI * 2), r = rnd(80, Math.min(W, H) * .55), s = rnd(.5, 1.4);
+    add('p-spark', mi('auto_awesome'), [
+      { transform: `translate(${cx - 9}px, ${cy - 9}px) scale(0)`, opacity: 0 },
+      { transform: `translate(${cx - 9 + Math.cos(a) * r * .7}px, ${cy - 9 + Math.sin(a) * r * .7}px) scale(${s}) rotate(45deg)`, opacity: 1, offset: .55 },
+      { transform: `translate(${cx - 9 + Math.cos(a) * r}px, ${cy - 9 + Math.sin(a) * r}px) scale(0) rotate(90deg)`, opacity: 0 }
+    ], { duration: rnd(1100, 1800), delay: rnd(150, cfg.dur * .6) });
+  }
+  for (let i = 0; i < n('bubble'); i++) {
+    const x = rnd(W * .1, W * .9), s = rnd(.4, 1.3);
+    add('p-bubble', '', [
+      { transform: `translate(${x}px, ${H + 20}px) scale(${s})`, opacity: 0 },
+      { opacity: .95, offset: .15 },
+      { transform: `translate(${x + rnd(-30, 30)}px, ${rnd(-20, H * .3)}px) scale(${s})`, opacity: 0 }
+    ], { duration: rnd(1800, 3200), delay: rnd(0, cfg.dur * .5), easing: 'cubic-bezier(.3,.6,.4,1)' });
+  }
+  const confColors = ['#f3d38b', '#fff4d6', '#ff7eb6', '#c9b0ff', '#ffffff', '#ffb3d1'];
+  for (let i = 0; i < n('conf'); i++) {
+    const x = rnd(0, W), d = rnd(2200, 3800);
+    const e = add('p-conf', '', [
+      { transform: `translate(${x}px, -30px) rotate(0deg) rotateY(0deg)`, opacity: 1 },
+      { transform: `translate(${x + rnd(-80, 80)}px, ${H + 30}px) rotate(${rnd(-540, 540)}deg) rotateY(${rnd(360, 1080)}deg)`, opacity: .9 }
+    ], { duration: d, delay: rnd(250, cfg.dur * .55), easing: 'cubic-bezier(.25,.5,.5,1)' });
+    e.style.background = confColors[i % confColors.length];
+  }
+  for (let i = 0; i < n('petal'); i++) {
+    const x = rnd(0, W);
+    add('p-petal', '', [
+      { transform: `translate(${x}px, -20px) rotate(0)`, opacity: 0 },
+      { opacity: 1, offset: .1 },
+      { transform: `translate(${x + rnd(-100, 100)}px, ${H * rnd(.6, 1.05)}px) rotate(${rnd(-360, 360)}deg)`, opacity: 0 }
+    ], { duration: rnd(2600, 4000), delay: rnd(0, cfg.dur * .4), easing: 'ease-in-out' });
+  }
+  fxTimer = setTimeout(closeFx, cfg.dur);
+}
+function closeFx() {
+  const fx = $('fx');
+  if (!fx.classList.contains('show')) return;
+  clearTimeout(fxTimer);
+  fx.classList.add('out');
+  setTimeout(() => { fx.className = 'fx'; fx.innerHTML = ''; }, 480);
+}
+
+// ---------- トースト ----------
+function toast(html, err) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (err ? ' err' : '');
+  t.innerHTML = err ? `${mi('error')}<span>${esc(html)}</span>` : html;
+  $('toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('bye'); setTimeout(() => t.remove(), 400); }, err ? 4200 : 3400);
+}
+
+// ---------- 画面遷移 ----------
+let hostBack = 'rank';
+function go(view) {
+  if (view === 'back') view = hostBack || 'rank';
+  if (view === 'host' && S.view !== 'host') hostBack = S.view;
+  S.view = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'v-' + view));
+  document.querySelectorAll('#bn button').forEach(b => b.classList.toggle('on', b.dataset.v === view || (view === 'host' && b.dataset.v === hostBack)));
+  if (view === 'rank') { syncRankSeg(); renderRank(true); }
+  if (view === 'host') renderHost();
+  if (view === 'me') { pendingIcon = null; renderMe(); }
+  if (view === 'admin') renderAdmin();
+  scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ---------- アイコン画像 ----------
+function readImage(file, maxDim) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        const k = Math.min(1, maxDim / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', .9));
+      };
+      img.onerror = reject; img.src = e.target.result;
+    };
+    r.onerror = reject; r.readAsDataURL(file);
+  });
+}
+function cropSquare(file) {
+  return readImage(file, 1200).then(src => new Promise(resolve => {
+    const modal = $('crop'), img = $('crop-img'), box = $('crop-box'), handle = $('crop-handle'), slider = $('crop-size');
+    const MIN = 40; let c = { x: 0, y: 0, s: 0 }, W = 0, H = 0, drag = null;
+    const maxS = () => Math.min(W, H);
+    function draw() {
+      c.s = Math.max(Math.min(MIN, maxS()), Math.min(c.s, maxS()));
+      c.x = Math.max(0, Math.min(c.x, W - c.s)); c.y = Math.max(0, Math.min(c.y, H - c.s));
+      Object.assign(box.style, { left: c.x + 'px', top: c.y + 'px', width: c.s + 'px', height: c.s + 'px' });
+      const range = maxS() - MIN; slider.value = range > 0 ? Math.round((c.s - MIN) / range * 100) : 100;
+    }
+    const down = ev => { ev.preventDefault(); drag = { m: ev.target === handle ? 'r' : 'm', sx: ev.clientX, sy: ev.clientY, ox: c.x, oy: c.y, os: c.s }; box.setPointerCapture && box.setPointerCapture(ev.pointerId); };
+    const move = ev => {
+      if (!drag) return;
+      const dx = ev.clientX - drag.sx, dy = ev.clientY - drag.sy;
+      if (drag.m === 'm') { c.x = drag.ox + dx; c.y = drag.oy + dy; }
+      else { c.x = drag.ox; c.y = drag.oy; c.s = Math.min(drag.os + Math.max(dx, dy), W - drag.ox, H - drag.oy); }
+      draw();
+    };
+    const up = () => { drag = null; };
+    const onSlide = () => { const cx = c.x + c.s / 2, cy = c.y + c.s / 2; c.s = MIN + (maxS() - MIN) * slider.value / 100; c.x = cx - c.s / 2; c.y = cy - c.s / 2; draw(); };
+    function close(result) {
+      modal.classList.remove('show');
+      box.removeEventListener('pointerdown', down); box.removeEventListener('pointermove', move);
+      box.removeEventListener('pointerup', up); box.removeEventListener('pointercancel', up);
+      slider.removeEventListener('input', onSlide);
+      $('crop-ok').onclick = $('crop-cancel').onclick = null;
+      resolve(result);
+    }
+    box.addEventListener('pointerdown', down); box.addEventListener('pointermove', move);
+    box.addEventListener('pointerup', up); box.addEventListener('pointercancel', up);
+    slider.addEventListener('input', onSlide);
+    $('crop-cancel').onclick = () => close(null);
+    $('crop-ok').onclick = () => {
+      const k = img.naturalWidth / W, cv = document.createElement('canvas'); cv.width = cv.height = 300;
+      const ctx = cv.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 300, 300);
+      ctx.drawImage(img, c.x * k, c.y * k, c.s * k, c.s * k, 0, 0, 300, 300);
+      close(cv.toDataURL('image/jpeg', .85));
+    };
+    img.onload = () => { modal.classList.add('show'); W = img.clientWidth; H = img.clientHeight; c.s = maxS() * .9; c.x = (W - c.s) / 2; c.y = (H - c.s) / 2; draw(); };
+    img.removeAttribute('src'); img.src = src;
+  }));
+}
+function uploadPendingIcon() {
+  if (!pendingIcon) return Promise.resolve(undefined);
+  return api('uploadIcon', { image: pendingIcon }).then(r => r.url);
+}
+
+// ---------- ログイン・登録 ----------
+function doAuth() {
+  const name = $('f-name').value.trim(), password = $('f-pass').value;
+  if (!name || !password) return toast('名前とパスワードを入れてください', true);
+  loading(true);
+  const p = authMode === 'register'
+    ? uploadPendingIcon().then(icon => api('register', { role: authRole, name, password, icon: icon || '', catch: $('f-catch')?.value || '', key: $('f-key')?.value || '' }))
+    : api('login', { role: authRole, name, password });
+  p.then(res => {
+    S.session = { role: authRole, token: res.token, id: res.id };
+    store.set('hc_session', S.session);
+    pendingIcon = null;
+    return load();
+  }).then(() => {
+    loading(false);
+    toast(`${mi('celebration')}<span>${authMode === 'register' ? 'ようこそ' : 'おかえりなさい'}、<b>${esc(name)}</b>${authRole === 'guest' ? ' 様' : ''}</span>`);
+    renderMe();
+  }).catch(err => { loading(false); toast(err.message, true); });
+}
+function saveProfile() {
+  loading(true);
+  uploadPendingIcon().then(icon => {
+    const body = authBody();
+    if (icon) body.icon = icon;
+    if ($('f-catch')) body.catch = $('f-catch').value;
+    if ($('f-newpass').value) body.password = $('f-newpass').value;
+    return api('updateProfile', body);
+  }).then(() => { pendingIcon = null; return load(); })
+    .then(() => { loading(false); toast(`${mi('check_circle')}<span>保存しました</span>`); })
+    .catch(err => { loading(false); toast(err.message, true); });
+}
+
+// ---------- 管理 ----------
+function renderAdmin() {
+  const el = $('v-admin');
+  if (!S.adminData) {
+    el.innerHTML = `<div class="heading"><span class="en">ADMIN</span><span class="ja">管理画面</span></div>
+      <div class="card"><div class="field"><label>管理パスワード</label><input id="a-pass" type="password"></div>
+      <button class="btn block" id="a-login">${mi('lock_open')}入る</button></div>`;
+    return;
+  }
+  const a = S.adminData, s = a.settings;
+  el.innerHTML = `
+    <div class="heading"><span class="en">ADMIN</span><span class="ja">お店の設定</span></div>
+    <div class="card">
+      <div class="field"><label>お店の名前</label><input id="a-club" value="${esc(s.clubName)}"></div>
+      <div class="field"><label>登録時にもらえるポイント</label><input id="a-init" type="number" min="0" value="${esc(s.initialPoints)}"></div>
+      <div class="field"><label>毎日のボーナス</label><input id="a-bonus" type="number" min="0" value="${esc(s.dailyBonus)}"></div>
+      <div class="field"><label>登録の合言葉（空なら誰でも登録できる）</label><input id="a-key" value="${esc(s.roomKey)}"></div>
+      <button class="btn block" id="a-save-settings">${mi('check')}設定を保存</button>
+    </div>
+    <div class="heading"><span class="en">MENU</span><span class="ja">貢ぎ物メニュー</span></div>
+    <div class="card">
+      <p class="muted" style="margin:0 0 10px">アイコンは Material Symbols の名前（例：wine_bar, diamond, local_florist）。値段で演出の豪華さが自動で決まります：〜999 SWEET / 1,000〜 LOVELY / 5,000〜 GORGEOUS / 20,000〜 LUXURY / 50,000〜 LEGEND</p>
+      <div id="a-gifts">${(S.data.gifts || []).map(adminGiftRow).join('')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn ghost" id="a-add-gift" style="flex:1">${mi('add')}追加</button>
+        <button class="btn" id="a-save-gifts" style="flex:1">${mi('check')}メニューを保存</button>
+      </div>
+    </div>
+    <div class="heading"><span class="en">POINT</span><span class="ja">ポイントを配る</span></div>
+    <div class="card">
+      <div class="field"><label>だれに</label><select id="a-target"><option value="all">お客様全員</option>${a.guests.map(g => `<option value="${esc(g.id)}">${esc(g.name)}（${fmt(g.points)}pt）</option>`).join('')}</select></div>
+      <div class="field"><label>ポイント（マイナスで減らす）</label><input id="a-amount" type="number" value="10000"></div>
+      <button class="btn block" id="a-give">${mi('paid')}配る</button>
+    </div>
+    <div class="heading"><span class="en">MEMBER</span><span class="ja">登録者</span></div>
+    <div class="card">
+      <div class="muted">ホスト</div>
+      ${(S.data.hosts || []).map(h => adminUserRow('host', h.id, h.name)).join('') || '<div class="empty">なし</div>'}
+      <div class="muted" style="margin-top:14px">お客様</div>
+      ${a.guests.map(g => adminUserRow('guest', g.id, g.name)).join('') || '<div class="empty">なし</div>'}
+    </div>
+    <p style="text-align:center;margin-top:20px"><button class="btn ghost" id="a-exit">${mi('logout')}管理画面を出る</button></p>`;
+}
+function adminGiftRow(g) {
+  g = g || { id: '', name: '', price: 1000, icon: 'redeem' };
+  return `<div class="admin-gift" data-id="${esc(g.id)}">
+    <div class="a-prev">${giftIcon(g.icon, g.price)}</div>
+    <input class="a-name" placeholder="名前" value="${esc(g.name)}"><input class="a-price" type="number" min="1" value="${esc(g.price)}">
+    <button class="del" data-del-gift>${mi('close')}</button>
+    <div></div><input class="a-icon icon-in" placeholder="アイコン名" value="${esc(g.icon)}"><div></div>
+  </div>`;
+}
+function adminUserRow(role, id, name) {
+  return `<div class="admin-user"><span class="nm">${esc(name)}</span>
+    <button data-reset="${role}:${esc(id)}">${mi('key')} パス再設定</button>
+    <button data-deluser="${role}:${esc(id)}">${mi('delete')} 削除</button></div>`;
+}
+function adminCall(op, extra) {
+  loading(true);
+  return api('admin', Object.assign({ adminPassword: S.adminPass, op }, extra || {}))
+    .then(r => { loading(false); return r; })
+    .catch(err => { loading(false); toast(err.message, true); throw err; });
+}
+function adminRefresh() {
+  return adminCall('check').then(r => { S.adminData = r; return load(); }).then(renderAdmin);
+}
+
+// ---------- イベント ----------
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, [data-host], [data-go]');
+  if ($('fx').classList.contains('show') && e.target.closest('#fx')) { closeFx(); return; }
+  if (!t) return;
+  if (t.closest('#bn')) { go(t.dataset.v); return; }
+  if (t.dataset.go) { go(t.dataset.go); return; }
+  if (t.closest('#rank-seg')) {
+    S.period = t.dataset.p;
+    document.querySelectorAll('#rank-seg button').forEach(b => b.classList.toggle('on', b === t));
+    renderRank(true); return;
+  }
+  if (t.closest('#me-seg')) { S.period = t.dataset.p; renderMe(); syncRankSeg(); return; }
+  if (t.dataset.tribute) { openTribute(t.dataset.tribute); return; }
+  if (t.dataset.host && !t.closest('#sheet')) { S.hostId = t.dataset.host; go('host'); return; }
+  if (t.dataset.gift) { sheetState.giftId = t.dataset.gift; drawSheet(); return; }
+  if (t.dataset.q) { sheetState.count = Math.max(1, Math.min(99, sheetState.count + Number(t.dataset.q))); drawSheet(); return; }
+  switch (t.id) {
+    case 't-go': doTribute(); break;
+    case 'auth-go': doAuth(); break;
+    case 'auth-switch': authMode = authMode === 'login' ? 'register' : 'login'; renderMe(); break;
+    case 'logout': S.session = null; store.del('hc_session'); load().then(() => { renderMe(); toast(`${mi('waving_hand')}<span>ログアウトしました</span>`); }); break;
+    case 'profile-save': saveProfile(); break;
+    case 'bonus':
+      loading(true);
+      api('claimBonus', authBody()).then(r => { loading(false); playFx({ price: 0, icon: 'paid', giftName: `+${fmt(r.bonus)}pt`, line: '今日のボーナスを受け取りました' }); return load(); })
+        .catch(err => { loading(false); toast(err.message, true); });
+      break;
+    case 'admin-link': go('admin'); break;
+    case 'a-login':
+      S.adminPass = $('a-pass').value;
+      adminCall('check').then(r => { S.adminData = r; renderAdmin(); }).catch(() => {});
+      break;
+    case 'a-exit': S.adminPass = null; S.adminData = null; go('rank'); break;
+    case 'a-save-settings':
+      adminCall('saveSettings', { settings: { clubName: $('a-club').value, initialPoints: $('a-init').value, dailyBonus: $('a-bonus').value, roomKey: $('a-key').value } })
+        .then(() => { toast(`${mi('check_circle')}<span>保存しました</span>`); return adminRefresh(); }).catch(() => {});
+      break;
+    case 'a-add-gift': $('a-gifts').insertAdjacentHTML('beforeend', adminGiftRow()); break;
+    case 'a-save-gifts': {
+      const gifts = [...document.querySelectorAll('.admin-gift')].map(r => ({ id: r.dataset.id, name: r.querySelector('.a-name').value, price: r.querySelector('.a-price').value, icon: r.querySelector('.a-icon').value }));
+      adminCall('saveGifts', { gifts }).then(() => { toast(`${mi('check_circle')}<span>メニューを保存しました</span>`); return adminRefresh(); }).catch(() => {});
+      break;
+    }
+    case 'a-give':
+      adminCall('givePoints', { guestId: $('a-target').value, amount: $('a-amount').value })
+        .then(() => { toast(`${mi('paid')}<span>ポイントを配りました</span>`); return adminRefresh(); }).catch(() => {});
+      break;
+  }
+  if (t.hasAttribute('data-del-gift')) t.closest('.admin-gift').remove();
+  if (t.dataset.deluser) {
+    const [role, id] = t.dataset.deluser.split(':');
+    if (confirm('本当に削除しますか？（貢ぎ物の記録は残ります）')) adminCall('deleteUser', { role, id }).then(adminRefresh).catch(() => {});
+  }
+  if (t.dataset.reset) {
+    const [role, id] = t.dataset.reset.split(':');
+    const pw = prompt('新しいパスワード（4文字以上）');
+    if (pw) adminCall('resetPassword', { role, id, password: pw }).then(() => toast(`${mi('check_circle')}<span>パスワードを変えました</span>`)).catch(() => {});
+  }
+});
+document.addEventListener('click', e => {
+  const r = e.target.closest('#role-seg button');
+  if (r) { authRole = r.dataset.r; renderMe(); }
+});
+$('sheet-bg').addEventListener('click', closeSheet);
+document.addEventListener('input', e => {
+  const row = e.target.closest('.admin-gift');
+  if (row) row.querySelector('.a-prev').innerHTML = giftIcon(row.querySelector('.a-icon').value, Number(row.querySelector('.a-price').value) || 0);
+});
+document.addEventListener('change', e => {
+  if (e.target.id !== 'icon-file') return;
+  const file = e.target.files[0];
+  if (!file) return;
+  cropSquare(file).then(b64 => {
+    e.target.value = '';
+    if (!b64) return;
+    pendingIcon = b64;
+    $('icon-prev').innerHTML = avatar({ name: '?', icon: b64 }, { noAura: true, size: 72 });
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.target.id === 'f-pass' || e.target.id === 'f-name')) doAuth();
+  if (e.key === 'Enter' && e.target.id === 'a-pass') $('a-login').click();
+  if (e.key === 'Escape') { closeSheet(); closeFx(); }
+});
+function syncRankSeg() { document.querySelectorAll('#rank-seg button').forEach(b => b.classList.toggle('on', b.dataset.p === S.period)); }
+
+// ---------- 背景のボケ ----------
+(function () {
+  const colors = ['rgba(243,211,139,.5)', 'rgba(255,126,182,.4)', 'rgba(185,164,255,.4)'];
+  let h = '';
+  for (let i = 0; i < 14; i++) {
+    const s = 6 + Math.random() * 22;
+    h += `<i style="left:${Math.random() * 100}%;top:${Math.random() * 100}%;width:${s}px;height:${s}px;background:${colors[i % 3]};animation-delay:${-Math.random() * 14}s;animation-duration:${10 + Math.random() * 8}s"></i>`;
+  }
+  $('bokeh').innerHTML = h;
+})();
+
+// ---------- デモ（GAS未接続のときだけ使う、この端末の中だけのお試し版） ----------
+const Demo = (function () {
+  const KEY = 'hc_demo_db';
+  const now = Date.now(), hr = 3600e3;
+  const iso = ms => new Date(ms).toISOString();
+  function seed() {
+    const hosts = [
+      ['h1', 'レイ', '今夜、君だけの王子様'], ['h2', '朔夜', '月が綺麗ですね'], ['h3', 'カイト', '笑顔にする担当'],
+      ['h4', 'シオン', 'キミの癒やし系'], ['h5', '蒼真', '本気で惚れさせる'], ['h6', 'ユウリ', '新人です、育ててください']
+    ].map(([id, name, c]) => ({ id, name, icon: '', catch: c, pass: '1234', token: 'tok-' + id }));
+    const guests = [['c1', 'ひめ'], ['c2', 'みるく'], ['c3', 'あげは'], ['c4', 'るな']].map(([id, name]) => ({ id, name, icon: '', points: 80000, pass: '1234', token: 'tok-' + id, lastBonus: '' }));
+    const gifts = [
+      ['g1', 'ドリンク', 300, 'local_bar'], ['g2', '指名', 500, 'favorite'], ['g3', '花束', 1000, 'local_florist'], ['g4', 'ケーキ', 2000, 'cake'],
+      ['g5', 'シャンパン', 5000, 'wine_bar'], ['g6', 'ブランド時計', 10000, 'watch'], ['g7', 'ドンペリ', 20000, 'liquor'],
+      ['g8', 'シャンパンタワー', 50000, 'celebration'], ['g9', '高級車', 100000, 'directions_car']
+    ].map(([id, name, price, icon]) => ({ id, name, price, icon }));
+    const plan = [['c1', 'h1', 'g8', 30], ['c2', 'h2', 'g7', 20], ['c3', 'h1', 'g5', 18], ['c1', 'h3', 'g6', 14], ['c4', 'h2', 'g5', 10], ['c2', 'h4', 'g4', 8],
+      ['c3', 'h5', 'g3', 6], ['c4', 'h1', 'g7', 5], ['c1', 'h2', 'g6', 3], ['c3', 'h3', 'g4', 2], ['c2', 'h6', 'g1', 1.2], ['c4', 'h4', 'g5', .5], ['c1', 'h1', 'g7', .2]];
+    const tributes = plan.map(([g, h, gid, hoursAgo], i) => {
+      const gift = gifts.find(x => x.id === gid);
+      return { id: 't' + i, at: iso(now - hoursAgo * hr), guestId: g, hostId: h, giftName: gift.name, price: gift.price, icon: gift.icon, message: i % 3 === 0 ? 'いつもありがとう' : '' };
+    });
+    return { settings: { clubName: 'CLUB NOCTURNE', initialPoints: 10000, dailyBonus: 3000, roomKey: '', adminPassword: 'admin' }, hosts, guests, gifts, tributes };
+  }
+  let db = store.get(KEY) || seed();
+  const save = () => store.set(KEY, db);
+  const month = d => { const x = new Date(d); return x.getFullYear() + '-' + (x.getMonth() + 1); };
+  const day = d => new Date(d).toDateString();
+  const fail = m => Promise.reject(new Error(m));
+  const roleList = r => r === 'host' ? db.hosts : db.guests;
+  const meOf = b => b.token && roleList(b.role).find(u => u.token === b.token);
+  function readAll(b) {
+    const m = month(Date.now()), dayAgo = Date.now() - 24 * hr;
+    const out = {
+      settings: { clubName: db.settings.clubName, initialPoints: db.settings.initialPoints, dailyBonus: db.settings.dailyBonus, needsKey: !!db.settings.roomKey },
+      gifts: db.gifts.slice().sort((a, b) => a.price - b.price),
+      hosts: db.hosts.map(h => {
+        const mine = db.tributes.filter(t => t.hostId === h.id);
+        const pat = {}; mine.forEach(t => pat[t.guestId] = (pat[t.guestId] || 0) + t.price);
+        return { id: h.id, name: h.name, icon: h.icon, catch: h.catch,
+          total: mine.reduce((s, t) => s + t.price, 0),
+          month: mine.filter(t => month(t.at) === m).reduce((s, t) => s + t.price, 0),
+          auraPrice: Math.max(0, ...mine.filter(t => new Date(t.at) >= dayAgo).map(t => t.price)),
+          patrons: Object.keys(pat).map(id => ({ id, total: pat[id] })).sort((a, b) => b.total - a.total).slice(0, 3) };
+      }),
+      guests: db.guests.map(g => ({ id: g.id, name: g.name, icon: g.icon })),
+      tributes: db.tributes.slice(-60).reverse()
+    };
+    const me = meOf(b);
+    if (me) {
+      const f = b.role === 'guest' ? 'guestId' : 'hostId', mine = db.tributes.filter(t => t[f] === me.id), by = {};
+      mine.forEach(t => { const o = b.role === 'guest' ? t.hostId : t.guestId; by[o] = (by[o] || 0) + t.price; });
+      out.me = { role: b.role, id: me.id, name: me.name, byPartner: by, history: mine.slice(-50).reverse() };
+      if (b.role === 'guest') { out.me.points = me.points; out.me.bonusReady = me.lastBonus !== day(Date.now()); }
+    }
+    return out;
+  }
+  function handle(b) {
+    const r = (() => {
+      switch (b.action) {
+        case 'readAll': return readAll(b);
+        case 'uploadIcon': return { url: b.image };
+        case 'register': {
+          const list = roleList(b.role);
+          if (db.settings.roomKey && b.key !== db.settings.roomKey) return fail('合言葉がちがいます');
+          if (!b.name) return fail('名前を入れてください');
+          if (String(b.password).length < 4) return fail('パスワードは4文字以上にしてください');
+          if (list.some(u => u.name === b.name)) return fail('その名前はもう登録されています');
+          const u = { id: (b.role === 'host' ? 'h' : 'c') + Date.now(), name: b.name, icon: b.icon, pass: b.password, token: 'tok' + Math.random() };
+          if (b.role === 'host') u.catch = b.catch; else { u.points = db.settings.initialPoints; u.lastBonus = ''; }
+          list.push(u); save(); return { id: u.id, token: u.token };
+        }
+        case 'login': {
+          const u = roleList(b.role).find(x => x.name === b.name);
+          if (!u || u.pass !== b.password) return fail('名前かパスワードがちがいます');
+          return { id: u.id, token: u.token };
+        }
+        case 'updateProfile': {
+          const u = meOf(b); if (!u) return fail('ログインし直してください');
+          if (b.icon) u.icon = b.icon; if (b.catch !== undefined && b.role === 'host') u.catch = b.catch; if (b.password) u.pass = b.password;
+          save(); return { ok: true };
+        }
+        case 'claimBonus': {
+          const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('ログインし直してください');
+          if (u.lastBonus === day(Date.now())) return fail('今日のボーナスはもう受け取っています');
+          u.lastBonus = day(Date.now()); u.points += db.settings.dailyBonus; save(); return { bonus: db.settings.dailyBonus, points: u.points };
+        }
+        case 'tribute': {
+          const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('ログインし直してください');
+          const g = db.gifts.find(x => x.id === b.giftId); if (!g) return fail('貢ぎ物が見つかりません');
+          const count = Math.max(1, Math.min(99, b.count | 0 || 1)), price = g.price * count;
+          if (price > u.points) return fail('ポイントが足りません');
+          u.points -= price;
+          const t = { id: 't' + Date.now(), at: iso(Date.now()), guestId: u.id, hostId: b.hostId, giftName: count > 1 ? g.name + ' ×' + count : g.name, price, icon: g.icon, message: b.message || '' };
+          db.tributes.push(t); save(); return { points: u.points, tribute: t };
+        }
+        case 'admin': {
+          if (b.adminPassword !== db.settings.adminPassword) return fail('管理パスワードがちがいます（デモは admin）');
+          if (b.op === 'check') return { settings: db.settings, guests: db.guests.map(g => ({ id: g.id, name: g.name, points: g.points })) };
+          if (b.op === 'saveSettings') { Object.assign(db.settings, { clubName: b.settings.clubName, initialPoints: +b.settings.initialPoints, dailyBonus: +b.settings.dailyBonus, roomKey: b.settings.roomKey }); }
+          if (b.op === 'saveGifts') db.gifts = b.gifts.filter(g => g.name).map((g, i) => ({ id: g.id || 'g' + Date.now() + i, name: g.name, price: Math.max(1, +g.price | 0), icon: g.icon || 'redeem' }));
+          if (b.op === 'givePoints') db.guests.filter(g => b.guestId === 'all' || g.id === b.guestId).forEach(g => g.points = Math.max(0, g.points + (+b.amount | 0)));
+          if (b.op === 'deleteUser') { const l = roleList(b.role); l.splice(l.findIndex(u => u.id === b.id), 1); }
+          if (b.op === 'resetPassword') { const u = roleList(b.role).find(x => x.id === b.id); if (u) u.pass = b.password; }
+          save(); return { ok: true };
+        }
+      }
+      return fail('不明な操作です');
+    })();
+    return new Promise((res, rej) => setTimeout(() => Promise.resolve(r).then(res, rej), 250));
+  }
+  return { handle, reset() { db = seed(); save(); } };
+})();
+
+// ---------- 起動 ----------
+if (DEMO) {
+  $('demo-note').hidden = false;
+  $('demo-note').innerHTML = `${mi('science')} デモ表示中です（GAS未接続・この端末の中だけで動きます）。お客様「ひめ」、ホスト「レイ」、パスワード 1234 でログインできます。管理パスワードは admin。`;
+}
+const cached = store.get('hc_cache');
+if (cached && !DEMO) { S.data = cached; renderAll(false); }
+load({ animate: true });
+setInterval(() => { if (!document.hidden && !$('sheet').classList.contains('show')) load({ silent: true }); }, 30000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) load({ silent: true }); });
+</script>
+</body>
+</html>
