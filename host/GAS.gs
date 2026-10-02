@@ -350,12 +350,13 @@ function admin_(b) {
       return { ok: true, settings: { clubName: s.clubName, initialPoints: s.initialPoints, dailyBonus: s.dailyBonus, roomKey: s.roomKey,
                                      blogPoints: s.blogPoints, blogDailyMax: s.blogDailyMax, blogMinChars: s.blogMinChars },
                guests: rows_('guests').map(g => ({ id: g.id, name: g.name, points: Number(g.points) || 0 })) };
-    case 'saveSettings':
+    case 'saveSettings': {
       const NUM = ['initialPoints', 'dailyBonus', 'blogPoints', 'blogDailyMax', 'blogMinChars'];
       ['clubName', 'roomKey'].concat(NUM).forEach(k => {
         if (b.settings && b.settings[k] !== undefined) setSetting_(k, NUM.indexOf(k) >= 0 ? Math.max(0, Math.floor(Number(b.settings[k]) || 0)) : clean_(b.settings[k], 60));
       });
       return { ok: true };
+    }
     case 'saveGifts': {
       const list = (b.gifts || []).map(g => [clean_(g.id, 20) || newId_('g'), safe_(clean_(g.name, 20)), Math.max(1, Math.floor(Number(g.price) || 0)), clean_(g.icon, 40) || 'redeem'])
         .filter(g => g[1]);
