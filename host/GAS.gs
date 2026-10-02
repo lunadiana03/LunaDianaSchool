@@ -9,15 +9,19 @@
 const TZ = 'Asia/Tokyo';
 const SHEETS = {
   hosts:    { name: 'ホスト',   cols: ['id', 'name', 'icon', 'catch', 'passHash', 'token', 'createdAt'] },
-  guests:   { name: 'お客様',   cols: ['id', 'name', 'icon', 'points', 'passHash', 'token', 'createdAt', 'lastBonus'] },
+  guests:   { name: 'お客様',   cols: ['id', 'name', 'icon', 'points', 'passHash', 'token', 'createdAt', 'lastBonus', 'blogDay', 'blogCount'] },
   gifts:    { name: '貢ぎ物',   cols: ['id', 'name', 'price', 'icon'] },
   tributes: { name: '貢ぎ履歴', cols: ['id', 'at', 'guestId', 'hostId', 'giftId', 'giftName', 'price', 'icon', 'message'] },
-  settings: { name: '設定',     cols: ['key', 'value', 'memo'] }
+  settings: { name: '設定',     cols: ['key', 'value', 'memo'] },
+  blog:     { name: 'ブログ',   cols: ['id', 'at', 'guestId', 'title', 'body', 'points'] }
 };
 const DEFAULT_SETTINGS = [
   ['clubName', 'CLUB NOCTURNE', 'お店の名前（画面のタイトル）'],
   ['initialPoints', 10000, 'お客様が登録したときにもらえるポイント'],
-  ['dailyBonus', 3000, '1日1回もらえるポイント'],
+  ['dailyBonus', 0, '1日1回もらえるポイント（0ならボーナスなし）'],
+  ['blogPoints', 3000, 'ブログを1記事書くともらえるポイント'],
+  ['blogDailyMax', 3, 'ポイントがもらえるのは1日何記事まで'],
+  ['blogMinChars', 50, 'ポイントがもらえる最低文字数'],
   ['roomKey', '', '登録に必要な合言葉（空なら誰でも登録できる）'],
   ['adminPassword', 'changeme', '管理画面のパスワード（必ず変えてください）']
 ];
@@ -61,6 +65,8 @@ function handle(b) {
       case 'updateProfile': return withLock_(() => updateProfile_(b));
       case 'claimBonus':    return withLock_(() => claimBonus_(b));
       case 'tribute':       return withLock_(() => tribute_(b));
+      case 'postBlog':      return withLock_(() => postBlog_(b));
+      case 'deleteBlog':    return withLock_(() => deleteBlog_(b));
       case 'admin':         return withLock_(() => admin_(b));
       default:              return { error: '不明な操作です' };
     }
@@ -81,7 +87,17 @@ function setup_() {
   const ss = ss_();
   Object.keys(SHEETS).forEach(key => {
     const def = SHEETS[key];
-    if (ss.getSheetByName(def.name)) return;
+    const old = ss.getSheetByName(def.name);
+    if (old) {
+      // あとから増えた列・設定を足す（既存のデータはそのまま）
+      const head = old.getRange(1, 1, 1, Math.max(1, old.getLastColumn())).getValues()[0];
+      if (head.length < def.cols.length) old.getRange(1, 1, 1, def.cols.length).setValues([def.cols]).setFontWeight('bold');
+      if (key === 'settings') {
+        const keys = old.getLastRow() > 1 ? old.getRange(2, 1, old.getLastRow() - 1, 1).getValues().map(r => r[0]) : [];
+        DEFAULT_SETTINGS.filter(d => keys.indexOf(d[0]) < 0).forEach(d => old.appendRow(d));
+      }
+      return;
+    }
     const sh = ss.insertSheet(def.name);
     sh.getRange(1, 1, 1, def.cols.length).setValues([def.cols]).setFontWeight('bold');
     sh.setFrozenRows(1);
@@ -100,11 +116,13 @@ function rows_(key) {
     return o;
   }).filter(o => o[cols[0]] !== '');
 }
+// 「=」などで始まる文字が数式として扱われないようにする
+function safe_(v) { return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v; }
 function append_(key, obj) {
-  sheet_(key).appendRow(SHEETS[key].cols.map(c => obj[c] === undefined ? '' : obj[c]));
+  sheet_(key).appendRow(SHEETS[key].cols.map(c => obj[c] === undefined ? '' : safe_(obj[c])));
 }
 function setCell_(key, row, col, value) {
-  sheet_(key).getRange(row, SHEETS[key].cols.indexOf(col) + 1).setValue(value);
+  sheet_(key).getRange(row, SHEETS[key].cols.indexOf(col) + 1).setValue(safe_(value));
 }
 function settings_() {
   const s = {};
@@ -166,7 +184,9 @@ function readAll_(b) {
   });
 
   const out = {
-    settings: { clubName: s.clubName, initialPoints: Number(s.initialPoints) || 0, dailyBonus: Number(s.dailyBonus) || 0, needsKey: !!String(s.roomKey || '').trim() },
+    settings: { clubName: s.clubName, initialPoints: Number(s.initialPoints) || 0, dailyBonus: Number(s.dailyBonus) || 0, needsKey: !!String(s.roomKey || '').trim(),
+                blogPoints: Number(s.blogPoints) || 0, blogDailyMax: Number(s.blogDailyMax) || 0, blogMinChars: Number(s.blogMinChars) || 0 },
+    posts: rows_('blog').slice(-100).reverse().map(p => ({ id: p.id, at: p.at, guestId: p.guestId, title: p.title, body: p.body, points: Number(p.points) || 0 })),
     month: month,
     gifts: gifts,
     hosts: hosts.map(h => {
@@ -195,7 +215,9 @@ function readAll_(b) {
     }));
     if (me.key === 'guests') {
       out.me.points = Number(me.user.points) || 0;
-      out.me.bonusReady = String(me.user.lastBonus) !== dayOf_(new Date());
+      out.me.bonusReady = (Number(s.dailyBonus) || 0) > 0 && String(me.user.lastBonus) !== dayOf_(new Date());
+      const used = String(me.user.blogDay) === dayOf_(new Date()) ? Number(me.user.blogCount) || 0 : 0;
+      out.me.blogLeft = Math.max(0, (Number(s.blogDailyMax) || 0) - used);
     }
   }
   return out;
@@ -259,6 +281,7 @@ function claimBonus_(b) {
   const today = dayOf_(new Date());
   if (String(me.user.lastBonus) === today) throw new Error('今日のボーナスはもう受け取っています');
   const bonus = Number(settings_().dailyBonus) || 0;
+  if (bonus <= 0) throw new Error('今はボーナスはありません');
   const points = (Number(me.user.points) || 0) + bonus;
   setCell_('guests', me.user._row, 'points', points);
   setCell_('guests', me.user._row, 'lastBonus', today);
@@ -285,21 +308,56 @@ function tribute_(b) {
   return { ok: true, points: points - price, tribute: t };
 }
 
+// ---------- ブログ（お客様だけ書ける。書くとポイント） ----------
+function postBlog_(b) {
+  b.role = 'guest';
+  const me = me_(b);
+  if (!me) throw new Error('お客様としてログインしてください');
+  const s = settings_();
+  const title = clean_(b.title, 40);
+  const body = String(b.body == null ? '' : b.body).replace(/\r\n?/g, '\n').trim().slice(0, 2000);
+  if (!body) throw new Error('本文を書いてください');
+  const today = dayOf_(new Date());
+  const used = String(me.user.blogDay) === today ? Number(me.user.blogCount) || 0 : 0;
+  const chars = body.replace(/\s/g, '').length;
+  let points = 0;
+  if (used < (Number(s.blogDailyMax) || 0) && chars >= (Number(s.blogMinChars) || 0)) points = Number(s.blogPoints) || 0;
+  const post = { id: newId_('b'), at: nowIso_(), guestId: me.user.id, title: title, body: body, points: points };
+  append_('blog', post);
+  if (points > 0) {
+    setCell_('guests', me.user._row, 'points', (Number(me.user.points) || 0) + points);
+    setCell_('guests', me.user._row, 'blogDay', today);
+    setCell_('guests', me.user._row, 'blogCount', used + 1);
+  }
+  return { ok: true, post: post, earned: points, chars: chars };
+}
+function deleteBlog_(b) {
+  b.role = 'guest';
+  const me = me_(b);
+  if (!me) throw new Error('ログインし直してください');
+  const p = rows_('blog').find(x => x.id === b.id);
+  if (!p || p.guestId !== me.user.id) throw new Error('この記事は消せません');
+  sheet_('blog').deleteRow(p._row);
+  return { ok: true };
+}
+
 // ---------- 管理 ----------
 function admin_(b) {
   const s = settings_();
   if (String(b.adminPassword || '') !== String(s.adminPassword)) throw new Error('管理パスワードがちがいます');
   switch (b.op) {
     case 'check':
-      return { ok: true, settings: { clubName: s.clubName, initialPoints: s.initialPoints, dailyBonus: s.dailyBonus, roomKey: s.roomKey },
+      return { ok: true, settings: { clubName: s.clubName, initialPoints: s.initialPoints, dailyBonus: s.dailyBonus, roomKey: s.roomKey,
+                                     blogPoints: s.blogPoints, blogDailyMax: s.blogDailyMax, blogMinChars: s.blogMinChars },
                guests: rows_('guests').map(g => ({ id: g.id, name: g.name, points: Number(g.points) || 0 })) };
     case 'saveSettings':
-      ['clubName', 'initialPoints', 'dailyBonus', 'roomKey'].forEach(k => {
-        if (b.settings && b.settings[k] !== undefined) setSetting_(k, k === 'initialPoints' || k === 'dailyBonus' ? Math.max(0, Number(b.settings[k]) || 0) : clean_(b.settings[k], 60));
+      const NUM = ['initialPoints', 'dailyBonus', 'blogPoints', 'blogDailyMax', 'blogMinChars'];
+      ['clubName', 'roomKey'].concat(NUM).forEach(k => {
+        if (b.settings && b.settings[k] !== undefined) setSetting_(k, NUM.indexOf(k) >= 0 ? Math.max(0, Math.floor(Number(b.settings[k]) || 0)) : clean_(b.settings[k], 60));
       });
       return { ok: true };
     case 'saveGifts': {
-      const list = (b.gifts || []).map(g => [clean_(g.id, 20) || newId_('g'), clean_(g.name, 20), Math.max(1, Math.floor(Number(g.price) || 0)), clean_(g.icon, 40) || 'redeem'])
+      const list = (b.gifts || []).map(g => [clean_(g.id, 20) || newId_('g'), safe_(clean_(g.name, 20)), Math.max(1, Math.floor(Number(g.price) || 0)), clean_(g.icon, 40) || 'redeem'])
         .filter(g => g[1]);
       const sh = sheet_('gifts');
       if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, 4).clearContent();
@@ -318,6 +376,12 @@ function admin_(b) {
       const u = rows_(key).find(r => r.id === b.id);
       if (!u) throw new Error('見つかりません');
       sheet_(key).deleteRow(u._row);
+      return { ok: true };
+    }
+    case 'deleteBlog': {
+      const p = rows_('blog').find(x => x.id === b.id);
+      if (!p) throw new Error('見つかりません');
+      sheet_('blog').deleteRow(p._row);
       return { ok: true };
     }
     case 'resetPassword': {

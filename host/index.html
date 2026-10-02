@@ -210,6 +210,27 @@ header { text-align: center; padding: 22px 16px 6px; position: relative; }
 .host-board .v.rank { font-size: 32px; color: var(--gold); text-shadow: 0 0 14px rgba(243,211,139,.6); }
 .host-board .gap { grid-column: 1 / -1; font-size: 12px; color: var(--gold3); margin-top: 6px; }
 
+/* ---------- ブログ ---------- */
+.compose textarea { min-height: 140px; resize: vertical; line-height: 1.7; }
+.compose .meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--sub); margin: -4px 0 12px; }
+.compose .meta .ok { color: var(--gold); }
+.reward { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; color: #2a1546; background: linear-gradient(180deg, var(--gold3), var(--gold)); }
+.reward.off { color: var(--sub); background: rgba(255,255,255,.08); }
+.posts { display: flex; flex-direction: column; gap: 12px; }
+.post { padding: 14px 16px; border-radius: 18px; background: var(--card); border: 1px solid rgba(255,255,255,.08); animation: rise .45s ease both; }
+.post .ph { display: flex; align-items: center; gap: 10px; }
+.post .ph .who { flex: 1; min-width: 0; }
+.post .ph .who b { display: block; font-size: 14px; }
+.post .ph .who span { font-size: 11px; color: var(--mute); }
+.post .ph .del { background: none; color: var(--mute); padding: 4px; }
+.post h4 { font-family: 'Shippori Mincho B1', serif; font-size: 17px; margin: 12px 0 0; }
+.post .body { margin-top: 8px; font-size: 14px; line-height: 1.85; white-space: pre-wrap; word-break: break-word; }
+.post .body.clamp { display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; }
+.post .more { background: none; color: var(--gold); font-size: 12.5px; padding: 6px 0 0; }
+.post .pf { margin-top: 10px; display: flex; justify-content: flex-end; }
+.blog-note { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--sub); }
+.blog-note .mi { color: var(--gold); font-size: 22px; }
+
 /* ---------- ログイン ---------- */
 .auth .icon-pick { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
 .auth .icon-pick .av { --s: 72px; }
@@ -218,7 +239,7 @@ header { text-align: center; padding: 22px 16px 6px; position: relative; }
 /* ---------- 下のナビ ---------- */
 nav.bn { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; justify-content: center; gap: 4px; padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
   background: linear-gradient(180deg, rgba(15,8,25,0), rgba(15,8,25,.92) 35%); }
-nav.bn button { flex: 1; max-width: 130px; background: none; color: var(--mute); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 6px 0; transition: color .25s; }
+nav.bn button { flex: 1; max-width: 110px; background: none; color: var(--mute); display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 6px 0; transition: color .25s; }
 nav.bn button .ic { width: 46px; height: 34px; border-radius: 999px; display: flex; align-items: center; justify-content: center; transition: background .3s, transform .3s var(--ease-pop); }
 nav.bn button .ic .mi { font-size: 24px; }
 nav.bn button.on { color: var(--gold); }
@@ -361,6 +382,9 @@ footer button { background: none; color: var(--mute); font-size: 11px; }
     <div class="feed" id="feed"></div>
   </section>
 
+  <!-- ブログ -->
+  <section class="view" id="v-blog"></section>
+
   <!-- ホスト一覧 -->
   <section class="view" id="v-hosts">
     <div class="heading"><span class="en">CAST</span><span class="ja">在籍ホスト</span></div>
@@ -381,6 +405,7 @@ footer button { background: none; color: var(--mute); font-size: 11px; }
 
 <nav class="bn" id="bn">
   <button data-v="rank" class="on"><span class="ic"><span class="mi">trophy</span></span>ランキング</button>
+  <button data-v="blog"><span class="ic"><span class="mi">edit_note</span></span>ブログ</button>
   <button data-v="hosts"><span class="ic"><span class="mi">groups</span></span>ホスト</button>
   <button data-v="me"><span class="ic"><span class="mi">person</span></span>マイページ</button>
 </nav>
@@ -526,6 +551,7 @@ function renderAll(animate) {
   renderFeed();
   renderHosts();
   if (S.view === 'host') renderHost();
+  if (S.view === 'blog') renderBlog(false);
   // 入力中や未ログインのフォームは書き換えない
   const typing = document.activeElement && $('v-me').contains(document.activeElement);
   if (S.view === 'me' && S.data.me && !typing) renderMe();
@@ -630,6 +656,85 @@ function renderHost() {
     <div class="feed">${feedHtml(history, { mode: 'host' })}</div>`;
 }
 
+// ---------- ブログ ----------
+const openPosts = new Set();
+function blogRule() {
+  const st = S.data.settings;
+  return `1記事 <b class="pt">${fmt(st.blogPoints)}</b>pt（1日${fmt(st.blogDailyMax)}記事まで・${fmt(st.blogMinChars)}文字以上）`;
+}
+function renderBlog(force) {
+  const el = $('v-blog');
+  const me = S.data.me;
+  // 書いている途中は記事一覧だけ更新する（下書きは消さない）
+  if (!force && document.activeElement && el.contains(document.activeElement)) { drawPosts(); return; }
+  const draft = { t: $('b-title')?.value || '', b: $('b-body')?.value || '' };
+  let top;
+  if (me?.role === 'guest') {
+    top = `<div class="card compose">
+      <div class="field"><input id="b-title" maxlength="40" placeholder="タイトル（任意）" value="${esc(draft.t)}"></div>
+      <div class="field"><textarea id="b-body" maxlength="2000" placeholder="今日のできごと、推しへの想い…">${esc(draft.b)}</textarea></div>
+      <div class="meta"><span id="b-count"></span><span>${me.blogLeft > 0 ? `今日はあと <b class="pt" style="color:var(--gold3)">${me.blogLeft}</b> 記事ポイントがもらえます` : '今日のポイントはもらい済み（投稿はできます）'}</span></div>
+      <button class="btn block" id="b-post">${mi('edit_note')}投稿する</button>
+      <p class="muted" style="margin:10px 0 0;text-align:center">${blogRule()}</p>
+    </div>`;
+  } else if (me?.role === 'host') {
+    top = `<div class="card blog-note">${mi('visibility')}<span>お客様のブログです。ホストは読むだけです。</span></div>`;
+  } else {
+    top = `<div class="card blog-note">${mi('edit_note')}<span>お客様としてログインすると、ブログを書いてポイントを貯められます。<br>${blogRule()}</span></div>
+      <button class="btn rose block" data-go="me" style="margin-top:10px">${mi('login')}ログイン・登録</button>`;
+  }
+  el.innerHTML = `<div class="heading"><span class="en">BLOG</span><span class="ja">お客様ブログ</span></div>${top}
+    <div class="heading"><span class="en">LATEST</span><span class="ja">新着記事</span></div><div class="posts" id="posts"></div>`;
+  updateCount();
+  drawPosts();
+}
+function drawPosts() {
+  const box = $('posts'); if (!box) return;
+  const posts = S.data.posts || [];
+  const myId = S.data.me?.role === 'guest' ? S.data.me.id : null;
+  box.innerHTML = posts.length ? posts.map(p => {
+    const g = guestById(p.guestId) || { name: '退店したお客様' };
+    const long = p.body.length > 220 || p.body.split('\n').length > 7;
+    const open = openPosts.has(p.id);
+    return `<article class="post">
+      <div class="ph">${avatar(g, { size: 40, noAura: true })}<div class="who"><b>${esc(g.name)} 様</b><span>${ago(p.at)}</span></div>
+        ${myId === p.guestId || S.adminData ? `<button class="del" data-delpost="${esc(p.id)}" title="削除">${mi('delete')}</button>` : ''}</div>
+      ${p.title ? `<h4>${esc(p.title)}</h4>` : ''}
+      <div class="body${long && !open ? ' clamp' : ''}">${esc(p.body)}</div>
+      ${long ? `<button class="more" data-more="${esc(p.id)}">${open ? 'たたむ' : '続きを読む'}</button>` : ''}
+      ${p.points > 0 ? `<div class="pf"><span class="reward">${mi('paid')}+${fmt(p.points)}pt</span></div>` : ''}
+    </article>`;
+  }).join('') : '<div class="empty">まだ記事はありません</div>';
+}
+function updateCount() {
+  const b = $('b-body'), c = $('b-count'); if (!b || !c) return;
+  const n = b.value.replace(/\s/g, '').length, min = S.data.settings.blogMinChars;
+  c.innerHTML = n >= min ? `<span class="ok">${mi('check_circle')} ${n}文字</span>` : `${n}文字（あと${min - n}文字でポイント対象）`;
+}
+function postBlog() {
+  const body = $('b-body').value.trim();
+  if (!body) return toast('本文を書いてください', true);
+  loading(true);
+  api('postBlog', Object.assign(authBody(), { title: $('b-title').value, body }))
+    .then(r => {
+      loading(false);
+      $('b-title').value = ''; $('b-body').value = '';
+      if (r.earned > 0) playFx({ price: 0, icon: 'edit_note', giftName: `+${fmt(r.earned)}pt`, label: 'BLOG BONUS', line: 'ブログ更新ありがとうございます' });
+      else toast(`${mi('check_circle')}<span>投稿しました（今回はポイントなし）</span>`);
+      document.activeElement && document.activeElement.blur();
+      return load();
+    })
+    .then(() => renderBlog(true))
+    .catch(err => { loading(false); toast(err.message, true); });
+}
+function deletePost(id) {
+  if (!confirm('この記事を削除しますか？（もらったポイントはそのままです）')) return;
+  const p = S.adminData ? api('admin', { adminPassword: S.adminPass, op: 'deleteBlog', id }) : api('deleteBlog', Object.assign(authBody(), { id }));
+  loading(true);
+  p.then(() => load()).then(() => { loading(false); toast(`${mi('delete')}<span>削除しました</span>`); })
+    .catch(err => { loading(false); toast(err.message, true); });
+}
+
 // ---------- マイページ ----------
 let authRole = 'guest', authMode = 'login', pendingIcon = null;
 function renderMe() {
@@ -654,8 +759,8 @@ function renderAuth(el) {
       <div class="field"><label>パスワード（4文字以上）</label><input id="f-pass" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}"></div>
       ${reg && authRole === 'host' ? `<div class="field"><label>キャッチコピー（任意・40文字まで）</label><input id="f-catch" maxlength="40" placeholder="例：今夜、君だけの王子様"></div>` : ''}
       ${reg && needsKey ? `<div class="field"><label>合言葉</label><input id="f-key"></div>` : ''}
-      ${reg && authRole === 'guest' ? `<p class="muted" style="margin:0 0 12px">${mi('paid')} 登録すると ${fmt(S.data?.settings?.initialPoints)}pt もらえます。毎日 ${fmt(S.data?.settings?.dailyBonus)}pt のボーナスも。</p>` : ''}
-      ${reg && authRole === 'host' ? `<p class="muted" style="margin:0 0 12px">${mi('info')} ホストは登録するだけでOK。お客様からの貢ぎ物でランキングが決まります。</p>` : ''}
+      ${reg && authRole === 'guest' ? `<p class="muted" style="margin:0 0 12px">${mi('paid')} 登録すると ${fmt(S.data?.settings?.initialPoints)}pt もらえます。ブログを書くと${S.data ? blogRule() : ''}。</p>` : ''}
+      ${reg && authRole === 'host' ? `<p class="muted" style="margin:0 0 12px">${mi('info')} ホストは登録するだけでOK。お客様からの貢ぎ物でランキングが決まります（ブログは読むだけです）。</p>` : ''}
       <button class="btn block" id="auth-go">${reg ? mi('how_to_reg') + '登録する' : mi('login') + 'ログイン'}</button>
       <p style="text-align:center;margin:14px 0 0"><button class="btn ghost" id="auth-switch" style="font-size:12.5px;padding:8px 16px">${reg ? 'アカウントがある方はこちら' : 'はじめての方は新規登録'}</button></p>
     </div>`;
@@ -668,7 +773,9 @@ function renderGuestMe(el, me) {
     <div class="card wallet" style="margin-top:16px">
       <div class="k">所持ポイント</div>
       <div class="v pt"><span data-count="${me.points}">${fmt(me.points)}</span><small>pt</small></div>
-      <button class="btn ${me.bonusReady ? 'rose' : 'ghost'}" id="bonus" ${me.bonusReady ? '' : 'disabled'}>${mi('featured_seasonal_and_gifts')}${me.bonusReady ? `今日のボーナス +${fmt(S.data.settings.dailyBonus)}pt` : '今日のボーナスは受け取り済み'}</button>
+      <button class="btn rose" data-go="blog">${mi('edit_note')}ブログを書いて貯める</button>
+      <div class="muted" style="margin-top:10px">${me.blogLeft > 0 ? `今日はあと ${me.blogLeft} 記事ポイントがもらえます` : '今日のブログポイントはもらい済みです'}</div>
+      ${S.data.settings.dailyBonus > 0 ? `<button class="btn ${me.bonusReady ? '' : 'ghost'}" id="bonus" style="margin-top:12px" ${me.bonusReady ? '' : 'disabled'}>${mi('featured_seasonal_and_gifts')}${me.bonusReady ? `今日のボーナス +${fmt(S.data.settings.dailyBonus)}pt` : '今日のボーナスは受け取り済み'}</button>` : ''}
     </div>
     <div class="heading"><span class="en">MY HOST</span><span class="ja">推しホスト</span></div>
     ${oshi.length ? `<div class="rank-list" style="margin-top:0">${oshi.map(x => `
@@ -791,7 +898,7 @@ function playFx(t) {
     <div class="ring"></div>${tier >= 3 ? '<div class="ring r2"></div>' : ''}${tier >= 5 ? '<div class="ring r3"></div>' : ''}
     <div class="parts"></div>
     <div class="fx-card">
-      <div class="lb">${TIERS[tier].label}</div>
+      <div class="lb">${esc(t.label || TIERS[tier].label)}</div>
       <div class="gift">${mi(esc(t.icon || 'redeem'))}</div>
       <div class="gn">${esc(t.giftName)}${tier >= 4 ? ' 入りました' : ''}</div>
       ${t.price ? `<div class="gp">${fmt(t.price)} pt</div>` : ''}
@@ -878,6 +985,7 @@ function go(view) {
   document.querySelectorAll('#bn button').forEach(b => b.classList.toggle('on', b.dataset.v === view || (view === 'host' && b.dataset.v === hostBack)));
   if (view === 'rank') { syncRankSeg(); renderRank(true); }
   if (view === 'host') renderHost();
+  if (view === 'blog') renderBlog(true);
   if (view === 'me') { pendingIcon = null; renderMe(); }
   if (view === 'admin') renderAdmin();
   scrollTo({ top: 0, behavior: 'smooth' });
@@ -996,7 +1104,10 @@ function renderAdmin() {
     <div class="card">
       <div class="field"><label>お店の名前</label><input id="a-club" value="${esc(s.clubName)}"></div>
       <div class="field"><label>登録時にもらえるポイント</label><input id="a-init" type="number" min="0" value="${esc(s.initialPoints)}"></div>
-      <div class="field"><label>毎日のボーナス</label><input id="a-bonus" type="number" min="0" value="${esc(s.dailyBonus)}"></div>
+      <div class="field"><label>ブログ1記事でもらえるポイント</label><input id="a-bpts" type="number" min="0" value="${esc(s.blogPoints)}"></div>
+      <div class="field"><label>ブログでポイントがもらえるのは1日何記事まで</label><input id="a-bmax" type="number" min="0" value="${esc(s.blogDailyMax)}"></div>
+      <div class="field"><label>ポイント対象になる最低文字数</label><input id="a-bmin" type="number" min="0" value="${esc(s.blogMinChars)}"></div>
+      <div class="field"><label>毎日のボーナス（0でなし）</label><input id="a-bonus" type="number" min="0" value="${esc(s.dailyBonus)}"></div>
       <div class="field"><label>登録の合言葉（空なら誰でも登録できる）</label><input id="a-key" value="${esc(s.roomKey)}"></div>
       <button class="btn block" id="a-save-settings">${mi('check')}設定を保存</button>
     </div>
@@ -1022,7 +1133,8 @@ function renderAdmin() {
       <div class="muted" style="margin-top:14px">お客様</div>
       ${a.guests.map(g => adminUserRow('guest', g.id, g.name)).join('') || '<div class="empty">なし</div>'}
     </div>
-    <p style="text-align:center;margin-top:20px"><button class="btn ghost" id="a-exit">${mi('logout')}管理画面を出る</button></p>`;
+    <p class="muted" style="text-align:center;margin-top:16px">管理画面に入っている間は、ブログの記事を削除できます</p>
+    <p style="text-align:center;margin-top:12px"><button class="btn ghost" id="a-exit">${mi('logout')}管理画面を出る</button></p>`;
 }
 function adminGiftRow(g) {
   g = g || { id: '', name: '', price: 1000, icon: 'redeem' };
@@ -1067,13 +1179,14 @@ document.addEventListener('click', e => {
   if (t.dataset.q) { sheetState.count = Math.max(1, Math.min(99, sheetState.count + Number(t.dataset.q))); drawSheet(); return; }
   switch (t.id) {
     case 't-go': doTribute(); break;
+    case 'b-post': postBlog(); break;
     case 'auth-go': doAuth(); break;
     case 'auth-switch': authMode = authMode === 'login' ? 'register' : 'login'; renderMe(); break;
     case 'logout': S.session = null; store.del('hc_session'); load().then(() => { renderMe(); toast(`${mi('waving_hand')}<span>ログアウトしました</span>`); }); break;
     case 'profile-save': saveProfile(); break;
     case 'bonus':
       loading(true);
-      api('claimBonus', authBody()).then(r => { loading(false); playFx({ price: 0, icon: 'paid', giftName: `+${fmt(r.bonus)}pt`, line: '今日のボーナスを受け取りました' }); return load(); })
+      api('claimBonus', authBody()).then(r => { loading(false); playFx({ price: 0, icon: 'paid', giftName: `+${fmt(r.bonus)}pt`, label: 'DAILY BONUS', line: '今日のボーナスを受け取りました' }); return load(); })
         .catch(err => { loading(false); toast(err.message, true); });
       break;
     case 'admin-link': go('admin'); break;
@@ -1083,7 +1196,8 @@ document.addEventListener('click', e => {
       break;
     case 'a-exit': S.adminPass = null; S.adminData = null; go('rank'); break;
     case 'a-save-settings':
-      adminCall('saveSettings', { settings: { clubName: $('a-club').value, initialPoints: $('a-init').value, dailyBonus: $('a-bonus').value, roomKey: $('a-key').value } })
+      adminCall('saveSettings', { settings: { clubName: $('a-club').value, initialPoints: $('a-init').value, dailyBonus: $('a-bonus').value, roomKey: $('a-key').value,
+        blogPoints: $('a-bpts').value, blogDailyMax: $('a-bmax').value, blogMinChars: $('a-bmin').value } })
         .then(() => { toast(`${mi('check_circle')}<span>保存しました</span>`); return adminRefresh(); }).catch(() => {});
       break;
     case 'a-add-gift': $('a-gifts').insertAdjacentHTML('beforeend', adminGiftRow()); break;
@@ -1098,6 +1212,8 @@ document.addEventListener('click', e => {
       break;
   }
   if (t.hasAttribute('data-del-gift')) t.closest('.admin-gift').remove();
+  if (t.dataset.delpost) deletePost(t.dataset.delpost);
+  if (t.dataset.more) { const id = t.dataset.more; openPosts.has(id) ? openPosts.delete(id) : openPosts.add(id); drawPosts(); }
   if (t.dataset.deluser) {
     const [role, id] = t.dataset.deluser.split(':');
     if (confirm('本当に削除しますか？（貢ぎ物の記録は残ります）')) adminCall('deleteUser', { role, id }).then(adminRefresh).catch(() => {});
@@ -1114,6 +1230,7 @@ document.addEventListener('click', e => {
 });
 $('sheet-bg').addEventListener('click', closeSheet);
 document.addEventListener('input', e => {
+  if (e.target.id === 'b-body') updateCount();
   const row = e.target.closest('.admin-gift');
   if (row) row.querySelector('.a-prev').innerHTML = giftIcon(row.querySelector('.a-icon').value, Number(row.querySelector('.a-price').value) || 0);
 });
@@ -1168,9 +1285,15 @@ const Demo = (function () {
       const gift = gifts.find(x => x.id === gid);
       return { id: 't' + i, at: iso(now - hoursAgo * hr), guestId: g, hostId: h, giftName: gift.name, price: gift.price, icon: gift.icon, message: i % 3 === 0 ? 'いつもありがとう' : '' };
     });
-    return { settings: { clubName: 'CLUB NOCTURNE', initialPoints: 10000, dailyBonus: 3000, roomKey: '', adminPassword: 'admin' }, hosts, guests, gifts, tributes };
+    const posts = [
+      ['c1', 6, 'レイくんに会えた日', '今日はレイくんの誕生日イベント。\nシャンパンタワーを入れたら、ありがとうって頭をぽんってしてくれた。\nもう一生ついていきます。来月も絶対No.1にするからね。'],
+      ['c2', 20, '', '朔夜さんの「月が綺麗ですね」に毎回やられる。今日はドンペリ入れちゃった。財布は軽いけど心は満タン。'],
+      ['c3', 30, '初めてのお店', 'お友だちに連れられて初来店。カイトくんがずっと笑わせてくれて、気づいたら閉店まで居ました。また行きます！']
+    ].map(([g, h, title, body], i) => ({ id: 'b' + i, at: iso(now - h * hr), guestId: g, title, body, points: 3000 }));
+    return { settings: { clubName: 'CLUB NOCTURNE', initialPoints: 10000, dailyBonus: 0, roomKey: '', adminPassword: 'admin', blogPoints: 3000, blogDailyMax: 3, blogMinChars: 50 }, hosts, guests, gifts, tributes, posts };
   }
-  let db = store.get(KEY) || seed();
+  let db = store.get(KEY);
+  if (!db || !db.posts) db = seed();
   const save = () => store.set(KEY, db);
   const month = d => { const x = new Date(d); return x.getFullYear() + '-' + (x.getMonth() + 1); };
   const day = d => new Date(d).toDateString();
@@ -1180,7 +1303,9 @@ const Demo = (function () {
   function readAll(b) {
     const m = month(Date.now()), dayAgo = Date.now() - 24 * hr;
     const out = {
-      settings: { clubName: db.settings.clubName, initialPoints: db.settings.initialPoints, dailyBonus: db.settings.dailyBonus, needsKey: !!db.settings.roomKey },
+      settings: { clubName: db.settings.clubName, initialPoints: db.settings.initialPoints, dailyBonus: db.settings.dailyBonus, needsKey: !!db.settings.roomKey,
+                  blogPoints: db.settings.blogPoints, blogDailyMax: db.settings.blogDailyMax, blogMinChars: db.settings.blogMinChars },
+      posts: db.posts.slice(-100).reverse(),
       gifts: db.gifts.slice().sort((a, b) => a.price - b.price),
       hosts: db.hosts.map(h => {
         const mine = db.tributes.filter(t => t.hostId === h.id);
@@ -1199,7 +1324,10 @@ const Demo = (function () {
       const f = b.role === 'guest' ? 'guestId' : 'hostId', mine = db.tributes.filter(t => t[f] === me.id), by = {};
       mine.forEach(t => { const o = b.role === 'guest' ? t.hostId : t.guestId; by[o] = (by[o] || 0) + t.price; });
       out.me = { role: b.role, id: me.id, name: me.name, byPartner: by, history: mine.slice(-50).reverse() };
-      if (b.role === 'guest') { out.me.points = me.points; out.me.bonusReady = me.lastBonus !== day(Date.now()); }
+      if (b.role === 'guest') {
+        out.me.points = me.points; out.me.bonusReady = db.settings.dailyBonus > 0 && me.lastBonus !== day(Date.now());
+        out.me.blogLeft = Math.max(0, db.settings.blogDailyMax - (me.blogDay === day(Date.now()) ? me.blogCount || 0 : 0));
+      }
     }
     return out;
   }
@@ -1233,6 +1361,21 @@ const Demo = (function () {
           if (u.lastBonus === day(Date.now())) return fail('今日のボーナスはもう受け取っています');
           u.lastBonus = day(Date.now()); u.points += db.settings.dailyBonus; save(); return { bonus: db.settings.dailyBonus, points: u.points };
         }
+        case 'postBlog': {
+          const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('お客様としてログインしてください');
+          const body = String(b.body || '').trim().slice(0, 2000); if (!body) return fail('本文を書いてください');
+          const used = u.blogDay === day(Date.now()) ? u.blogCount || 0 : 0, chars = body.replace(/\s/g, '').length;
+          const points = used < db.settings.blogDailyMax && chars >= db.settings.blogMinChars ? db.settings.blogPoints : 0;
+          const post = { id: 'b' + Date.now(), at: iso(Date.now()), guestId: u.id, title: String(b.title || '').slice(0, 40), body, points };
+          db.posts.push(post);
+          if (points) { u.points += points; u.blogDay = day(Date.now()); u.blogCount = used + 1; }
+          save(); return { post, earned: points };
+        }
+        case 'deleteBlog': {
+          const u = meOf(Object.assign({}, b, { role: 'guest' })), i = db.posts.findIndex(p => p.id === b.id);
+          if (!u || i < 0 || db.posts[i].guestId !== u.id) return fail('この記事は消せません');
+          db.posts.splice(i, 1); save(); return { ok: true };
+        }
         case 'tribute': {
           const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('ログインし直してください');
           const g = db.gifts.find(x => x.id === b.giftId); if (!g) return fail('貢ぎ物が見つかりません');
@@ -1245,7 +1388,8 @@ const Demo = (function () {
         case 'admin': {
           if (b.adminPassword !== db.settings.adminPassword) return fail('管理パスワードがちがいます（デモは admin）');
           if (b.op === 'check') return { settings: db.settings, guests: db.guests.map(g => ({ id: g.id, name: g.name, points: g.points })) };
-          if (b.op === 'saveSettings') { Object.assign(db.settings, { clubName: b.settings.clubName, initialPoints: +b.settings.initialPoints, dailyBonus: +b.settings.dailyBonus, roomKey: b.settings.roomKey }); }
+          if (b.op === 'saveSettings') { const x = b.settings; Object.assign(db.settings, { clubName: x.clubName, initialPoints: +x.initialPoints, dailyBonus: +x.dailyBonus, roomKey: x.roomKey, blogPoints: +x.blogPoints, blogDailyMax: +x.blogDailyMax, blogMinChars: +x.blogMinChars }); }
+          if (b.op === 'deleteBlog') { const i = db.posts.findIndex(p => p.id === b.id); if (i >= 0) db.posts.splice(i, 1); }
           if (b.op === 'saveGifts') db.gifts = b.gifts.filter(g => g.name).map((g, i) => ({ id: g.id || 'g' + Date.now() + i, name: g.name, price: Math.max(1, +g.price | 0), icon: g.icon || 'redeem' }));
           if (b.op === 'givePoints') db.guests.filter(g => b.guestId === 'all' || g.id === b.guestId).forEach(g => g.points = Math.max(0, g.points + (+b.amount | 0)));
           if (b.op === 'deleteUser') { const l = roleList(b.role); l.splice(l.findIndex(u => u.id === b.id), 1); }
