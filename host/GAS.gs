@@ -13,29 +13,33 @@ const SHEETS = {
   gifts:    { name: '貢ぎ物',   cols: ['id', 'name', 'price', 'icon'] },
   tributes: { name: '貢ぎ履歴', cols: ['id', 'at', 'guestId', 'hostId', 'giftId', 'giftName', 'price', 'icon', 'message'] },
   settings: { name: '設定',     cols: ['key', 'value', 'memo'] },
-  blog:     { name: 'ブログ',   cols: ['id', 'at', 'guestId', 'title', 'body', 'points'] }
+  blog:     { name: 'ブログ',   cols: ['id', 'at', 'guestId', 'title', 'body', 'points', 'chars', 'earns', 'likes', 'revoked'] }
 };
 const DEFAULT_SETTINGS = [
   ['clubName', 'CLUB NOCTURNE', 'お店の名前（画面のタイトル）'],
-  ['initialPoints', 10000, 'お客様が登録したときにもらえるポイント'],
+  ['initialPoints', 0, 'お客様が登録したときにもらえるポイント'],
   ['dailyBonus', 0, '1日1回もらえるポイント（0ならボーナスなし）'],
-  ['blogPoints', 3000, 'ブログを1記事書くともらえるポイント'],
-  ['blogDailyMax', 3, 'ポイントがもらえるのは1日何記事まで'],
-  ['blogMinChars', 50, 'ポイントがもらえる最低文字数'],
+  ['blogDailyMax', 5, 'ポイントがもらえるブログは1日何記事まで'],
+  ['blogMinChars', 50, 'ポイント対象になる最低文字数'],
+  ['blogCharPoint', 20, 'ブログ1文字あたりのポイント'],
+  ['blogCharMax', 15000, '文字数でもらえるポイントの上限（1記事）'],
+  ['blogLikePoint', 500, 'ホストのいいね1つでもらえるポイント'],
+  ['blogLikeMax', 30, '1記事にいいねできるのは何人まで'],
+  ['blogPostMax', 30000, '1記事でもらえるポイントの上限（文字数＋いいね）'],
   ['roomKey', '', '登録に必要な合言葉（空なら誰でも登録できる）'],
   ['adminPassword', 'changeme', '管理画面のパスワード（必ず変えてください）']
 ];
 const DEFAULT_GIFTS = [
-  ['g1', 'ドリンク', 300, 'local_bar'],
-  ['g2', '指名', 500, 'favorite'],
-  ['g3', '花束', 1000, 'local_florist'],
-  ['g4', 'ケーキ', 2000, 'cake'],
-  ['g5', 'シャンパン', 5000, 'wine_bar'],
-  ['g6', 'ブランド時計', 10000, 'watch'],
-  ['g7', 'ドンペリ', 20000, 'liquor'],
-  ['g8', 'シャンパンタワー', 50000, 'celebration'],
-  ['g9', '高級車', 100000, 'directions_car']
+  ['g1', 'ドリンク', 1000, 'local_bar'],
+  ['g2', '指名', 3000, 'favorite'],
+  ['g3', '花束', 8000, 'local_florist'],
+  ['g4', 'ケーキ', 15000, 'cake'],
+  ['g5', 'ボトル', 30000, 'liquor'],
+  ['g6', 'ブランド時計', 80000, 'watch'],
+  ['g7', '高級ボトル', 150000, 'wine_bar'],
+  ['g8', 'シャンパン', 450000, 'celebration']
 ];
+const NUM_SETTINGS = ['initialPoints', 'dailyBonus', 'blogDailyMax', 'blogMinChars', 'blogCharPoint', 'blogCharMax', 'blogLikePoint', 'blogLikeMax', 'blogPostMax'];
 
 // ---------- 入口 ----------
 function doGet(e) {
@@ -67,6 +71,7 @@ function handle(b) {
       case 'tribute':       return withLock_(() => tribute_(b));
       case 'postBlog':      return withLock_(() => postBlog_(b));
       case 'deleteBlog':    return withLock_(() => deleteBlog_(b));
+      case 'likeBlog':      return withLock_(() => likeBlog_(b));
       case 'admin':         return withLock_(() => admin_(b));
       default:              return { error: '不明な操作です' };
     }
@@ -157,6 +162,11 @@ function me_(b) {
 }
 
 // ---------- 読み込み ----------
+function publicSettings_(s) {
+  const o = { clubName: s.clubName, needsKey: !!String(s.roomKey || '').trim() };
+  NUM_SETTINGS.forEach(k => { o[k] = Number(s[k]) || 0; });
+  return o;
+}
 function readAll_(b) {
   const s = settings_();
   const hosts = rows_('hosts');
@@ -184,9 +194,11 @@ function readAll_(b) {
   });
 
   const out = {
-    settings: { clubName: s.clubName, initialPoints: Number(s.initialPoints) || 0, dailyBonus: Number(s.dailyBonus) || 0, needsKey: !!String(s.roomKey || '').trim(),
-                blogPoints: Number(s.blogPoints) || 0, blogDailyMax: Number(s.blogDailyMax) || 0, blogMinChars: Number(s.blogMinChars) || 0 },
-    posts: rows_('blog').slice(-100).reverse().map(p => ({ id: p.id, at: p.at, guestId: p.guestId, title: p.title, body: p.body, points: Number(p.points) || 0 })),
+    settings: publicSettings_(s),
+    posts: rows_('blog').slice(-100).reverse().map(p => ({
+      id: p.id, at: p.at, guestId: p.guestId, title: p.title, body: p.body, points: Number(p.points) || 0,
+      chars: Number(p.chars) || 0, earns: Number(p.earns) === 1, likes: likesOf_(p), revoked: Number(p.revoked) === 1
+    })),
     month: month,
     gifts: gifts,
     hosts: hosts.map(h => {
@@ -308,35 +320,78 @@ function tribute_(b) {
   return { ok: true, points: points - price, tribute: t };
 }
 
-// ---------- ブログ（お客様だけ書ける。書くとポイント） ----------
+// ---------- ブログ（お客様だけ書ける。文字数＋ホストのいいねでポイント） ----------
+function likesOf_(p) { return String(p.likes || '').split(',').filter(String); }
+// 1記事のポイント = 文字数ポイント（上限あり）＋ いいね × 1いいねのポイント（全体の上限あり）
+function blogPoints_(s, chars, likes) {
+  if (chars < (Number(s.blogMinChars) || 0)) return 0;
+  const byChars = Math.min(Number(s.blogCharMax) || 0, chars * (Number(s.blogCharPoint) || 0));
+  const n = Math.min(likes, Number(s.blogLikeMax) || 0);
+  return Math.min(Number(s.blogPostMax) || 0, byChars + n * (Number(s.blogLikePoint) || 0));
+}
+// お客様のポイントを増減（0未満にはしない）
+function addGuestPoints_(guestId, delta) {
+  if (!delta) return;
+  const g = rows_('guests').find(x => x.id === guestId);
+  if (g) setCell_('guests', g._row, 'points', Math.max(0, (Number(g.points) || 0) + delta));
+}
+function findPost_(id) {
+  const p = rows_('blog').find(x => x.id === id);
+  if (!p) throw new Error('記事が見つかりません');
+  return p;
+}
 function postBlog_(b) {
   b.role = 'guest';
   const me = me_(b);
   if (!me) throw new Error('お客様としてログインしてください');
   const s = settings_();
   const title = clean_(b.title, 40);
-  const body = String(b.body == null ? '' : b.body).replace(/\r\n?/g, '\n').trim().slice(0, 2000);
+  const body = String(b.body == null ? '' : b.body).replace(/\r\n?/g, '\n').trim().slice(0, 3000);
   if (!body) throw new Error('本文を書いてください');
   const today = dayOf_(new Date());
   const used = String(me.user.blogDay) === today ? Number(me.user.blogCount) || 0 : 0;
   const chars = body.replace(/\s/g, '').length;
-  let points = 0;
-  if (used < (Number(s.blogDailyMax) || 0) && chars >= (Number(s.blogMinChars) || 0)) points = Number(s.blogPoints) || 0;
-  const post = { id: newId_('b'), at: nowIso_(), guestId: me.user.id, title: title, body: body, points: points };
+  const earns = used < (Number(s.blogDailyMax) || 0) && chars >= (Number(s.blogMinChars) || 0);
+  const points = earns ? blogPoints_(s, chars, 0) : 0;
+  const post = { id: newId_('b'), at: nowIso_(), guestId: me.user.id, title: title, body: body, points: points, chars: chars, earns: earns ? 1 : 0, likes: '', revoked: 0 };
   append_('blog', post);
-  if (points > 0) {
+  if (earns) {
     setCell_('guests', me.user._row, 'points', (Number(me.user.points) || 0) + points);
     setCell_('guests', me.user._row, 'blogDay', today);
     setCell_('guests', me.user._row, 'blogCount', used + 1);
   }
-  return { ok: true, post: post, earned: points, chars: chars };
+  return { ok: true, earned: points, earns: earns, chars: chars };
+}
+function likeBlog_(b) {
+  b.role = 'host';
+  const me = me_(b);
+  if (!me) throw new Error('ホストとしてログインしてください');
+  const s = settings_();
+  const p = findPost_(b.id);
+  const likes = likesOf_(p);
+  const has = likes.indexOf(me.user.id) >= 0;
+  const on = b.on === undefined ? !has : !!b.on;
+  if (on === has) return { ok: true, liked: has };
+  if (on && likes.length >= (Number(s.blogLikeMax) || 0)) throw new Error('この記事のいいねは' + (Number(s.blogLikeMax) || 0) + '人までです');
+  const next = on ? likes.concat([me.user.id]) : likes.filter(x => x !== me.user.id);
+  setCell_('blog', p._row, 'likes', next.join(','));
+  let delta = 0;
+  if (Number(p.earns) === 1 && Number(p.revoked) !== 1) {
+    const pts = blogPoints_(s, Number(p.chars) || 0, next.length);
+    delta = pts - (Number(p.points) || 0);
+    setCell_('blog', p._row, 'points', pts);
+    addGuestPoints_(p.guestId, delta);
+  }
+  return { ok: true, liked: on, delta: delta };
 }
 function deleteBlog_(b) {
   b.role = 'guest';
   const me = me_(b);
   if (!me) throw new Error('ログインし直してください');
-  const p = rows_('blog').find(x => x.id === b.id);
-  if (!p || p.guestId !== me.user.id) throw new Error('この記事は消せません');
+  const p = findPost_(b.id);
+  if (p.guestId !== me.user.id) throw new Error('この記事は消せません');
+  // 消した記事でもらったポイントは戻す（1日の記事数は戻らない）
+  addGuestPoints_(p.guestId, -(Number(p.points) || 0));
   sheet_('blog').deleteRow(p._row);
   return { ok: true };
 }
@@ -347,13 +402,11 @@ function admin_(b) {
   if (String(b.adminPassword || '') !== String(s.adminPassword)) throw new Error('管理パスワードがちがいます');
   switch (b.op) {
     case 'check':
-      return { ok: true, settings: { clubName: s.clubName, initialPoints: s.initialPoints, dailyBonus: s.dailyBonus, roomKey: s.roomKey,
-                                     blogPoints: s.blogPoints, blogDailyMax: s.blogDailyMax, blogMinChars: s.blogMinChars },
+      return { ok: true, settings: Object.assign(publicSettings_(s), { roomKey: s.roomKey }),
                guests: rows_('guests').map(g => ({ id: g.id, name: g.name, points: Number(g.points) || 0 })) };
     case 'saveSettings': {
-      const NUM = ['initialPoints', 'dailyBonus', 'blogPoints', 'blogDailyMax', 'blogMinChars'];
-      ['clubName', 'roomKey'].concat(NUM).forEach(k => {
-        if (b.settings && b.settings[k] !== undefined) setSetting_(k, NUM.indexOf(k) >= 0 ? Math.max(0, Math.floor(Number(b.settings[k]) || 0)) : clean_(b.settings[k], 60));
+      ['clubName', 'roomKey'].concat(NUM_SETTINGS).forEach(k => {
+        if (b.settings && b.settings[k] !== undefined) setSetting_(k, NUM_SETTINGS.indexOf(k) >= 0 ? Math.max(0, Math.floor(Number(b.settings[k]) || 0)) : clean_(b.settings[k], 60));
       });
       return { ok: true };
     }
@@ -380,9 +433,25 @@ function admin_(b) {
       return { ok: true };
     }
     case 'deleteBlog': {
-      const p = rows_('blog').find(x => x.id === b.id);
-      if (!p) throw new Error('見つかりません');
+      // 削除した記事のポイントも取り上げる
+      const p = findPost_(b.id);
+      addGuestPoints_(p.guestId, -(Number(p.points) || 0));
       sheet_('blog').deleteRow(p._row);
+      return { ok: true };
+    }
+    case 'revokeBlog': {
+      // on=true：この記事のポイントを没収（以後いいねされても増えない） / on=false：没収を取り消して計算し直す
+      const p = findPost_(b.id);
+      if (b.on) {
+        addGuestPoints_(p.guestId, -(Number(p.points) || 0));
+        setCell_('blog', p._row, 'points', 0);
+        setCell_('blog', p._row, 'revoked', 1);
+      } else {
+        const pts = Number(p.earns) === 1 ? blogPoints_(s, Number(p.chars) || 0, likesOf_(p).length) : 0;
+        addGuestPoints_(p.guestId, pts - (Number(p.points) || 0));
+        setCell_('blog', p._row, 'points', pts);
+        setCell_('blog', p._row, 'revoked', 0);
+      }
       return { ok: true };
     }
     case 'resetPassword': {

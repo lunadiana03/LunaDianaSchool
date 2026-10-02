@@ -227,7 +227,24 @@ header { text-align: center; padding: 22px 16px 6px; position: relative; }
 .post .body { margin-top: 8px; font-size: 14px; line-height: 1.85; white-space: pre-wrap; word-break: break-word; }
 .post .body.clamp { display: -webkit-box; -webkit-line-clamp: 7; -webkit-box-orient: vertical; overflow: hidden; }
 .post .more { background: none; color: var(--gold); font-size: 12.5px; padding: 6px 0 0; }
-.post .pf { margin-top: 10px; display: flex; justify-content: flex-end; }
+.post .pf { margin-top: 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.post .pf .sp { flex: 1; }
+.like { display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px 6px 10px; border-radius: 999px; background: rgba(255,126,182,.1); color: var(--rose); font-weight: 700; font-size: 13px; box-shadow: inset 0 0 0 1px rgba(255,126,182,.35); transition: transform .2s var(--ease-pop), background .2s; }
+.like .mi { font-variation-settings: 'FILL' 0; transition: transform .3s var(--ease-pop); }
+.like.on { background: linear-gradient(180deg, #ffb0d4, var(--rose)); color: #fff; box-shadow: 0 4px 12px rgba(255,126,182,.35); }
+.like.on .mi { font-variation-settings: 'FILL' 1; }
+.like.pop .mi { animation: likePop .5s var(--ease-pop); }
+@keyframes likePop { 0% { transform: scale(1); } 40% { transform: scale(1.5); } 100% { transform: scale(1); } }
+.like.ro { pointer-events: none; }
+.likers { display: flex; }
+.likers .av { margin-left: -6px; }
+.likers .av:first-child { margin-left: 0; }
+.breakdown { font-size: 11px; color: var(--mute); width: 100%; text-align: right; }
+.reward.bad { color: #fff; background: linear-gradient(180deg, #8a5a6e, #5b3346); }
+.admin-post { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,.12); flex-wrap: wrap; align-items: center; }
+.admin-post .muted { flex: 1; }
+.admin-post button { background: rgba(255,255,255,.08); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size: 12px; }
+.admin-post button.warn { background: rgba(255,126,182,.18); color: #ffc2dc; }
 .blog-note { display: flex; gap: 10px; align-items: center; font-size: 13px; color: var(--sub); }
 .blog-note .mi { color: var(--gold); font-size: 22px; }
 
@@ -433,15 +450,27 @@ footer button { background: none; color: var(--mute); font-size: 11px; }
 const API_URL = "";
 
 const DEMO = !API_URL || new URLSearchParams(location.search).has('demo');
+// 演出の段階。メニューで一番高い貢ぎ物の値段に対する割合で決まる（一番高い物は必ず LEGEND）
 const TIERS = [
   null,
-  { label: 'SWEET',    min: 0 },
-  { label: 'LOVELY',   min: 1000 },
-  { label: 'GORGEOUS', min: 5000 },
-  { label: 'LUXURY',   min: 20000 },
-  { label: 'LEGEND',   min: 50000 }
+  { label: 'SWEET',    rate: 0 },
+  { label: 'LOVELY',   rate: .015 },
+  { label: 'GORGEOUS', rate: .06 },
+  { label: 'LUXURY',   rate: .2 },
+  { label: 'LEGEND',   rate: .6 }
 ];
-function tierOf(price) { let t = 1; for (let i = 1; i < TIERS.length; i++) if (price >= TIERS[i].min) t = i; return t; }
+function topPrice() { return Math.max(1, ...((S.data && S.data.gifts) || []).map(g => g.price)); }
+function tierOf(price) {
+  if (!price) return 1;
+  const top = topPrice(); let t = 1;
+  for (let i = 1; i < TIERS.length; i++) if (price >= top * TIERS[i].rate) t = i;
+  return t;
+}
+// ブログ1記事のポイント（GASと同じ計算）
+function blogPts(st, chars, likes) {
+  if (chars < st.blogMinChars) return 0;
+  return Math.min(st.blogPostMax, Math.min(st.blogCharMax, chars * st.blogCharPoint) + Math.min(likes, st.blogLikeMax) * st.blogLikePoint);
+}
 function mi(name, cls) { return `<span class="mi${cls ? ' ' + cls : ''}">${name}</span>`; }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function fmt(n) { return Math.round(Number(n) || 0).toLocaleString('ja-JP'); }
@@ -496,11 +525,26 @@ function load(opts) {
     store.set('hc_cache', d);
     if (S.session && !d.me) { S.session = null; store.del('hc_session'); }
     detectNew(first);
+    detectLikes();
     renderAll(opts.animate || first);
     return d;
   }).catch(err => { if (!opts.silent) toast(err.message, true); });
 }
 
+// 自分の記事に付いた新しいいいねを知らせる
+let knownLikes = null;
+function detectLikes() {
+  const me = S.data.me, now = {};
+  (S.data.posts || []).forEach(p => { now[p.id] = p.likes.slice(); });
+  if (knownLikes && me?.role === 'guest') {
+    (S.data.posts || []).filter(p => p.guestId === me.id && knownLikes[p.id]).forEach(p => {
+      p.likes.filter(h => !knownLikes[p.id].includes(h)).forEach(h => {
+        toast(`${mi('favorite')}<span><b>${esc(hostById(h)?.name || '')}</b> があなたのブログにいいね${p.earns && !p.revoked ? `（+${fmt(S.data.settings.blogLikePoint)}pt）` : ''}</span>`);
+      });
+    });
+  }
+  knownLikes = now;
+}
 // 他の人の新しい貢ぎ物を見つけたら知らせる（高い物は演出も）
 function detectNew(first) {
   const list = S.data.tributes || [];
@@ -660,7 +704,7 @@ function renderHost() {
 const openPosts = new Set();
 function blogRule() {
   const st = S.data.settings;
-  return `1記事 <b class="pt">${fmt(st.blogPoints)}</b>pt（1日${fmt(st.blogDailyMax)}記事まで・${fmt(st.blogMinChars)}文字以上）`;
+  return `1日${fmt(st.blogDailyMax)}記事まで・1記事最大 <b class="pt">${fmt(st.blogPostMax)}</b>pt<br>文字数 1文字${fmt(st.blogCharPoint)}pt（最大${fmt(st.blogCharMax)}pt・${fmt(st.blogMinChars)}文字以上）＋ ホストのいいね 1つ${fmt(st.blogLikePoint)}pt（${fmt(st.blogLikeMax)}人まで）`;
 }
 function renderBlog(force) {
   const el = $('v-blog');
@@ -672,13 +716,13 @@ function renderBlog(force) {
   if (me?.role === 'guest') {
     top = `<div class="card compose">
       <div class="field"><input id="b-title" maxlength="40" placeholder="タイトル（任意）" value="${esc(draft.t)}"></div>
-      <div class="field"><textarea id="b-body" maxlength="2000" placeholder="今日のできごと、推しへの想い…">${esc(draft.b)}</textarea></div>
+      <div class="field"><textarea id="b-body" maxlength="3000" placeholder="今日のできごと、推しへの想い…">${esc(draft.b)}</textarea></div>
       <div class="meta"><span id="b-count"></span><span>${me.blogLeft > 0 ? `今日はあと <b class="pt" style="color:var(--gold3)">${me.blogLeft}</b> 記事ポイントがもらえます` : '今日のポイントはもらい済み（投稿はできます）'}</span></div>
       <button class="btn block" id="b-post">${mi('edit_note')}投稿する</button>
       <p class="muted" style="margin:10px 0 0;text-align:center">${blogRule()}</p>
     </div>`;
   } else if (me?.role === 'host') {
-    top = `<div class="card blog-note">${mi('visibility')}<span>お客様のブログです。ホストは読むだけです。</span></div>`;
+    top = `<div class="card blog-note">${mi('favorite')}<span>お客様のブログです。ホストは読んで「いいね」を付けられます。いいね1つでお客様に ${fmt(S.data.settings.blogLikePoint)}pt 入ります（1記事${fmt(S.data.settings.blogLikeMax)}人まで）。</span></div>`;
   } else {
     top = `<div class="card blog-note">${mi('edit_note')}<span>お客様としてログインすると、ブログを書いてポイントを貯められます。<br>${blogRule()}</span></div>
       <button class="btn rose block" data-go="me" style="margin-top:10px">${mi('login')}ログイン・登録</button>`;
@@ -690,26 +734,46 @@ function renderBlog(force) {
 }
 function drawPosts() {
   const box = $('posts'); if (!box) return;
-  const posts = S.data.posts || [];
-  const myId = S.data.me?.role === 'guest' ? S.data.me.id : null;
+  const posts = S.data.posts || [], st = S.data.settings, me = S.data.me;
+  const myGuest = me?.role === 'guest' ? me.id : null, myHost = me?.role === 'host' ? me.id : null;
   box.innerHTML = posts.length ? posts.map(p => {
     const g = guestById(p.guestId) || { name: '退店したお客様' };
     const long = p.body.length > 220 || p.body.split('\n').length > 7;
     const open = openPosts.has(p.id);
-    return `<article class="post">
-      <div class="ph">${avatar(g, { size: 40, noAura: true })}<div class="who"><b>${esc(g.name)} 様</b><span>${ago(p.at)}</span></div>
-        ${myId === p.guestId || S.adminData ? `<button class="del" data-delpost="${esc(p.id)}" title="削除">${mi('delete')}</button>` : ''}</div>
+    const mine = myGuest === p.guestId;
+    const liked = myHost && p.likes.includes(myHost);
+    const likers = p.likes.map(hostById).filter(Boolean);
+    const byChars = p.earns && p.chars >= st.blogMinChars ? Math.min(st.blogCharMax, p.chars * st.blogCharPoint) : 0;
+    let chip = '';
+    if (p.revoked) chip = (mine || S.adminData) ? `<span class="reward bad">${mi('block')}ポイント没収</span>` : '';
+    else if (p.points > 0) chip = `<span class="reward">${mi('paid')}+${fmt(p.points)}pt</span>`;
+    else if (mine && !p.earns) chip = `<span class="reward off">ポイント対象外</span>`;
+    return `<article class="post" data-post="${esc(p.id)}">
+      <div class="ph">${avatar(g, { size: 40, noAura: true })}<div class="who"><b>${esc(g.name)} 様</b><span>${ago(p.at)}・${fmt(p.chars)}文字</span></div>
+        ${mine ? `<button class="del" data-delpost="${esc(p.id)}" title="削除">${mi('delete')}</button>` : ''}</div>
       ${p.title ? `<h4>${esc(p.title)}</h4>` : ''}
       <div class="body${long && !open ? ' clamp' : ''}">${esc(p.body)}</div>
       ${long ? `<button class="more" data-more="${esc(p.id)}">${open ? 'たたむ' : '続きを読む'}</button>` : ''}
-      ${p.points > 0 ? `<div class="pf"><span class="reward">${mi('paid')}+${fmt(p.points)}pt</span></div>` : ''}
+      <div class="pf">
+        ${myHost && (liked || p.likes.length < st.blogLikeMax) ? `<button class="like${liked ? ' on' : ''}" data-like="${esc(p.id)}">${mi('favorite')}${liked ? 'いいね済み' : 'いいね'}<b>${p.likes.length}/${st.blogLikeMax}</b></button>`
+          : `<span class="like ro${p.likes.length >= st.blogLikeMax ? ' on' : ''}">${mi('favorite')}<b>${p.likes.length}/${st.blogLikeMax}</b></span>`}
+        <span class="likers">${likers.slice(0, 6).map(h => avatar(h, { size: 24, noAura: true })).join('')}</span>
+        <span class="sp"></span>${chip}
+        ${(mine || S.adminData) && p.earns && !p.revoked ? `<span class="breakdown">文字 ${fmt(byChars)}pt ＋ いいね ${Math.min(p.likes.length, st.blogLikeMax)}×${fmt(st.blogLikePoint)}pt（上限 ${fmt(st.blogPostMax)}pt）</span>` : ''}
+      </div>
+      ${S.adminData ? `<div class="admin-post"><span class="muted">${mi('shield_person')} 管理</span>
+        ${p.revoked ? `<button data-revoke="${esc(p.id)}" data-on="0">${mi('undo')} 没収を取り消す</button>`
+          : `<button class="warn" data-revoke="${esc(p.id)}" data-on="1">${mi('block')} ポイント没収</button>`}
+        <button class="warn" data-delpost="${esc(p.id)}">${mi('delete')} 削除</button></div>` : ''}
     </article>`;
   }).join('') : '<div class="empty">まだ記事はありません</div>';
 }
 function updateCount() {
   const b = $('b-body'), c = $('b-count'); if (!b || !c) return;
-  const n = b.value.replace(/\s/g, '').length, min = S.data.settings.blogMinChars;
-  c.innerHTML = n >= min ? `<span class="ok">${mi('check_circle')} ${n}文字</span>` : `${n}文字（あと${min - n}文字でポイント対象）`;
+  const st = S.data.settings, n = b.value.replace(/\s/g, '').length, min = st.blogMinChars;
+  const full = Math.ceil(st.blogCharMax / Math.max(1, st.blogCharPoint));
+  c.innerHTML = n < min ? `${n}文字（あと${min - n}文字でポイント対象）`
+    : `<span class="ok">${mi('check_circle')} ${n}文字 → ${fmt(blogPts(st, n, 0))}pt</span>${n < full ? `<br>あと${full - n}文字で文字数ポイント満タン` : '<br>文字数ポイント満タン'}`;
 }
 function postBlog() {
   const body = $('b-body').value.trim();
@@ -719,7 +783,7 @@ function postBlog() {
     .then(r => {
       loading(false);
       $('b-title').value = ''; $('b-body').value = '';
-      if (r.earned > 0) playFx({ price: 0, icon: 'edit_note', giftName: `+${fmt(r.earned)}pt`, label: 'BLOG BONUS', line: 'ブログ更新ありがとうございます' });
+      if (r.earned > 0) playFx({ price: 0, icon: 'edit_note', giftName: `+${fmt(r.earned)}pt`, label: 'BLOG BONUS', line: 'ホストからいいねが付くと、さらにポイントが増えます' });
       else toast(`${mi('check_circle')}<span>投稿しました（今回はポイントなし）</span>`);
       document.activeElement && document.activeElement.blur();
       return load();
@@ -727,8 +791,21 @@ function postBlog() {
     .then(() => renderBlog(true))
     .catch(err => { loading(false); toast(err.message, true); });
 }
+function likePost(id, btn) {
+  btn.classList.add('pop');
+  api('likeBlog', Object.assign(authBody(), { id }))
+    .then(r => { if (r.liked) toast(`${mi('favorite')}<span>いいねしました</span>`); return load(); })
+    .catch(err => toast(err.message, true));
+}
+function revokePost(id, on) {
+  if (on && !confirm('この記事のポイントを没収しますか？\nお客様の所持ポイントから、この記事でもらった分が引かれます。')) return;
+  loading(true);
+  api('admin', { adminPassword: S.adminPass, op: 'revokeBlog', id, on })
+    .then(() => load()).then(() => { loading(false); toast(`${mi(on ? 'block' : 'undo')}<span>${on ? 'ポイントを没収しました' : '没収を取り消しました'}</span>`); })
+    .catch(err => { loading(false); toast(err.message, true); });
+}
 function deletePost(id) {
-  if (!confirm('この記事を削除しますか？（もらったポイントはそのままです）')) return;
+  if (!confirm('この記事を削除しますか？\nこの記事でもらったポイントも取り消されます。')) return;
   const p = S.adminData ? api('admin', { adminPassword: S.adminPass, op: 'deleteBlog', id }) : api('deleteBlog', Object.assign(authBody(), { id }));
   loading(true);
   p.then(() => load()).then(() => { loading(false); toast(`${mi('delete')}<span>削除しました</span>`); })
@@ -1104,16 +1181,21 @@ function renderAdmin() {
     <div class="card">
       <div class="field"><label>お店の名前</label><input id="a-club" value="${esc(s.clubName)}"></div>
       <div class="field"><label>登録時にもらえるポイント</label><input id="a-init" type="number" min="0" value="${esc(s.initialPoints)}"></div>
-      <div class="field"><label>ブログ1記事でもらえるポイント</label><input id="a-bpts" type="number" min="0" value="${esc(s.blogPoints)}"></div>
       <div class="field"><label>ブログでポイントがもらえるのは1日何記事まで</label><input id="a-bmax" type="number" min="0" value="${esc(s.blogDailyMax)}"></div>
+      <div class="field"><label>1記事でもらえるポイントの上限（文字数＋いいね）</label><input id="a-bpmax" type="number" min="0" value="${esc(s.blogPostMax)}"></div>
+      <div class="field"><label>1文字あたりのポイント</label><input id="a-bcp" type="number" min="0" value="${esc(s.blogCharPoint)}"></div>
+      <div class="field"><label>文字数でもらえるポイントの上限</label><input id="a-bcmax" type="number" min="0" value="${esc(s.blogCharMax)}"></div>
+      <div class="field"><label>ホストのいいね1つのポイント</label><input id="a-blp" type="number" min="0" value="${esc(s.blogLikePoint)}"></div>
+      <div class="field"><label>1記事にいいねできるのは何人まで</label><input id="a-blmax" type="number" min="0" value="${esc(s.blogLikeMax)}"></div>
       <div class="field"><label>ポイント対象になる最低文字数</label><input id="a-bmin" type="number" min="0" value="${esc(s.blogMinChars)}"></div>
+      <p class="muted" id="a-calc" style="margin:-2px 0 12px"></p>
       <div class="field"><label>毎日のボーナス（0でなし）</label><input id="a-bonus" type="number" min="0" value="${esc(s.dailyBonus)}"></div>
       <div class="field"><label>登録の合言葉（空なら誰でも登録できる）</label><input id="a-key" value="${esc(s.roomKey)}"></div>
       <button class="btn block" id="a-save-settings">${mi('check')}設定を保存</button>
     </div>
     <div class="heading"><span class="en">MENU</span><span class="ja">貢ぎ物メニュー</span></div>
     <div class="card">
-      <p class="muted" style="margin:0 0 10px">アイコンは Material Symbols の名前（例：wine_bar, diamond, local_florist）。値段で演出の豪華さが自動で決まります：〜999 SWEET / 1,000〜 LOVELY / 5,000〜 GORGEOUS / 20,000〜 LUXURY / 50,000〜 LEGEND</p>
+      <p class="muted" style="margin:0 0 10px">アイコンは Material Symbols の名前（例：wine_bar, diamond, local_florist）。演出の豪華さは、一番高い貢ぎ物に対する値段の割合で自動で決まります（60%以上 LEGEND / 20%〜 LUXURY / 6%〜 GORGEOUS / 1.5%〜 LOVELY / それ未満 SWEET）。</p>
       <div id="a-gifts">${(S.data.gifts || []).map(adminGiftRow).join('')}</div>
       <div style="display:flex;gap:8px;margin-top:8px">
         <button class="btn ghost" id="a-add-gift" style="flex:1">${mi('add')}追加</button>
@@ -1133,8 +1215,10 @@ function renderAdmin() {
       <div class="muted" style="margin-top:14px">お客様</div>
       ${a.guests.map(g => adminUserRow('guest', g.id, g.name)).join('') || '<div class="empty">なし</div>'}
     </div>
-    <p class="muted" style="text-align:center;margin-top:16px">管理画面に入っている間は、ブログの記事を削除できます</p>
+    <p class="muted" style="text-align:center;margin-top:16px">管理画面に入っている間は、ブログの各記事に「ポイント没収」「削除」ボタンが出ます</p>
+    <p style="text-align:center;margin-top:8px"><button class="btn rose" data-go="blog">${mi('edit_note')}ブログを確認する</button></p>
     <p style="text-align:center;margin-top:12px"><button class="btn ghost" id="a-exit">${mi('logout')}管理画面を出る</button></p>`;
+  adminCalc();
 }
 function adminGiftRow(g) {
   g = g || { id: '', name: '', price: 1000, icon: 'redeem' };
@@ -1197,7 +1281,8 @@ document.addEventListener('click', e => {
     case 'a-exit': S.adminPass = null; S.adminData = null; go('rank'); break;
     case 'a-save-settings':
       adminCall('saveSettings', { settings: { clubName: $('a-club').value, initialPoints: $('a-init').value, dailyBonus: $('a-bonus').value, roomKey: $('a-key').value,
-        blogPoints: $('a-bpts').value, blogDailyMax: $('a-bmax').value, blogMinChars: $('a-bmin').value } })
+        blogDailyMax: $('a-bmax').value, blogPostMax: $('a-bpmax').value, blogCharPoint: $('a-bcp').value, blogCharMax: $('a-bcmax').value,
+        blogLikePoint: $('a-blp').value, blogLikeMax: $('a-blmax').value, blogMinChars: $('a-bmin').value } })
         .then(() => { toast(`${mi('check_circle')}<span>保存しました</span>`); return adminRefresh(); }).catch(() => {});
       break;
     case 'a-add-gift': $('a-gifts').insertAdjacentHTML('beforeend', adminGiftRow()); break;
@@ -1213,6 +1298,8 @@ document.addEventListener('click', e => {
   }
   if (t.hasAttribute('data-del-gift')) t.closest('.admin-gift').remove();
   if (t.dataset.delpost) deletePost(t.dataset.delpost);
+  if (t.dataset.like) likePost(t.dataset.like, t);
+  if (t.dataset.revoke) revokePost(t.dataset.revoke, t.dataset.on === '1');
   if (t.dataset.more) { const id = t.dataset.more; openPosts.has(id) ? openPosts.delete(id) : openPosts.add(id); drawPosts(); }
   if (t.dataset.deluser) {
     const [role, id] = t.dataset.deluser.split(':');
@@ -1229,8 +1316,18 @@ document.addEventListener('click', e => {
   if (r) { authRole = r.dataset.r; renderMe(); }
 });
 $('sheet-bg').addEventListener('click', closeSheet);
+function adminCalc() {
+  const v = id => Number($(id)?.value) || 0, c = $('a-calc'); if (!c) return;
+  const likesNeeded = v('a-blp') ? Math.ceil(Math.max(0, v('a-bpmax') - v('a-bcmax')) / v('a-blp')) : 0;
+  const reach = Math.min(v('a-bpmax'), v('a-bcmax') + v('a-blmax') * v('a-blp'));
+  const perDay = v('a-bmax') * reach, top = topPrice();
+  c.innerHTML = `満額の条件：${fmt(Math.ceil(v('a-bcmax') / Math.max(1, v('a-bcp'))))}文字 ＋ いいね${likesNeeded}人`
+    + (reach < v('a-bpmax') ? `<br><span style="color:var(--rose)">いいねが${fmt(v('a-blmax'))}人まででは上限に届きません（最大 ${fmt(reach)}pt）</span>` : '') + `<br>`;
+  c.innerHTML += `1日の最大 ${fmt(perDay)}pt → 一番高い貢ぎ物（${fmt(top)}pt）まで最短 <b>${perDay ? Math.ceil(top / perDay) : '―'}日</b>`;
+}
 document.addEventListener('input', e => {
   if (e.target.id === 'b-body') updateCount();
+  if (e.target.closest('#v-admin')) adminCalc();
   const row = e.target.closest('.admin-gift');
   if (row) row.querySelector('.a-prev').innerHTML = giftIcon(row.querySelector('.a-icon').value, Number(row.querySelector('.a-price').value) || 0);
 });
@@ -1269,15 +1366,16 @@ const Demo = (function () {
   const now = Date.now(), hr = 3600e3;
   const iso = ms => new Date(ms).toISOString();
   function seed() {
+    const settings = { clubName: 'CLUB NOCTURNE', initialPoints: 0, dailyBonus: 0, roomKey: '', adminPassword: 'admin',
+      blogDailyMax: 5, blogMinChars: 50, blogCharPoint: 20, blogCharMax: 15000, blogLikePoint: 500, blogLikeMax: 30, blogPostMax: 30000 };
     const hosts = [
       ['h1', 'レイ', '今夜、君だけの王子様'], ['h2', '朔夜', '月が綺麗ですね'], ['h3', 'カイト', '笑顔にする担当'],
       ['h4', 'シオン', 'キミの癒やし系'], ['h5', '蒼真', '本気で惚れさせる'], ['h6', 'ユウリ', '新人です、育ててください']
     ].map(([id, name, c]) => ({ id, name, icon: '', catch: c, pass: '1234', token: 'tok-' + id }));
-    const guests = [['c1', 'ひめ'], ['c2', 'みるく'], ['c3', 'あげは'], ['c4', 'るな']].map(([id, name]) => ({ id, name, icon: '', points: 80000, pass: '1234', token: 'tok-' + id, lastBonus: '' }));
+    const guests = [['c1', 'ひめ'], ['c2', 'みるく'], ['c3', 'あげは'], ['c4', 'るな']].map(([id, name]) => ({ id, name, icon: '', points: 200000, pass: '1234', token: 'tok-' + id, lastBonus: '' }));
     const gifts = [
-      ['g1', 'ドリンク', 300, 'local_bar'], ['g2', '指名', 500, 'favorite'], ['g3', '花束', 1000, 'local_florist'], ['g4', 'ケーキ', 2000, 'cake'],
-      ['g5', 'シャンパン', 5000, 'wine_bar'], ['g6', 'ブランド時計', 10000, 'watch'], ['g7', 'ドンペリ', 20000, 'liquor'],
-      ['g8', 'シャンパンタワー', 50000, 'celebration'], ['g9', '高級車', 100000, 'directions_car']
+      ['g1', 'ドリンク', 1000, 'local_bar'], ['g2', '指名', 3000, 'favorite'], ['g3', '花束', 8000, 'local_florist'], ['g4', 'ケーキ', 15000, 'cake'],
+      ['g5', 'ボトル', 30000, 'liquor'], ['g6', 'ブランド時計', 80000, 'watch'], ['g7', '高級ボトル', 150000, 'wine_bar'], ['g8', 'シャンパン', 450000, 'celebration']
     ].map(([id, name, price, icon]) => ({ id, name, price, icon }));
     const plan = [['c1', 'h1', 'g8', 30], ['c2', 'h2', 'g7', 20], ['c3', 'h1', 'g5', 18], ['c1', 'h3', 'g6', 14], ['c4', 'h2', 'g5', 10], ['c2', 'h4', 'g4', 8],
       ['c3', 'h5', 'g3', 6], ['c4', 'h1', 'g7', 5], ['c1', 'h2', 'g6', 3], ['c3', 'h3', 'g4', 2], ['c2', 'h6', 'g1', 1.2], ['c4', 'h4', 'g5', .5], ['c1', 'h1', 'g7', .2]];
@@ -1289,22 +1387,25 @@ const Demo = (function () {
       ['c1', 6, 'レイくんに会えた日', '今日はレイくんの誕生日イベント。\nシャンパンタワーを入れたら、ありがとうって頭をぽんってしてくれた。\nもう一生ついていきます。来月も絶対No.1にするからね。'],
       ['c2', 20, '', '朔夜さんの「月が綺麗ですね」に毎回やられる。今日はドンペリ入れちゃった。財布は軽いけど心は満タン。'],
       ['c3', 30, '初めてのお店', 'お友だちに連れられて初来店。カイトくんがずっと笑わせてくれて、気づいたら閉店まで居ました。また行きます！']
-    ].map(([g, h, title, body], i) => ({ id: 'b' + i, at: iso(now - h * hr), guestId: g, title, body, points: 3000 }));
-    return { settings: { clubName: 'CLUB NOCTURNE', initialPoints: 10000, dailyBonus: 0, roomKey: '', adminPassword: 'admin', blogPoints: 3000, blogDailyMax: 3, blogMinChars: 50 }, hosts, guests, gifts, tributes, posts };
+    ].map(([g, h, title, body], i) => {
+      const chars = body.replace(/\s/g, '').length, likes = [['h1', 'h3'], ['h2'], []][i];
+      return { id: 'b' + i, at: iso(now - h * hr), guestId: g, title, body, chars, earns: true, likes, revoked: false, points: blogPts(settings, chars, likes.length) };
+    });
+    return { settings, hosts, guests, gifts, tributes, posts };
   }
   let db = store.get(KEY);
-  if (!db || !db.posts) db = seed();
+  if (!db || !db.settings.blogLikeMax) db = seed();
   const save = () => store.set(KEY, db);
   const month = d => { const x = new Date(d); return x.getFullYear() + '-' + (x.getMonth() + 1); };
   const day = d => new Date(d).toDateString();
   const fail = m => Promise.reject(new Error(m));
   const roleList = r => r === 'host' ? db.hosts : db.guests;
   const meOf = b => b.token && roleList(b.role).find(u => u.token === b.token);
+  const addPts = (gid, d) => { const g = db.guests.find(x => x.id === gid); if (g) g.points = Math.max(0, g.points + d); };
   function readAll(b) {
     const m = month(Date.now()), dayAgo = Date.now() - 24 * hr;
     const out = {
-      settings: { clubName: db.settings.clubName, initialPoints: db.settings.initialPoints, dailyBonus: db.settings.dailyBonus, needsKey: !!db.settings.roomKey,
-                  blogPoints: db.settings.blogPoints, blogDailyMax: db.settings.blogDailyMax, blogMinChars: db.settings.blogMinChars },
+      settings: Object.assign({}, db.settings, { needsKey: !!db.settings.roomKey, roomKey: undefined, adminPassword: undefined }),
       posts: db.posts.slice(-100).reverse(),
       gifts: db.gifts.slice().sort((a, b) => a.price - b.price),
       hosts: db.hosts.map(h => {
@@ -1363,18 +1464,26 @@ const Demo = (function () {
         }
         case 'postBlog': {
           const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('お客様としてログインしてください');
-          const body = String(b.body || '').trim().slice(0, 2000); if (!body) return fail('本文を書いてください');
+          const st = db.settings, body = String(b.body || '').trim().slice(0, 3000); if (!body) return fail('本文を書いてください');
           const used = u.blogDay === day(Date.now()) ? u.blogCount || 0 : 0, chars = body.replace(/\s/g, '').length;
-          const points = used < db.settings.blogDailyMax && chars >= db.settings.blogMinChars ? db.settings.blogPoints : 0;
-          const post = { id: 'b' + Date.now(), at: iso(Date.now()), guestId: u.id, title: String(b.title || '').slice(0, 40), body, points };
-          db.posts.push(post);
-          if (points) { u.points += points; u.blogDay = day(Date.now()); u.blogCount = used + 1; }
-          save(); return { post, earned: points };
+          const earns = used < st.blogDailyMax && chars >= st.blogMinChars, points = earns ? blogPts(st, chars, 0) : 0;
+          db.posts.push({ id: 'b' + Date.now(), at: iso(Date.now()), guestId: u.id, title: String(b.title || '').slice(0, 40), body, chars, earns, likes: [], revoked: false, points });
+          if (earns) { u.points += points; u.blogDay = day(Date.now()); u.blogCount = used + 1; }
+          save(); return { earned: points, earns };
+        }
+        case 'likeBlog': {
+          const u = meOf(Object.assign({}, b, { role: 'host' })); if (!u) return fail('ホストとしてログインしてください');
+          const p = db.posts.find(x => x.id === b.id); if (!p) return fail('記事が見つかりません');
+          const on = !p.likes.includes(u.id);
+          if (on && p.likes.length >= db.settings.blogLikeMax) return fail(`この記事のいいねは${db.settings.blogLikeMax}人までです`);
+          p.likes = on ? p.likes.concat([u.id]) : p.likes.filter(x => x !== u.id);
+          if (p.earns && !p.revoked) { const pts = blogPts(db.settings, p.chars, p.likes.length); addPts(p.guestId, pts - p.points); p.points = pts; }
+          save(); return { liked: on };
         }
         case 'deleteBlog': {
           const u = meOf(Object.assign({}, b, { role: 'guest' })), i = db.posts.findIndex(p => p.id === b.id);
           if (!u || i < 0 || db.posts[i].guestId !== u.id) return fail('この記事は消せません');
-          db.posts.splice(i, 1); save(); return { ok: true };
+          addPts(u.id, -db.posts[i].points); db.posts.splice(i, 1); save(); return { ok: true };
         }
         case 'tribute': {
           const u = meOf(Object.assign({}, b, { role: 'guest' })); if (!u) return fail('ログインし直してください');
@@ -1388,8 +1497,12 @@ const Demo = (function () {
         case 'admin': {
           if (b.adminPassword !== db.settings.adminPassword) return fail('管理パスワードがちがいます（デモは admin）');
           if (b.op === 'check') return { settings: db.settings, guests: db.guests.map(g => ({ id: g.id, name: g.name, points: g.points })) };
-          if (b.op === 'saveSettings') { const x = b.settings; Object.assign(db.settings, { clubName: x.clubName, initialPoints: +x.initialPoints, dailyBonus: +x.dailyBonus, roomKey: x.roomKey, blogPoints: +x.blogPoints, blogDailyMax: +x.blogDailyMax, blogMinChars: +x.blogMinChars }); }
-          if (b.op === 'deleteBlog') { const i = db.posts.findIndex(p => p.id === b.id); if (i >= 0) db.posts.splice(i, 1); }
+          if (b.op === 'saveSettings') { const x = b.settings; Object.keys(x).forEach(k => { db.settings[k] = k === 'clubName' || k === 'roomKey' ? x[k] : Math.max(0, +x[k] | 0); }); }
+          if (b.op === 'deleteBlog') { const i = db.posts.findIndex(p => p.id === b.id); if (i >= 0) { addPts(db.posts[i].guestId, -db.posts[i].points); db.posts.splice(i, 1); } }
+          if (b.op === 'revokeBlog') {
+            const p = db.posts.find(x => x.id === b.id);
+            if (p) { const pts = b.on ? 0 : (p.earns ? blogPts(db.settings, p.chars, p.likes.length) : 0); addPts(p.guestId, pts - p.points); p.points = pts; p.revoked = !!b.on; }
+          }
           if (b.op === 'saveGifts') db.gifts = b.gifts.filter(g => g.name).map((g, i) => ({ id: g.id || 'g' + Date.now() + i, name: g.name, price: Math.max(1, +g.price | 0), icon: g.icon || 'redeem' }));
           if (b.op === 'givePoints') db.guests.filter(g => b.guestId === 'all' || g.id === b.guestId).forEach(g => g.points = Math.max(0, g.points + (+b.amount | 0)));
           if (b.op === 'deleteUser') { const l = roleList(b.role); l.splice(l.findIndex(u => u.id === b.id), 1); }
