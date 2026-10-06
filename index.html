@@ -1182,6 +1182,15 @@ button:disabled { background:#eee4e8; color:#b3a3aa; box-shadow: inset 0 0 0 2px
 .member-admin-btns button { margin:0; font-size:.82em; padding:8px 6px; }
 .member-admin-danger { width:100%; margin:12px 0 0; background:#fff; color:#e5484d; box-shadow:0 0 0 1.5px #ffb3b8; font-size:.82em; }
 /* ---- メンバー管理一覧（管理画面） ---- */
+.mbulk-bar { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.mbulk-hint { flex:1; font-size:.72em; color:#9a6a82; }
+.mbulk-n { flex:1; text-align:center; font-size:.8em; font-weight:700; color:var(--ak-mag); }
+.mbulk-check { flex:none; color:#d39ab9; display:flex; }
+.mbulk-item.on { box-shadow:0 0 0 2px #e5484d; background:#fff5f6; }
+.mbulk-item.on .mbulk-check { color:#e5484d; }
+.mbulk-del { position:sticky; bottom:8px; box-shadow:0 0 0 1.5px #ffb3b8, 0 4px 12px rgba(229,72,77,.2); }
+.mbulk-del:not(:disabled) { background:#e5484d; color:#fff; }
+.mbulk-del:disabled { opacity:.5; }
 .member-admin-item { width:100%; display:flex; align-items:center; gap:8px; margin:0 0 6px; padding:6px 10px; background:#fff; color:var(--ak-ink); border-radius:14px; box-shadow:0 0 0 1.5px #ffd0e7; text-align:left; }
 .member-admin-item .nm { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .member-admin-item .ps { display:flex; gap:4px; font-size:.8em; }
@@ -6350,10 +6359,55 @@ state.members.forEach(m => {
         con.style.display = open ? 'block' : 'none'; arrow.innerText = open ? '▼' : '▶';
         if (open) renderMemberAdminList();
     }
+    // まとめて選んで削除するためのモード
+    let memberSelectMode = false, memberSelected = new Set(), memberBulkBusy = false;
+    function toggleMemberSelectMode() { memberSelectMode = !memberSelectMode; memberSelected.clear(); renderMemberAdminList(); }
+    function toggleMemberSelect(id) { if (memberSelected.has(id)) memberSelected.delete(id); else memberSelected.add(id); renderMemberAdminList(); }
+    function selectAllMembers(on) { memberSelected = new Set(on ? state.members.map(m => m.id) : []); renderMemberAdminList(); }
+    function bulkDeleteMembers() {
+        if (!state.isAdmin || memberBulkBusy) return;
+        const targets = state.members.filter(m => memberSelected.has(m.id));
+        if (!targets.length) return;
+        const names = targets.map(m => '・' + m.name).join('\n');
+        if (!confirm(`【警告】次の${targets.length}人を学園名簿から削除しますか？\n\n${names}`)) return;
+        if (!confirm(`本当に本当によろしいですか？（${targets.length}人分、取り消せません）`)) return;
+        memberBulkBusy = true;
+        const loading = document.getElementById('loading'); const loadingHtml = loading.innerHTML; loading.style.display = 'flex';
+        let done = 0, failed = [];
+        const next = i => {
+            if (i >= targets.length) {
+                memberBulkBusy = false; memberSelectMode = false; memberSelected.clear(); loading.innerHTML = loadingHtml;
+                if (targets.some(m => m.name === user)) { user = ''; localStorage.removeItem('lesson_user_v21'); }
+                fetchAllData();
+                alert(failed.length ? `${done}人を削除しました。\n削除できなかった人：${failed.join('、')}` : `${done}人を削除しました。`);
+                return;
+            }
+            const m = targets[i];
+            loading.innerHTML = `${mi('auto_awesome')}削除中… ${i + 1}/${targets.length}`;
+            // 1人ずつ順番に消す（同時に送ると行の位置がずれるため）
+            letterJsonp({ action: 'deleteMember', id: m.id }, r => {
+                if (r && r.status === 'DELETED') done++; else failed.push(m.name);
+                next(i + 1);
+            });
+        };
+        next(0);
+    }
     function renderMemberAdminList() {
         const con = document.getElementById('member-admin-con'); if (!con || con.style.display === 'none') return;
         if (!state.members.length) { con.innerHTML = '<div class="gain-empty">メンバーがいません</div>'; return; }
-        con.innerHTML = state.members.map(m => `<button type="button" class="member-admin-item" onclick="openMemberProfile('${m.id}')">
+        const tools = memberSelectMode
+            ? `<div class="mbulk-bar"><button type="button" class="adm-mini" onclick="selectAllMembers(${memberSelected.size < state.members.length})">${memberSelected.size < state.members.length ? '全員選ぶ' : '選択を外す'}</button><span class="mbulk-n">${memberSelected.size}人を選択中</span><button type="button" class="adm-mini" onclick="toggleMemberSelectMode()">やめる</button></div>`
+            : `<div class="mbulk-bar"><span class="mbulk-hint">名前を押すとプロフィール（ポイント変更など）</span><button type="button" class="adm-mini" onclick="toggleMemberSelectMode()">${mi('checklist')}まとめて選ぶ</button></div>`;
+        const del = memberSelectMode ? `<button type="button" class="member-admin-danger mbulk-del" onclick="bulkDeleteMembers()" ${memberSelected.size ? '' : 'disabled'}>${mi('person_remove')}選んだ${memberSelected.size}人の在籍を削除</button>` : '';
+        if (memberSelectMode) {
+            con.innerHTML = tools + state.members.map(m => `<button type="button" class="member-admin-item mbulk-item${memberSelected.has(m.id) ? ' on' : ''}" onclick="toggleMemberSelect('${m.id}')">
+            <span class="mbulk-check">${mi(memberSelected.has(m.id) ? 'check_box' : 'check_box_outline_blank', 'mi-solo')}</span>
+            <span class="ic">${getIconHtml(m.icon, '32px')}</span>
+            <span class="nm">${escapeHtml(m.name)}</span>
+            <span class="ps"><span class="vo">${m.p.vo || 0}</span><span class="pl">${m.p.pl || 0}</span><span class="da">${m.p.da || 0}</span><span class="vi">${m.p.vi || 0}</span></span></button>`).join('') + del;
+            return;
+        }
+        con.innerHTML = tools + state.members.map(m => `<button type="button" class="member-admin-item" onclick="openMemberProfile('${m.id}')">
             <span class="ic">${getIconHtml(m.icon, '32px')}</span>
             <span class="nm">${escapeHtml(m.name)}</span>
             <span class="ps"><span class="vo">${m.p.vo || 0}</span><span class="pl">${m.p.pl || 0}</span><span class="da">${m.p.da || 0}</span><span class="vi">${m.p.vi || 0}</span></span>
