@@ -1831,7 +1831,7 @@ html { -webkit-tap-highlight-color: transparent; }
     const MASCOTS = [
     { id: 'mascot1', name: 'ツキミィ', img: 'mascot1.png', runFrames: ['mascot1_run1.png','mascot1_run2.png'], climbImg: 'mascot1_climb.png', musicImg: null, kintoreImg: null, happyImg: 'mascot1_happy.png', happyVideo: 'mascot1_happy.mp4', available: true },
     { id: 'mascot2', name: 'ヒナタン', img: 'mascot2.png', runFrames: ['mascot2_run1.png','mascot2_run2.png'], climbImg: 'mascot2_climb.png', musicImg: null, kintoreImg: null, happyImg: 'mascot2_happy.png', happyVideo: 'mascot2_happy.mp4', available: true },
-    { id: 'mascot3', name: 'スターリア', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png'], climbImg: 'mascot3_climb.png', musicImg: null, kintoreImg: null, happyImg: 'mascot3_happy.png', happyVideo: 'mascot3_happy.mp4', available: true },
+    { id: 'mascot3', name: 'スターリア', img: 'mascot3.png', runFrames: ['mascot3_run1.png','mascot3_run2.png'], climbImg: 'mascot3_climb.png', musicImg: null, kintoreImg: null, happyImg: 'mascot3_happy.png', happyVideo: 'mascot3_happy.mp4', trampolineAppealImg: 'mascot3_trampoline_appeal.png', available: true },
     { id: 'mascot4', name: 'ヨルル', img: 'mascot4.png', runFrames: ['mascot4_run1.png','mascot4_run2.png'], climbImg: 'mascot4_climb.png', musicImg: null, kintoreImg: null, happyImg: 'mascot4_happy.png', happyVideo: 'mascot4_happy.mp4', available: true }
     ];
       const SUITS = {
@@ -5416,7 +5416,7 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         document.getElementById('trampoline-start-btn').style.display = 'none';
         document.getElementById('trampoline-result').innerHTML = '';
         document.getElementById('trampoline-result').style.display = 'none';
-        loadSprites(trampolineSpinFrames((MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]));
+        { const tms = (MASCOTS.find(x => x.id === me.mascotId)) || MASCOTS[0]; loadSprites(trampolineSpinFrames(tms).concat(tms.trampolineAppealImg ? [tms.trampolineAppealImg] : [])); }
         trampolineCountdown(me);
     }
     function trampolineCountdown(me) {
@@ -5622,7 +5622,9 @@ document.getElementById('view-lesson-menu').classList.toggle('active', view === 
         trampoline.ascendTimer = setTimeout(() => {
             if (!trampoline.active) return;
             clearInterval(trampoline.spinInterval);
-            charImg.src = spriteReady[ms.img] || ms.img;
+            // 最後のアピール：専用ポーズ画像があればそれを使う
+            const appeal = ms.trampolineAppealImg;
+            charImg.src = (appeal && spriteReady[appeal]) || spriteReady[ms.img] || ms.img;
             track.classList.remove('tramp-flying');
             // 決めポーズは中央で
             char.style.transition = 'none';
